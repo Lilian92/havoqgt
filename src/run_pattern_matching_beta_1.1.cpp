@@ -90,7 +90,8 @@ void usage()  {
       << " -i <string>   - input graph base filename (required)\n"
       << " -b <string>   - backup graph base filename. If set, \"input\" graph will be deleted if it exists\n"
       << " -v <string>   - vertex metadata base filename (optional, Default is degree based metadata)\n"
-      << " -e <string>   - edge metadata base filename (optional)\n" 
+      << " -c <bool>     - enable edge matching\n"
+      << " -e <string>   - edge metadata base filename (optional, Default is uniformly random)\n"
       << " -p <string>   - pattern base directory (required)\n"
       << " -o <string>   - output base directory (required)\n"
       //<< " -x <int>      - Token Passing batch size (optional, Default/max batch size is " 
@@ -104,6 +105,7 @@ void usage()  {
 
 void parse_cmd_line(int argc, char** argv, std::string& graph_input, 
   std::string& backup_graph_input, std::string& vertex_metadata_input, 
+  bool&        enable_edge_matching,
   std::string& edge_metadata_input, std::string& pattern_input, 
   std::string& result_output, uint64_t& tp_vertex_batch_size) {
 
@@ -117,11 +119,12 @@ void parse_cmd_line(int argc, char** argv, std::string& graph_input,
   }
 
   bool print_help = false;
+  enable_edge_matching = false;
   std::bitset<3> required_input;
   required_input.reset();
 
   char c;
-  while ((c = getopt(argc, argv, "i:b:v:e:p:o:x:h ")) != -1) {
+  while ((c = getopt(argc, argv, "i:b:v:c:e:p:o:x:h ")) != -1) {
     switch (c) {
       case 'h' :  
         print_help = true;
@@ -135,6 +138,9 @@ void parse_cmd_line(int argc, char** argv, std::string& graph_input,
         break;			
       case 'v' :
         vertex_metadata_input = optarg;
+        break;
+      case 'c':
+        enable_edge_matching = true;
         break;
       case 'e' :
         edge_metadata_input = optarg;
@@ -213,6 +219,7 @@ int main(int argc, char** argv) {
   std::string graph_input;
   std::string backup_graph_input;
   std::string vertex_metadata_input;
+  bool        enable_edge_matching;
   std::string edge_metadata_input;
   std::string pattern_input;
   std::string result_output;  
@@ -220,7 +227,7 @@ int main(int argc, char** argv) {
   uint64_t tp_vertex_batch_size = comm_world().size();
 
   parse_cmd_line(argc, argv, graph_input, backup_graph_input, 
-    vertex_metadata_input, edge_metadata_input, pattern_input, result_output, 
+    vertex_metadata_input, enable_edge_matching, edge_metadata_input, pattern_input, result_output, 
     tp_vertex_batch_size); 
 
   std::string pattern_dir = pattern_input; 
