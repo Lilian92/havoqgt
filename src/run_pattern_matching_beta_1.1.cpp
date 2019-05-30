@@ -263,9 +263,11 @@ int main(int argc, char** argv) {
   assert(graph != nullptr);
 
   // edge data
-  //if (mpi_rank == 0) {
-    //std::cout << "Loading / Initializing Edge Data ... " << std::endl;
-  //}
+  if (enable_edge_matching) {
+      if (mpi_rank == 0) {
+          std::cout << "Loading / Initializing Edge Data ... " << std::endl;
+      }
+  }
 
   typedef uint8_t edge_data_type; 
   // TODO: figure out a way to get it from graph_type
@@ -276,7 +278,8 @@ int main(int argc, char** argv) {
 
   edge_data_t* edge_data_ptr = ddb.get_segment_manager()->
     find<edge_data_t>("graph_edge_data_obj").first;
-//  assert(edge_data_ptr != nullptr); 
+  if (enable_edge_matching)
+      assert(edge_data_ptr != nullptr);
 
   MPI_Barrier(MPI_COMM_WORLD);
   if (mpi_rank == 0) {
