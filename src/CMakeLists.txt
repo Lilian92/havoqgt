@@ -13,6 +13,7 @@ endfunction()
 
 add_exe( generate_rmat )
 add_exe( generate_rmat_edge_list )
+add_exe( generate_vertex_data )
 add_exe( ingest_edge_list )
 add_exe( ingest_kronecker )
 add_exe( run_bfs )
