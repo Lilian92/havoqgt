@@ -90,6 +90,9 @@ void usage()  {
       << " -i <string>   - input graph base filename (required)\n"
       << " -b <string>   - backup graph base filename. If set, \"input\" graph will be deleted if it exists\n"
       << " -v <string>   - vertex metadata base filename (optional, Default is degree based metadata)\n"
+      << " -u <int>      - vertex metadata random unifom within in range [0, x) (optional.\
+                           Default value is 0, meaning not using uniform random vertex metadata generator)\n"
+      << " -s <int>      - random seeds (optional. Default value is 10)\n"
       << " -e <string>   - edge metadata base filename (optional)\n" 
       << " -p <string>   - pattern base directory (required)\n"
       << " -o <string>   - output base directory (required)\n"
@@ -104,6 +107,7 @@ void usage()  {
 
 void parse_cmd_line(int argc, char** argv, std::string& graph_input, 
   std::string& backup_graph_input, std::string& vertex_metadata_input, 
+  int& uniform_random_vertex_metadata,
   std::string& edge_metadata_input, std::string& pattern_input, 
   std::string& result_output, uint64_t& tp_vertex_batch_size) {
 
@@ -117,11 +121,13 @@ void parse_cmd_line(int argc, char** argv, std::string& graph_input,
   }
 
   bool print_help = false;
+  uniform_random_vertex_metadata = 0;
+  int seeds = 10;
   std::bitset<3> required_input;
   required_input.reset();
 
   char c;
-  while ((c = getopt(argc, argv, "i:b:v:e:p:o:x:h ")) != -1) {
+  while ((c = getopt(argc, argv, "i:b:v:u:s:e:p:o:x:h ")) != -1) {
     switch (c) {
       case 'h' :  
         print_help = true;
@@ -135,6 +141,12 @@ void parse_cmd_line(int argc, char** argv, std::string& graph_input,
         break;			
       case 'v' :
         vertex_metadata_input = optarg;
+        break;
+      case 'u' :
+        uniform_random_vertex_metadata = std::stoull(optarg);
+        break;
+      case 's' :
+        seeds = std::stoull(optarg);
         break;
       case 'e' :
         edge_metadata_input = optarg;
@@ -168,6 +180,9 @@ void parse_cmd_line(int argc, char** argv, std::string& graph_input,
     usage();
     exit(-1);
   }
+
+  if (uniform_random_vertex_metadata > 0)
+      srand(seeds);
 }
 
 int main(int argc, char** argv) {
@@ -213,6 +228,7 @@ int main(int argc, char** argv) {
   std::string graph_input;
   std::string backup_graph_input;
   std::string vertex_metadata_input;
+  int uniform_random_vertex_metadata;
   std::string edge_metadata_input;
   std::string pattern_input;
   std::string result_output;  
@@ -220,7 +236,7 @@ int main(int argc, char** argv) {
   uint64_t tp_vertex_batch_size = comm_world().size();
 
   parse_cmd_line(argc, argv, graph_input, backup_graph_input, 
-    vertex_metadata_input, edge_metadata_input, pattern_input, result_output, 
+    vertex_metadata_input, uniform_random_vertex_metadata, edge_metadata_input, pattern_input, result_output, 
     tp_vertex_batch_size); 
 
   std::string pattern_dir = pattern_input; 
@@ -402,7 +418,7 @@ int main(int argc, char** argv) {
       // TODO: each rank reads 10K lines from file at a time
   } else {
     vertex_data_db_degree<graph_type, VertexMetadata, Vertex, VertexData>
-      (graph, vertex_metadata);
+      (graph, vertex_metadata, uniform_random_vertex_metadata);
   }
 
   MPI_Barrier(MPI_COMM_WORLD); // TODO: do we need this?
