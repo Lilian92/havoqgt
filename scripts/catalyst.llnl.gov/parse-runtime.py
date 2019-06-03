@@ -15,6 +15,7 @@ for f in glob.glob('./output/output-pattern-matching-*.out'):
         cur['TPT total runtime'] = 0
         cur['TP times'] = 0
         cur['TP total runtime'] = 0
+        cur['subpattern count'] = 0
         for l in fi:
             if l.startswith("Running:"):
                 # Extract the running parameters
@@ -53,6 +54,10 @@ for f in glob.glob('./output/output-pattern-matching-*.out'):
                 # Extract running time of pattern matching
                 ls = l.split()
                 cur['Pattern Matching Time runtime'] = float(ls[7])
+            if l.find("Global Subpattern Count") != -1:
+                # Extract number of matched subpattern
+                ls = l.split()
+                cur['subpattern count'] = int(ls[8])
  
         results.append(cur)
 
