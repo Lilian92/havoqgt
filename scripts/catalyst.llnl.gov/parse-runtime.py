@@ -35,22 +35,22 @@ for f in glob.glob('./output/output-pattern-matching-*.out'):
                 ls = l.split()
                 cur['mate data generating time'] = float(ls[8])
             if l.startswith("Pattern Matching Time | Local Constraint Checking :"):
-                # Extract running time of vertex data generating
+                # Extract running time of local constraint checking
                 ls = l.split()
                 cur['LCC times'] += 1
                 cur['LCC total runtime'] += float(ls[8])
             if l.startswith("Pattern Matching Time | Token Passing (Traversal)"):
-                # Extract running time of vertex data generating
+                # Extract running time of token passing traversal
                 ls = l.split()
                 cur['TPT times'] += 1
                 cur['TPT total runtime'] += float(ls[9])
             if l.startswith("Pattern Matching Time | Token Passing ["):
-                # Extract running time of vertex data generating
+                # Extract running time of token passing
                 ls = l.split()
                 cur['TP times'] += 1
                 cur['TP total runtime'] += float(ls[8])
             if l.startswith("Pattern Matching Time | Pattern"):
-                # Extract running time of vertex data generating
+                # Extract running time of pattern matching
                 ls = l.split()
                 cur['Pattern Matching Time runtime'] = float(ls[7])
  
