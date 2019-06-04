@@ -91,7 +91,7 @@ for f in glob.glob('./output/output_pattern_matching_*.out'):
 
 #write out to the CSV
 
-with open('pattern-matching.csv', 'w') as f:
+with open('pattern_matching.csv', 'w') as f:
     w = csv.DictWriter(f, results[0].keys())
     w.writeheader()
     w.writerows(results)
