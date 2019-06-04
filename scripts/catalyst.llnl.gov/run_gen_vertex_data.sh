@@ -1,15 +1,29 @@
-if [ "$#" -ne 2 ]; then echo "Usage: $0 program-dir $1 sbatch-dir"; exit 1; fi
+program="./src"
+sbatch="./scripts"
+graphmatedata="/p/lustre1/an4/graph"
 
-program="$1"
-scripts="$2"
+if [ "$#" -ne 0 ]; then
+    if [ "$#" -ne 3 ]; then
+        echo "Usage: $0 program-dir $1 sbatch-dir $2 graph-matedata-dir";
+        exit 1;
+    fi
+    program="$1"
+    sbatch="$2"
+    graphmatedata="$3"
+fi
 
 if [ ! -d "$program" ]; then
     echo "Error: program-dir not found"
     exit 2
 fi
 
-if [ ! -d "$scripts" ]; then
+if [ ! -d "$sbatch" ]; then
     echo "Error: sbatch-dir not found"
+    exit 2
+fi
+
+if [ ! -d "$graph" ]; then
+    echo "Error: graph-matedata-dir not found"
     exit 2
 fi
 
@@ -24,5 +38,5 @@ for scale in ${scales[*]}; do
     n=$(dc -e "2 $scale ^ p");
     echo $n
     sbatch -N1\
-        "--export=ARG=-n $n -s 10 -f 10 -o /p/lustre1/an4/graph/matedata/rmat${scale},P=$program/generate_vertex_data" $scripts/gen_vertex_data.sbatch
+        "--export=ARG=-n $n -s 10 -f 10 -o $graphmatedata/rmat${scale},P=$program/generate_vertex_data" $sbatch/gen_vertex_data.sbatch
 done
