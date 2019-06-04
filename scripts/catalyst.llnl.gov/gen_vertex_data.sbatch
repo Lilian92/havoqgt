@@ -2,7 +2,7 @@
 #SBATCH --job-name=gen_vertex_data
 #SBATCH --time=24:00:00
 #SBATCH --distribution=block
-#SBATCH --output=./output/output-gen-vertex-data-%j.out
+#SBATCH --output=./output/output_gen_vertex_data_%j.out
 
 hostname; date
 

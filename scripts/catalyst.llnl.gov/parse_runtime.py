@@ -6,7 +6,7 @@ import math
 
 # Read maximum degrees
 max_degs = {}
-for f in glob.glob('./output/output-gen-rmat-*.out'):
+for f in glob.glob('./output/output_gen_rmat_*.out'):
     print("Extracting data from: ", f)
     with open(f) as fi:
         scale = 0
@@ -24,7 +24,7 @@ for f in glob.glob('./output/output-gen-rmat-*.out'):
 
 # Read in the raw outputs
 results = []
-for f in glob.glob('./output/output-pattern-matching-*.out'):
+for f in glob.glob('./output/output_pattern_matching_*.out'):
     print("Extracting data from: ", f)
     with open(f) as fi:
         cur = {}
