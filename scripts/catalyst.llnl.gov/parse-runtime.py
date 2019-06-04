@@ -2,6 +2,25 @@
 
 import glob
 import csv
+import math
+
+# Read maximum degrees
+max_degs = {}
+for f in glob.glob('./output/output-gen-rmat-*.out'):
+    print("Extracting data from: ", f)
+    with open(f) as fi:
+        scale = 0
+        max_deg = 0
+        for l in fi:
+            if l.startswith("Running"):
+                # Extract the running parameters
+                ls = l.split()
+                scale = int(ls[3])
+            if l.startswith("Max Degree = "):
+                # Extract running time of vertex data generating
+                ls = l.split()
+                max_deg = int(ls[3])
+        max_degs[scale] = max_deg
 
 # Read in the raw outputs
 results = []
@@ -14,23 +33,31 @@ for f in glob.glob('./output/output-pattern-matching-*.out'):
         cur['TPT times'] = 0
         cur['TPT total runtime'] = 0
         cur['TP times'] = 0
-        cur['TP total runtime'] = 0
-        cur['subpattern count'] = 0
+        cur['TP total runtime'] = 0 
+        cur['subpattern count'] = 'unknown'
+        cur['Pattern Matching Time runtime'] = 'unknown'
+        cur['max degree'] = 'unknown'
+        cur['log2 of max degree'] = 'unknown'
         for l in fi:
             if l.startswith("Running:"):
                 # Extract the running parameters
                 ls = l.split()
-                cur['graph'] = ls[5]
+                cur['graph'] = ls[5].split('/')[-1]
                 cur['scale'] = int(ls[5].split('rmat')[-1])
+                if cur['scale'] in max_degs:
+                    cur['max degree'] = max_degs[cur['scale']]
+                    cur['log2 of max degree'] = math.log2(cur['max degree'])
+                else:
+                    print('rmat', cur['scale'], ' are not found in generator')
                 cur['uniform random range'] = 0
                 if int(ls[7]) == 0:
-                    cur['degree_label'] = True
+                    cur['degree label'] = True
                 else:
-                    cur['degree based label'] = False
+                    cur['degree label'] = False
                     cur['uniform random range'] = int(ls[7])
                 cur['nodes'] = 2
                 cur['tasks per nodes'] = 4
-                cur['pattern'] = ls[9]
+                cur['pattern'] = int(ls[9].split('/')[-1])
             if l.startswith("Pattern Matching Time | Vertex Data DB :"):
                 # Extract running time of vertex data generating
                 ls = l.split()

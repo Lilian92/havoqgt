@@ -10,8 +10,8 @@ fi
 #scales=(28 31 34 37)
 #nodes=(2 16 128 1024)
 
-scales=(18 20 22 24 28)
-nodes=(2 2 2 2 2)
+scales=(18 20 22 24)
+nodes=(2 2 2 2)
 
 #scales=(18)
 #nodes=(1)

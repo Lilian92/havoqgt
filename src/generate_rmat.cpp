@@ -225,11 +225,10 @@ int main(int argc, char** argv) {
 
     graph->print_graph_statistics();
 
-
     //
     // Calculate max degree
     uint64_t max_degree(0);
-    for (auto citr = graph->controller_begin(); citr != graph->controller_end(); ++citr) {
+    for (auto citr = graph->vertices_begin(); citr != graph->vertices_end(); ++citr) {
       max_degree = std::max(max_degree, graph->degree(*citr));
     }
 
