@@ -72,7 +72,7 @@
 // Make one vert per rank a hub.
 
 using namespace havoqgt;
-typedef uint8_t edge_data_type; 
+typedef uint8_t edge_data_type;
 
 void usage()  {
   if(comm_world().rank() == 0) {
@@ -215,16 +215,29 @@ int main(int argc, char** argv) {
     uint64_t num_edges_per_rank = num_vertices * 16 / mpi_size;
     havoqgt::rmat_edge_generator rmat(seeds + uint64_t(mpi_rank) * 3ULL,
                                       vert_scale, num_edges_per_rank,
-                                      0.57, 0.19, 0.19, 0.05, true, true);
+                                      0.57, 0.19, 0.19, 0.05, true, true, uniform_random_edge_metadata);
 
 
     if (mpi_rank == 0) {
       std::cout << "Generating new graph." << std::endl;
     }
+
+    graph_type::edge_data<edge_data_type,
+        bip::allocator<edge_data_type, segment_manager_t>> edge_data(alloc_inst);
+
     graph_type *graph = segment_manager->construct<graph_type>
         ("graph_obj")
-        (alloc_inst, MPI_COMM_WORLD, rmat, rmat.max_vertex_id(), hub_threshold, partition_passes, chunk_size);
+        (alloc_inst, MPI_COMM_WORLD, rmat, rmat.max_vertex_id(),
+         hub_threshold, partition_passes, chunk_size, edge_data);
 
+    if (uniform_random_edge_metadata > 0) {
+        graph_type::edge_data<edge_data_type,
+            bip::allocator<edge_data_type, segment_manager_t>>* edge_data_ptr
+                = segment_manager->construct<graph_type::edge_data<edge_data_type,
+            bip::allocator<edge_data_type, segment_manager_t>>>
+                ("graph_edge_data_obj")
+                (edge_data);
+    }
 
     comm_world().barrier();
     if (mpi_rank == 0) {
