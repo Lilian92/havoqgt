@@ -65,11 +65,12 @@ namespace havoqgt {
 /// Options include scrambling vertices based on a hash funciton, and
 /// symmetrizing the list.   Generated edges are not sorted.  May contain
 /// duplicate and self edges.
+template <typename edge_data_type = uint8_t>
 class rmat_edge_generator {
 
 public:
   typedef uint64_t                      vertex_descriptor;
-  typedef std::pair<uint64_t, uint64_t> value_type;
+  typedef std::tuple<uint64_t, uint64_t, edge_data_type> value_type;
   typedef value_type edge_type;
   
   ///
@@ -126,15 +127,15 @@ public:
 
     void get_next() {
       if (m_ptr_rmat->m_undirected && m_make_undirected) {
-        std::swap(m_current.first, m_current.second);
+        std::swap(std::get<0>(m_current), std::get<1>(m_current));
         m_make_undirected = false;
       } else {
         m_current = m_ptr_rmat->generate_edge(m_gen);
         ++m_count;
         m_make_undirected = true;
       }
-      assert(m_current.first <= m_ptr_rmat->max_vertex_id());
-      assert(m_current.second <= m_ptr_rmat->max_vertex_id());
+      assert(std::get<0>(m_current) <= m_ptr_rmat->max_vertex_id());
+      assert(std::get<1>(m_current) <= m_ptr_rmat->max_vertex_id());
     }
 
     rmat_edge_generator* m_ptr_rmat;
@@ -149,7 +150,8 @@ public:
   /// seed used to be 5489
   rmat_edge_generator(uint64_t seed, uint64_t vertex_scale,
   										uint64_t edge_count, double a, double b, double c,
-  										double d, bool scramble, bool undirected)
+  										double d, bool scramble, bool undirected,
+  										edge_data_type uniform_random_edge_metadata=0)
   		: m_seed(seed)
   		, m_rng(seed)
     	, m_gen(m_rng)
@@ -160,8 +162,14 @@ public:
       , m_rmat_a(a)
       , m_rmat_b(b)
       , m_rmat_c(c)
-      , m_rmat_d(d) {
+      , m_rmat_d(d)
+      , m_uniform_random_edge_metadata(uniform_random_edge_metadata)
+      , m_has_edge_data(false) {
 
+          if (m_uniform_random_edge_metadata > 0)
+              m_has_edge_data = true;
+
+          srand(seed);
       //  sanity_max_vertex_id();
 
         // #ifdef DEBUG
@@ -194,8 +202,8 @@ public:
 
     uint64_t value = 0;
     while (itr != itr_end) {
-      value = std::max(value, (*itr).first);
-      value = std::max(value, (*itr).second);
+      value = std::max(value, std::get<0>((*itr)));
+      value = std::max(value, std::get<1>((*itr)));
     }
 
     std::cout << " value: " << value << std::endl;
@@ -257,7 +265,11 @@ protected:
       v = havoqgt::detail::hash_nbits(v, m_vertex_scale);
     }
 
-    return std::make_pair(u, v);       
+    if (m_has_edge_data)
+        return std::forward_as_tuple(u, v, edge_data_type(rand()%m_uniform_random_edge_metadata));
+    else
+        return std::forward_as_tuple(u, v, edge_data_type(0));
+
   }
 
 
@@ -272,6 +284,8 @@ protected:
   const double m_rmat_b;
   const double m_rmat_c;
   const double m_rmat_d;
+  bool         m_has_edge_data;
+  edge_data_type m_uniform_random_edge_metadata; //the range of random value of edge metadata, if 0, means no edge data
 };
 
 } //end namespace havoqgt
