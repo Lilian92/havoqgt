@@ -82,7 +82,7 @@ void usage()  {
                             Random unifom within in range [0, x)\n \
                             (optional. \
                             Default value is 0, meaning not generating edge metadata)\n"
-         << " -u <int>    - random seeds (optional. Default value is 10)\n"
+         << " -u <int>    - random seeds (optional. Default value is 5489)\n"
          << " -d <int>    - delegate threshold (Default is 1048576)\n"
          << " -o <string> - output graph base filename\n"
          << " -b <string>   - backup graph base filename \n"
@@ -95,6 +95,7 @@ void usage()  {
 }
 
 void parse_cmd_line(int argc, char** argv, uint64_t& scale, edge_data_type& uniform_random_edge_metadata,
+                    uint64_t& seeds,
                     uint64_t& delegate_threshold,
                     std::string& output_filename, std::string& backup_filename, double& gbyte_per_rank, 
                     uint64_t& partition_passes, uint64_t& chunk_size) {
@@ -109,7 +110,7 @@ void parse_cmd_line(int argc, char** argv, uint64_t& scale, edge_data_type& unif
   bool found_output_filename = false;
   scale = 17;
   uniform_random_edge_metadata = 0;
-  int seeds = 10;
+  seeds = uint64_t(5489);
   delegate_threshold = 1048576;
   gbyte_per_rank = 0.25;
   partition_passes = 1;
@@ -160,9 +161,6 @@ void parse_cmd_line(int argc, char** argv, uint64_t& scale, edge_data_type& unif
      usage();
      exit(-1);
    }
-
-   if (uniform_random_edge_metadata >= 0)
-       srand(seeds);
 }
 
 int main(int argc, char** argv) {
@@ -189,12 +187,13 @@ int main(int argc, char** argv) {
     uint64_t      num_vertices = 1;
     uint64_t      vert_scale;
     edge_data_type uniform_random_edge_metadata;
+    uint64_t      seeds;
     uint64_t      hub_threshold;
     uint64_t      partition_passes;
     double        gbyte_per_rank;
     uint64_t      chunk_size;
         
-    parse_cmd_line(argc, argv, vert_scale, uniform_random_edge_metadata, hub_threshold, output_filename, backup_filename,
+    parse_cmd_line(argc, argv, vert_scale, uniform_random_edge_metadata, seeds, hub_threshold, output_filename, backup_filename,
                    gbyte_per_rank, partition_passes, chunk_size);
 
     num_vertices <<= vert_scale;
@@ -214,7 +213,7 @@ int main(int argc, char** argv) {
 
     //Generate RMAT graph
     uint64_t num_edges_per_rank = num_vertices * 16 / mpi_size;
-    havoqgt::rmat_edge_generator rmat(uint64_t(5489) + uint64_t(mpi_rank) * 3ULL,
+    havoqgt::rmat_edge_generator rmat(seeds + uint64_t(mpi_rank) * 3ULL,
                                       vert_scale, num_edges_per_rank,
                                       0.57, 0.19, 0.19, 0.05, true, true);
 
