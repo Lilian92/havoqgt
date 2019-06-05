@@ -276,10 +276,17 @@ int main(int argc, char** argv) {
   typedef graph_type::edge_data<edge_data_type, 
     bip::allocator<edge_data_type, segment_manager_t>> edge_data_t;
 
-  edge_data_t* edge_data_ptr = ddb.get_segment_manager()->
-    find<edge_data_t>("graph_edge_data_obj").first;
-  if (enable_edge_matching)
+  edge_data_t* edge_data_ptr = nullptr;
+  if (enable_edge_matching) {
+      if (edge_metadata_input.size() > 0) {
+          //TODO: read edge matedata from file
+      } else {
+          //Get edge data from input graph
+          edge_data_ptr = ddb.get_segment_manager()->
+              find<edge_data_t>("graph_edge_data_obj").first;
+      }
       assert(edge_data_ptr != nullptr);
+  }
 
   MPI_Barrier(MPI_COMM_WORLD);
   if (mpi_rank == 0) {
