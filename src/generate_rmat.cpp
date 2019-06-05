@@ -79,7 +79,7 @@ void usage()  {
     std::cerr << "Usage: -s <int> -d <int> -o <string>\n"
          << " -s <int>    - RMAT graph Scale (default 17)\n"
          << " -e <int>    - generating edge metadata. \n \
-                            Random unifom within in range [0, x)\n \
+                            Random unifom within in range [1, x]\n \
                             (optional. \
                             Default value is 0, meaning not generating edge metadata)\n"
          << " -u <int>    - random seeds (optional. Default value is 5489)\n"
@@ -260,7 +260,7 @@ int main(int argc, char** argv) {
     //
     // Calculate max degree
     uint64_t max_degree(0);
-    for (auto citr = graph->controller_begin(); citr != graph->controller_end(); ++citr) {
+    for (auto citr = graph->vertices_begin(); citr != graph->vertices_end(); ++citr) {
       max_degree = std::max(max_degree, graph->degree(*citr));
     }
 

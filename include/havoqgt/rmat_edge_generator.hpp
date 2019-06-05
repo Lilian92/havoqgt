@@ -266,7 +266,7 @@ protected:
     }
 
     if (m_has_edge_data)
-        return std::forward_as_tuple(u, v, edge_data_type(rand()%m_uniform_random_edge_metadata));
+        return std::forward_as_tuple(u, v, edge_data_type(1 + rand()%m_uniform_random_edge_metadata));
     else
         return std::forward_as_tuple(u, v, edge_data_type(0));
 
