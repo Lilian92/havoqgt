@@ -722,7 +722,7 @@ int main(int argc, char** argv) {
   // false - no active vertex left, true - active vertices left 
   bool global_active_vertex = true; //vertex_state_map.size() < 1 ? false : true;
   if (vertex_state_map.size() < 1) {
-//    global_active_vertex = false;
+    global_active_vertex = false;
   }
 
   // TODO: What is the issue here? Preventing stdout from this file beyond this point.  	
@@ -783,9 +783,9 @@ int main(int argc, char** argv) {
   
   // Test
   // forced token passing
-  if (global_itr_count == 0) {
-    global_not_finished = true; // TODO: for load balancing experiments, ?  
-  }
+  //if (global_itr_count == 0) {
+  //  global_not_finished = true; // TODO: for load balancing experiments, ?  
+  //}
   // Test  
 
 //#ifdef ENABLE_BLOCK 
