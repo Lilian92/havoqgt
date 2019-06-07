@@ -280,6 +280,8 @@ int main(int argc, char** argv) {
   if (enable_edge_matching) {
       if (edge_metadata_input.size() > 0) {
           //TODO: read edge matedata from file
+          //But this seems inefficient, it's probably good to directly
+          //create 'input graph' format with edge data
       } else {
           //Get edge data from input graph
           edge_data_ptr = ddb.get_segment_manager()->
