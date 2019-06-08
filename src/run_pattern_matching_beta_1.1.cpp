@@ -346,7 +346,7 @@ int main(int argc, char** argv) {
   typedef std::unordered_set<Vertex> VertexSet;  
   typedef graph_type::vertex_data<VertexSet, std::allocator<VertexSet> > VertexSetCollection; 
   
-  typedef std::unordered_map<Vertex, uint8_t> VertexUint8Map; 
+  typedef std::unordered_map<Vertex, std::pair<uint8_t, EdgeData>> VertexUint8Map; 
   typedef graph_type::vertex_data<VertexUint8Map, std::allocator<VertexUint8Map> > VertexUint8MapCollection;    
 
   typedef graph_type::edge_data<EdgeData, std::allocator<EdgeData> > EdgeMetadata;
@@ -725,7 +725,7 @@ int main(int argc, char** argv) {
   // false - no active vertex left, true - active vertices left 
   bool global_active_vertex = true; //vertex_state_map.size() < 1 ? false : true;
   if (vertex_state_map.size() < 1) {
-//    global_active_vertex = false;
+    global_active_vertex = false;
   }
 
   // TODO: What is the issue here? Preventing stdout from this file beyond this point.  	
@@ -786,9 +786,9 @@ int main(int argc, char** argv) {
   
   // Test
   // forced token passing
-  if (global_itr_count == 0) {
-    global_not_finished = true; // TODO: for load balancing experiments, ?  
-  }
+  //if (global_itr_count == 0) {
+  //  global_not_finished = true; // TODO: for load balancing experiments, ?  
+  //}
   // Test  
 
 //#ifdef ENABLE_BLOCK 
@@ -1328,10 +1328,10 @@ int main(int argc, char** argv) {
     template_vertices, vertex_active_edges_map, message_count_result_file);
 #endif
 
-  prunejuice::label_propagation_pattern_matching_bsp<Vertex, VertexData, 
+  prunejuice::label_propagation_pattern_matching_bsp<Vertex, VertexData, EdgeData, edge_data_t,
     graph_type, VertexMetadata, VertexStateMap, VertexActive, 
     VertexUint8MapCollection, TemplateVertexBitSet, TemplateVertex, PatternGraph>
-    (graph, vertex_metadata, vertex_state_map, vertex_active, 
+    (graph, *edge_data_ptr, vertex_metadata, vertex_state_map, vertex_active, 
     vertex_active_edges_map, template_vertices, pattern_graph, global_init_step, 
     global_not_finished, global_itr_count, superstep_result_file, 
     active_vertices_count_result_file, active_edges_count_result_file,

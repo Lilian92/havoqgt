@@ -103,7 +103,7 @@ protected:
 };
 
 // label propagation pattern matching visitor class
-template<typename Graph, typename Vertex, typename VertexData, typename BitSet>
+template<typename Graph, typename Vertex, typename VertexData, typename EdgeData, typename BitSet>
 class lppm_visitor {
 public:
   typedef typename Graph::vertex_locator vertex_locator;
@@ -143,9 +143,11 @@ public:
 
   //template<typename BitSet>
   lppm_visitor(vertex_locator _vertex, vertex_locator _parent, 
+          EdgeData _edge_data,
     BitSet _parent_template_vertices, uint8_t _msg_type) : 
     vertex(_vertex), 
     parent(_parent),
+    edge_data(_edge_data),
     parent_template_vertices_bitset(_parent_template_vertices),  
     msg_type(_msg_type) {}  
 
@@ -232,7 +234,7 @@ public:
                 if (parent_template_vertices_bitset.test(i)) {
                   for (auto e = pattern_graph.vertices[vertex_pattern_index]; 
                     e < pattern_graph.vertices[vertex_pattern_index + 1]; e++) {       
-                    if (pattern_graph.edges[e] == i) {
+                    if ((pattern_graph.edges[e] == i) && (edge_data == pattern.edge_data[e])) {
                       valid_parent_found = true;    
                       break;
                     }   
@@ -500,6 +502,7 @@ public:
     // std::get<4>(alg_data) - vertex_active
     // std::get<6>(alg_data) // vertex state map
     auto& pattern_graph = std::get<7>(alg_data);
+    auto& edge_data_ptr = std::get<13>(alg_data);
     // std::get<8>(alg_data) - superstep
     // std::get<9>(alg_data) - global_init_step
     // std::get<10>(alg_data) - g
@@ -563,7 +566,7 @@ public:
         for(eitr_type eitr = g.edges_begin(vertex);
           eitr != g.edges_end(vertex); ++eitr) {
           vertex_locator neighbor = eitr.target();
-          lppm_visitor new_visitor(neighbor, vertex, vertex_template_vertices, 1);
+          lppm_visitor new_visitor(neighbor, vertex, edge_data_ptr[eitr], vertex_template_vertices, 1);
           vis_queue->queue_visitor(new_visitor); 
         } // for 
         return true; // Important, controller sending to delegates
@@ -596,6 +599,7 @@ public:
       // not first LP superstep of the first iteration, using the pruned graph   
       for (auto& item : std::get<12>(alg_data)[vertex]) { 
         vertex_locator neighbor = g.label_to_locator(item.first);                 
+        EdgeData edge_data = (item.second).second;
 
         // TODO: only handling undirected grpahs
 
@@ -624,7 +628,7 @@ public:
         //  << std::get<11>(alg_data)[vertex] << std::endl; // Test
  
         //lppm_visitor new_visitor(neighbor, vertex_template_vertices_array, 1);
-        lppm_visitor new_visitor(neighbor, vertex, vertex_template_vertices, 1); 
+        lppm_visitor new_visitor(neighbor, vertex, edge_data, vertex_template_vertices, 1); 
         vis_queue->queue_visitor(new_visitor);
 
       } // for
@@ -697,7 +701,7 @@ public:
 
                   for (auto e = pattern_graph.vertices[vertex_pattern_index]; 
                     e < pattern_graph.vertices[vertex_pattern_index + 1]; e++) {       
-                    if (pattern_graph.edges[e] == i) {
+                    if ((pattern_graph.edges[e] == i) && (edge_data == pattern.edge_data[e])) {
                       valid_parent_found = true;   
                       //std::cout << "Valid parent found." << std::endl; // Test   
                       break;
@@ -801,7 +805,7 @@ public:
     if (find_edge == std::get<12>(alg_data)[vertex].end()) {
       // first LP superstep of the first iteration
       if (std::get<8>(alg_data) == 0  && std::get<9>(alg_data)) {
-        auto insert_status = std::get<12>(alg_data)[vertex].insert({g->locator_to_label(parent), 1});
+        auto insert_status = std::get<12>(alg_data)[vertex].insert({g->locator_to_label(parent), std::make_pair(1, edge_data));
         if(!insert_status.second) {
           std::cerr << "Error: failed to add an element to the map." << std::endl;
 	  return 0;		
@@ -813,11 +817,13 @@ public:
     } else {
       // first LP superstep of the first iteration
       if (std::get<8>(alg_data) == 0  && std::get<9>(alg_data)) {
-        find_edge->second = 1; // should never get here // TODO: receiving multiple messages from the same neighbour? 
+          /*TODOJ: change this to edge data instead of 1*/
+        (find_edge->second).second = 1; // should never get here // TODO: receiving multiple messages from the same neighbour? 
         //std::cerr << "Error: unexpected item in the map." << std::endl;
         //return 0;  
       } else {
-        find_edge->second = 1;
+          /*TODOJ: change this to edge data instead of 1*/
+        (find_edge->second).second = 1;
       }
     }     
 
@@ -826,6 +832,7 @@ public:
 
   vertex_locator vertex;
   vertex_locator parent; // neighbor 
+  EdgeData edge_data;
   size_t parent_pattern_index; // TODO: pass type as template argument // TODO: remove?
   //std::array<uint8_t, max_bit_vector_size> parent_template_vertices; // TODO: remove this 
   //std::bitset<max_bit_vector_size> parent_template_vertices_bitset; 
@@ -1114,12 +1121,13 @@ void verify_and_update_vertex_state(TGraph* g, AlgData& alg_data,
   MPI_Barrier(MPI_COMM_WORLD);
 }   
 
-template <typename Vertex, typename VertexData, typename TGraph, 
+template <typename Vertex, typename VertexData, typename EdgeData, typename edge_data_t, typename TGraph, 
   typename VertexMetaData, typename VertexStateMapGeneric, typename VertexActive,
   typename VertexUint8MapCollection, typename BitSet, typename TemplateVertex, 
   typename PatternGraph>
 void label_propagation_pattern_matching_bsp(TGraph* g, 
-  VertexMetaData& vertex_metadata, VertexStateMapGeneric& vertex_state_map_generic,  
+  edge_data_t& edge_data_ptr,
+  VertexMetaData& vertex_metadata,VertexStateMapGeneric& vertex_state_map_generic,  
   VertexActive& vertex_active, 
   VertexUint8MapCollection& vertex_active_edges_map, 
   TemplateVertex& template_vertices, PatternGraph& pattern_graph, 
@@ -1155,9 +1163,23 @@ void label_propagation_pattern_matching_bsp(TGraph* g,
   VertexIteration vertex_iteration = 0;  
   // dummy // 
    
-  typedef lppm_visitor<TGraph, Vertex, VertexData, BitSet> visitor_type;
+    // 0  vertex_metadata,
+    // 1  pattern,
+    // 2  pattern_indices,
+    // 3  vertex_rank,
+    // 4  vertex_active,
+    // 5  vertex_iteration,
+    // 6  vertex_state_map_generic,
+    // 7  pattern_graph,
+    // 8  superstep_var,
+    // 9  global_init_step,
+    //10  g,
+    //11  template_vertices,
+    //12  vertex_active_edges_map
+    //13  edge_data_ptr
+  typedef lppm_visitor<TGraph, Vertex, VertexData, EdgeData, BitSet> visitor_type;
   auto alg_data = std::forward_as_tuple(vertex_metadata, pattern, pattern_indices, vertex_rank,
-    vertex_active, vertex_iteration, vertex_state_map_generic, pattern_graph, superstep_var, global_init_step, g, template_vertices, vertex_active_edges_map);
+    vertex_active, vertex_iteration, vertex_state_map_generic, pattern_graph, superstep_var, global_init_step, g, template_vertices, vertex_active_edges_map, edge_data_ptr);
   auto vq = havoqgt::create_visitor_queue<visitor_type, havoqgt::detail::visitor_priority_queue>(g, alg_data);
 
   if (mpi_rank == 0) {
