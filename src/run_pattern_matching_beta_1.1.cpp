@@ -675,10 +675,10 @@ int main(int argc, char** argv) {
 //    vertex_iteration, vertex_state_map, pattern_graph, global_init_step, global_not_finished, 
 //    global_itr_count, superstep_result_file, active_vertices_count_result_file, edge_active/**edge_data_ptr*/, edge_metadata);
 
- prunejuice::label_propagation_pattern_matching_bsp<Vertex, VertexData, 
+ prunejuice::label_propagation_pattern_matching_bsp<Vertex, VertexData, EdgeData, edge_data_t,
    graph_type, VertexMetadata, VertexStateMap, VertexActive, 
    VertexUint8MapCollection, TemplateVertexBitSet, TemplateVertex, PatternGraph>
-   (graph, vertex_metadata, vertex_state_map, vertex_active, 
+   (graph, *edge_data_ptr, vertex_metadata, vertex_state_map, vertex_active, 
    vertex_active_edges_map, template_vertices, pattern_graph, global_init_step, 
    global_not_finished, global_itr_count, superstep_result_file, 
    active_vertices_count_result_file, active_edges_count_result_file,
@@ -1097,7 +1097,7 @@ int main(int argc, char** argv) {
 //  }  
 
   for (auto& s : token_source_map) {
-    if (!s.second) {
+    if (!(s.second).first) {
       //if (pl == 2) { // Test
       //  std::cout << "Invalid  " << pl << " " << mpi_rank << " " << s.first 
       //    << " " << s.second << " " << global_not_finished << std::endl;

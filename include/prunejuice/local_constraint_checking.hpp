@@ -234,7 +234,7 @@ public:
                 if (parent_template_vertices_bitset.test(i)) {
                   for (auto e = pattern_graph.vertices[vertex_pattern_index]; 
                     e < pattern_graph.vertices[vertex_pattern_index + 1]; e++) {       
-                    if ((pattern_graph.edges[e] == i) && (edge_data == pattern.edge_data[e])) {
+                    if ((pattern_graph.edges[e] == i) && (edge_data == pattern_graph.edge_data[e])) {
                       valid_parent_found = true;    
                       break;
                     }   
@@ -701,7 +701,7 @@ public:
 
                   for (auto e = pattern_graph.vertices[vertex_pattern_index]; 
                     e < pattern_graph.vertices[vertex_pattern_index + 1]; e++) {       
-                    if ((pattern_graph.edges[e] == i) && (edge_data == pattern.edge_data[e])) {
+                    if ((pattern_graph.edges[e] == i) && (edge_data == pattern_graph.edge_data[e])) {
                       valid_parent_found = true;   
                       //std::cout << "Valid parent found." << std::endl; // Test   
                       break;
@@ -805,7 +805,7 @@ public:
     if (find_edge == std::get<12>(alg_data)[vertex].end()) {
       // first LP superstep of the first iteration
       if (std::get<8>(alg_data) == 0  && std::get<9>(alg_data)) {
-        auto insert_status = std::get<12>(alg_data)[vertex].insert({g->locator_to_label(parent), std::make_pair(1, edge_data));
+        auto insert_status = std::get<12>(alg_data)[vertex].insert({g->locator_to_label(parent), std::make_pair(1, edge_data)});
         if(!insert_status.second) {
           std::cerr << "Error: failed to add an element to the map." << std::endl;
 	  return 0;		
@@ -1009,7 +1009,7 @@ void verify_and_update_vertex_state(TGraph* g, AlgData& alg_data,
       // erase edges / reset edge active state for next iteration
       for (auto itr = vertex_active_edges_map[v_locator].begin(); 
         itr != vertex_active_edges_map[v_locator].end();) {
-        if (!itr->second) {
+        if (!((itr->second).first)) {
           itr = vertex_active_edges_map[v_locator].erase(itr); // C++11  
           
           if (!global_not_finished) {
@@ -1021,7 +1021,7 @@ void verify_and_update_vertex_state(TGraph* g, AlgData& alg_data,
           }
 
         } else {
-          itr->second = 0; 
+          (itr->second).first = 0; 
           ++itr; 
 	}    
       } // for  
@@ -1097,7 +1097,7 @@ void verify_and_update_vertex_state(TGraph* g, AlgData& alg_data,
         itr != vertex_active_edges_map[vertex].end();) {
         std::cerr << "Error: invalid code branch."
         << std::endl; // Test
-        if (!itr->second) {
+        if (!(itr->second).first) {
           itr = vertex_active_edges_map[vertex].erase(itr); // C++11  
  
           // Important : must not do this here  
@@ -1111,7 +1111,7 @@ void verify_and_update_vertex_state(TGraph* g, AlgData& alg_data,
           }*/ 
 
         } else {
-          itr->second = 0; 
+          (itr->second).first = 0; 
           ++itr; 
 	}    
       } // for  
