@@ -675,6 +675,18 @@ int main(int argc, char** argv) {
 //    vertex_iteration, vertex_state_map, pattern_graph, global_init_step, global_not_finished, 
 //    global_itr_count, superstep_result_file, active_vertices_count_result_file, edge_active/**edge_data_ptr*/, edge_metadata);
 
+#ifdef OUTPUT_EDGEDATA
+  for(auto vertex = graph->vertices_begin(); vertex != graph->vertices_end(); vertex++)
+  {
+      for(auto eitr = graph->edges_begin(*vertex); eitr != graph->edges_end(*vertex);
+              ++eitr) {
+          std::cout << (graph->locator_to_label(*vertex)) << " ";
+          std::cout << (graph->locator_to_label(eitr.target())) << " ";
+          std::cout << "edge data" << (uint64_t)(*edge_data_ptr)[eitr] << std::endl;
+      }
+  }
+#endif
+
  prunejuice::label_propagation_pattern_matching_bsp<Vertex, VertexData, EdgeData, edge_data_t,
    graph_type, VertexMetadata, VertexStateMap, VertexActive, 
    VertexUint8MapCollection, TemplateVertexBitSet, TemplateVertex, PatternGraph>
