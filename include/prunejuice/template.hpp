@@ -242,8 +242,9 @@ class pattern_graph_csr {
         std::istringstream iss(line);
         Vertex s(0), t(0);
         Edge e(0);
-        EdgeData w(0); 
-        iss >> s >> t >> e >> w;
+        double w_d;
+        iss >> s >> t >> e >> w_d;
+        EdgeData w = (EdgeData)w_d;
         edge_ID.push_back(e); // TODO: edge IDs should be in a different file
         edge_data.push_back(w); 
       }
