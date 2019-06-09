@@ -346,8 +346,10 @@ int main(int argc, char** argv) {
   typedef std::unordered_set<Vertex> VertexSet;  
   typedef graph_type::vertex_data<VertexSet, std::allocator<VertexSet> > VertexSetCollection; 
   
-  typedef std::unordered_map<Vertex, std::pair<uint8_t, EdgeData>> VertexUint8Map; 
+  typedef std::unordered_map<Vertex, uint8_t> VertexUint8Map; 
   typedef graph_type::vertex_data<VertexUint8Map, std::allocator<VertexUint8Map> > VertexUint8MapCollection;    
+  typedef std::unordered_map<Vertex, std::pair<uint8_t, EdgeData>> VertexUint8EdgeDataMap; 
+  typedef graph_type::vertex_data<VertexUint8EdgeDataMap, std::allocator<VertexUint8EdgeDataMap> > VertexUint8EdgeDataMapCollection;    
 
   typedef graph_type::edge_data<EdgeData, std::allocator<EdgeData> > EdgeMetadata;
   typedef graph_type::edge_data<Boolean, std::allocator<Boolean> > EdgeActive; // TODO: solution_graph 
@@ -379,7 +381,7 @@ int main(int argc, char** argv) {
   VertexMetadata vertex_metadata(*graph); 
   VertexActive vertex_active(*graph);
   TemplateVertex template_vertices(*graph);
-  VertexUint8MapCollection vertex_active_edges_map(*graph);
+  VertexUint8EdgeDataMapCollection vertex_active_edges_map(*graph);
   VertexSetCollection vertex_token_source_set(*graph); // per vertex set
 //--  VertexSetCollection token_source_edge_set(*graph); // per vertex set // edge aware
 
@@ -689,7 +691,7 @@ int main(int argc, char** argv) {
 
  prunejuice::label_propagation_pattern_matching_bsp<Vertex, VertexData, EdgeData, edge_data_t,
    graph_type, VertexMetadata, VertexStateMap, VertexActive, 
-   VertexUint8MapCollection, TemplateVertexBitSet, TemplateVertex, PatternGraph>
+   VertexUint8EdgeDataMapCollection, TemplateVertexBitSet, TemplateVertex, PatternGraph>
    (graph, *edge_data_ptr, enable_edge_matching, vertex_metadata, vertex_state_map, vertex_active, 
    vertex_active_edges_map, template_vertices, pattern_graph, global_init_step, 
    global_not_finished, global_itr_count, superstep_result_file, 
@@ -1109,7 +1111,7 @@ int main(int argc, char** argv) {
 //  }  
 
   for (auto& s : token_source_map) {
-    if (!(s.second).first) {
+    if (!s.second) {
       //if (pl == 2) { // Test
       //  std::cout << "Invalid  " << pl << " " << mpi_rank << " " << s.first 
       //    << " " << s.second << " " << global_not_finished << std::endl;
@@ -1342,7 +1344,7 @@ int main(int argc, char** argv) {
 
   prunejuice::label_propagation_pattern_matching_bsp<Vertex, VertexData, EdgeData, edge_data_t,
     graph_type, VertexMetadata, VertexStateMap, VertexActive, 
-    VertexUint8MapCollection, TemplateVertexBitSet, TemplateVertex, PatternGraph>
+    VertexUint8EdgeDataMapCollection, TemplateVertexBitSet, TemplateVertex, PatternGraph>
     (graph, *edge_data_ptr, enable_edge_matching, vertex_metadata, vertex_state_map, vertex_active, 
     vertex_active_edges_map, template_vertices, pattern_graph, global_init_step, 
     global_not_finished, global_itr_count, superstep_result_file, 

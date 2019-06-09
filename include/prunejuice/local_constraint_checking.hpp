@@ -883,13 +883,13 @@ public:
 
 template <typename TGraph, typename AlgData, typename VertexStateMap, 
   typename PatternGraph, typename VertexActive, typename VertexIteration, 
-  typename BitSet, typename TemplateVertex, typename VertexUint8MapCollection>
+  typename BitSet, typename TemplateVertex, typename VertexUint8EdgeDataMapCollection>
 void verify_and_update_vertex_state(TGraph* g, AlgData& alg_data, 
   VertexStateMap& vertex_state_map, PatternGraph& pattern_graph, 
   VertexActive& vertex_active, 
   VertexIteration& vertex_iteration, uint64_t superstep, bool global_init_step, 
   bool& global_not_finished, bool& not_finished, 
-  TemplateVertex& template_vertices, VertexUint8MapCollection& vertex_active_edges_map) {
+  TemplateVertex& template_vertices, VertexUint8EdgeDataMapCollection& vertex_active_edges_map) {
 
   typedef typename TGraph::vertex_iterator vertex_iterator;
   typedef typename TGraph::vertex_locator vertex_locator;
@@ -1164,14 +1164,14 @@ void verify_and_update_vertex_state(TGraph* g, AlgData& alg_data,
 
 template <typename Vertex, typename VertexData, typename EdgeData, typename edge_data_t, typename TGraph, 
   typename VertexMetaData, typename VertexStateMapGeneric, typename VertexActive,
-  typename VertexUint8MapCollection, typename BitSet, typename TemplateVertex, 
+  typename VertexUint8EdgeDataMapCollection, typename BitSet, typename TemplateVertex, 
   typename PatternGraph>
 void label_propagation_pattern_matching_bsp(TGraph* g, 
   edge_data_t& edge_data_ptr,
   bool enable_edge_matching,
   VertexMetaData& vertex_metadata,VertexStateMapGeneric& vertex_state_map_generic,  
   VertexActive& vertex_active, 
-  VertexUint8MapCollection& vertex_active_edges_map, 
+  VertexUint8EdgeDataMapCollection& vertex_active_edges_map, 
   TemplateVertex& template_vertices, PatternGraph& pattern_graph, 
   bool global_init_step, bool& global_not_finished, size_t global_itr_count, 
   std::ofstream& superstep_result_file, 
