@@ -678,7 +678,7 @@ int main(int argc, char** argv) {
  prunejuice::label_propagation_pattern_matching_bsp<Vertex, VertexData, EdgeData, edge_data_t,
    graph_type, VertexMetadata, VertexStateMap, VertexActive, 
    VertexUint8MapCollection, TemplateVertexBitSet, TemplateVertex, PatternGraph>
-   (graph, *edge_data_ptr, vertex_metadata, vertex_state_map, vertex_active, 
+   (graph, *edge_data_ptr, enable_edge_matching, vertex_metadata, vertex_state_map, vertex_active, 
    vertex_active_edges_map, template_vertices, pattern_graph, global_init_step, 
    global_not_finished, global_itr_count, superstep_result_file, 
    active_vertices_count_result_file, active_edges_count_result_file,
@@ -1331,7 +1331,7 @@ int main(int argc, char** argv) {
   prunejuice::label_propagation_pattern_matching_bsp<Vertex, VertexData, EdgeData, edge_data_t,
     graph_type, VertexMetadata, VertexStateMap, VertexActive, 
     VertexUint8MapCollection, TemplateVertexBitSet, TemplateVertex, PatternGraph>
-    (graph, *edge_data_ptr, vertex_metadata, vertex_state_map, vertex_active, 
+    (graph, *edge_data_ptr, enable_edge_matching, vertex_metadata, vertex_state_map, vertex_active, 
     vertex_active_edges_map, template_vertices, pattern_graph, global_init_step, 
     global_not_finished, global_itr_count, superstep_result_file, 
     active_vertices_count_result_file, active_edges_count_result_file,

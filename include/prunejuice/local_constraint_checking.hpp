@@ -141,6 +141,14 @@ public:
  
   }*/
 
+  lppm_visitor(vertex_locator _vertex, vertex_locator _parent, 
+    BitSet _parent_template_vertices, uint8_t _msg_type) : 
+    vertex(_vertex), 
+    parent(_parent),
+    edge_data(0),
+    parent_template_vertices_bitset(_parent_template_vertices),  
+    msg_type(_msg_type) {}  
+
   //template<typename BitSet>
   lppm_visitor(vertex_locator _vertex, vertex_locator _parent, 
           EdgeData _edge_data,
@@ -168,6 +176,7 @@ public:
     // std::get<8>(alg_data) - superstep
     // std::get<9>(alg_data) - global_init_step 
     auto g = std::get<10>(alg_data); 
+    bool enable_edge_matching = std::get<14>(alg_data);
     // std::get<11>(alg_data) - template_vertices
     // std::get<12>(alg_data) - vertex_active_edges_map
  
@@ -234,10 +243,17 @@ public:
                 if (parent_template_vertices_bitset.test(i)) {
                   for (auto e = pattern_graph.vertices[vertex_pattern_index]; 
                     e < pattern_graph.vertices[vertex_pattern_index + 1]; e++) {       
-                    if ((pattern_graph.edges[e] == i) && (edge_data == pattern_graph.edge_data[e])) {
-                      valid_parent_found = true;    
-                      break;
-                    }   
+                    if (pattern_graph.edges[e] == i) {
+                        if (enable_edge_matching) {
+                            if (edge_data == pattern_graph.edge_data[e]) {
+                                valid_parent_found = true;
+                                break;
+                            }
+                        } else {
+                            valid_parent_found = true;
+                            break;
+                        }
+                    }
                   } // for
                   if (valid_parent_found) {
                     break;  
@@ -316,8 +332,15 @@ public:
                     for (auto e = pattern_graph.vertices[vertex_pattern_index]; 
                       e < pattern_graph.vertices[vertex_pattern_index + 1]; e++) {       
                       if (pattern_graph.edges[e] == i) {
-                        valid_parent_found = true;    
-                        break;
+                        if (enable_edge_matching) {
+                            if (edge_data == pattern_graph.edge_data[e]) {
+                                valid_parent_found = true;
+                                break;
+                            }
+                        } else {
+                            valid_parent_found = true;
+                            break;
+                        }
                       }   
                     } // for
                     if (valid_parent_found) {
@@ -503,6 +526,7 @@ public:
     // std::get<6>(alg_data) // vertex state map
     auto& pattern_graph = std::get<7>(alg_data);
     auto& edge_data_ptr = std::get<13>(alg_data);
+    bool enable_edge_matching = std::get<14>(alg_data);
     // std::get<8>(alg_data) - superstep
     // std::get<9>(alg_data) - global_init_step
     // std::get<10>(alg_data) - g
@@ -566,8 +590,13 @@ public:
         for(eitr_type eitr = g.edges_begin(vertex);
           eitr != g.edges_end(vertex); ++eitr) {
           vertex_locator neighbor = eitr.target();
-          lppm_visitor new_visitor(neighbor, vertex, edge_data_ptr[eitr], vertex_template_vertices, 1);
-          vis_queue->queue_visitor(new_visitor); 
+          if (enable_edge_matching) {
+              lppm_visitor new_visitor(neighbor, vertex, edge_data_ptr[eitr], vertex_template_vertices, 1);
+              vis_queue->queue_visitor(new_visitor);
+          } else {
+              lppm_visitor new_visitor(neighbor, vertex, vertex_template_vertices, 1);
+              vis_queue->queue_visitor(new_visitor);
+          }
         } // for 
         return true; // Important, controller sending to delegates
       } else if (msg_type == 1 && match_found) {
@@ -599,7 +628,6 @@ public:
       // not first LP superstep of the first iteration, using the pruned graph   
       for (auto& item : std::get<12>(alg_data)[vertex]) { 
         vertex_locator neighbor = g.label_to_locator(item.first);                 
-        EdgeData edge_data = (item.second).second;
 
         // TODO: only handling undirected grpahs
 
@@ -628,8 +656,14 @@ public:
         //  << std::get<11>(alg_data)[vertex] << std::endl; // Test
  
         //lppm_visitor new_visitor(neighbor, vertex_template_vertices_array, 1);
-        lppm_visitor new_visitor(neighbor, vertex, edge_data, vertex_template_vertices, 1); 
-        vis_queue->queue_visitor(new_visitor);
+        if (enable_edge_matching) {
+            EdgeData edge_data = (item.second).second;
+            lppm_visitor new_visitor(neighbor, vertex, edge_data, vertex_template_vertices, 1); 
+            vis_queue->queue_visitor(new_visitor);
+        } else  {
+            lppm_visitor new_visitor(neighbor, vertex, vertex_template_vertices, 1); 
+            vis_queue->queue_visitor(new_visitor);
+        }
 
       } // for
 //--      return true;
@@ -666,6 +700,7 @@ public:
     // std::get<6>(alg_data) - vertex_state_map 
     auto& pattern_graph = std::get<7>(alg_data); 
     auto g = std::get<10>(alg_data);   
+    bool enable_edge_matching = std::get<14>(alg_data);
     // std::get<11>(alg_data) - template_vertices 
  
     bool match_found = false; 
@@ -700,12 +735,18 @@ public:
                 if (parent_template_vertices_bitset.test(i)) {
 
                   for (auto e = pattern_graph.vertices[vertex_pattern_index]; 
-                    e < pattern_graph.vertices[vertex_pattern_index + 1]; e++) {       
-                    if ((pattern_graph.edges[e] == i) && (edge_data == pattern_graph.edge_data[e])) {
-                      valid_parent_found = true;   
-                      //std::cout << "Valid parent found." << std::endl; // Test   
-                      break;
-                    }   
+                    e < pattern_graph.vertices[vertex_pattern_index + 1]; e++) {
+                      if (pattern_graph.edges[e] == i) {
+                          if(enable_edge_matching) {
+                              if (edge_data == pattern_graph.edge_data[e]) {
+                                  valid_parent_found = true;
+                                  break;
+                              }
+                          } else {
+                              valid_parent_found = true;
+                              break;
+                          }
+                      }
                   } // for
 
                   if (valid_parent_found) {
@@ -1127,6 +1168,7 @@ template <typename Vertex, typename VertexData, typename EdgeData, typename edge
   typename PatternGraph>
 void label_propagation_pattern_matching_bsp(TGraph* g, 
   edge_data_t& edge_data_ptr,
+  bool enable_edge_matching,
   VertexMetaData& vertex_metadata,VertexStateMapGeneric& vertex_state_map_generic,  
   VertexActive& vertex_active, 
   VertexUint8MapCollection& vertex_active_edges_map, 
@@ -1177,9 +1219,10 @@ void label_propagation_pattern_matching_bsp(TGraph* g,
     //11  template_vertices,
     //12  vertex_active_edges_map
     //13  edge_data_ptr
+    //14  enable_edge_matching
   typedef lppm_visitor<TGraph, Vertex, VertexData, EdgeData, BitSet> visitor_type;
   auto alg_data = std::forward_as_tuple(vertex_metadata, pattern, pattern_indices, vertex_rank,
-    vertex_active, vertex_iteration, vertex_state_map_generic, pattern_graph, superstep_var, global_init_step, g, template_vertices, vertex_active_edges_map, edge_data_ptr);
+    vertex_active, vertex_iteration, vertex_state_map_generic, pattern_graph, superstep_var, global_init_step, g, template_vertices, vertex_active_edges_map, edge_data_ptr, enable_edge_matching);
   auto vq = havoqgt::create_visitor_queue<visitor_type, havoqgt::detail::visitor_priority_queue>(g, alg_data);
 
   if (mpi_rank == 0) {
