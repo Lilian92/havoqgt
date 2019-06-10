@@ -74,8 +74,7 @@ public:
     ack_success(false),
     source_index_pattern_indices(0), 
     parent_pattern_index(0) {}
-   
-  //TODO Jing: create a new constructor that has edge data as input
+
   tppm_visitor(vertex_locator _vertex, 
     vertex_locator _parent, 
     vertex_locator _target_vertex, 
@@ -89,6 +88,32 @@ public:
     bool _ack_success = false) : 
     vertex(_vertex),
     parent(_parent),
+    edge_data(0),
+    target_vertex(_target_vertex), 
+    itr_count(_itr_count), 
+    max_itr_count(_max_itr_count), 
+    expect_target_vertex(_expect_target_vertex), 
+    do_pass_token(_do_pass_token), 
+    is_init_step(_is_init_step),
+    ack_success(_ack_success), 
+    source_index_pattern_indices(_source_index_pattern_indices), 
+    parent_pattern_index(_parent_pattern_index) {}  
+
+  tppm_visitor(vertex_locator _vertex, 
+    vertex_locator _parent, 
+    EdgeData _edge_data,
+    vertex_locator _target_vertex, 
+    size_t _itr_count, 
+    size_t _max_itr_count, 
+    size_t _source_index_pattern_indices, 
+    size_t _parent_pattern_index, 
+    bool _expect_target_vertex = true, 
+    bool _do_pass_token = true, 
+    bool _is_init_step = false, 
+    bool _ack_success = false) : 
+    vertex(_vertex),
+    parent(_parent),
+    edge_data(_edge_data)
     target_vertex(_target_vertex), 
     itr_count(_itr_count), 
     max_itr_count(_max_itr_count), 
@@ -379,6 +404,7 @@ public:
     // std::get<5>(alg_data); // vertex_state_map
     auto pattern_cycle_length = std::get<7>(alg_data);   
     auto pattern_valid_cycle = std::get<8>(alg_data);
+    bool enable_edge_matching = std::get<21>(alg_data);
     //auto& pattern_found = std::get<9>(alg_data);
     //auto& edge_metadata = std::get<10>(alg_data); 
     // <11> // graph
@@ -523,18 +549,23 @@ public:
 //          tppm_visitor new_visitor(neighbour, vertex, 0, (pattern_indices.size() - 2), 0, pattern_indices[0], true, true, false);
           
           // pattern_selected_edges          
-          if (std::get<17>(alg_data) && !item.second) { /*TODO Jing: .first*/
+          if (std::get<17>(alg_data) && !((item.second).first)) {
             continue;
           }
           
-          //TODO Jing: add enable edge matching option and based on that
-          //use different constructor
-          //EdgeData        edgedata = (item.second).second;
-          tppm_visitor new_visitor(neighbour, vertex, vertex, 0, pattern_cycle_length, 0, pattern_indices[0], pattern_valid_cycle, true, false);
-        
-          // loop detection - path back to the source vertex is invalid
-          //tppm_visitor new_visitor(neighbour, vertex, 0, 2, 0, pattern_indices[0], false, true, false);
-          vis_queue->queue_visitor(new_visitor);
+          if (enable_edge_matching) {
+              tppm_visitor new_visitor(neighbour, vertex, (item.second).second, vertex, 0, pattern_cycle_length, 0, pattern_indices[0], pattern_valid_cycle, true, false);
+
+              // loop detection - path back to the source vertex is invalid
+              //tppm_visitor new_visitor(neighbour, vertex, 0, 2, 0, pattern_indices[0], false, true, false);
+              vis_queue->queue_visitor(new_visitor);
+          } else {
+              tppm_visitor new_visitor(neighbour, vertex, vertex, 0, pattern_cycle_length, 0, pattern_indices[0], pattern_valid_cycle, true, false);
+
+              // loop detection - path back to the source vertex is invalid
+              //tppm_visitor new_visitor(neighbour, vertex, 0, 2, 0, pattern_indices[0], false, true, false);
+              vis_queue->queue_visitor(new_visitor);
+          }
 //        } 
       }
 //++      return true;
@@ -784,7 +815,7 @@ public:
             std::cerr << "Error: did not find the expected item in the map." << std::endl;
             return false;
           } else {
-            find_edge->second = 1; /*TODO Jing*/
+            (find_edge->second).first = 1;
           }  		
 
 	  return false;
@@ -855,10 +886,18 @@ public:
           continue;
         }
       
-        tppm_visitor new_visitor(neighbour, vertex, target_vertex, new_itr_count, max_itr_count, 
-          source_index_pattern_indices, vertex_pattern_index, expect_target_vertex /*TODO Jing: add edge data*/); 
-        // vertex_pattern_index = parent_pattern_index for the neighbours 
-        vis_queue->queue_visitor(new_visitor);
+        if (enable_edge_matching) {
+            tppm_visitor new_visitor(neighbour, vertex, (item.second).second, target_vertex, new_itr_count, max_itr_count, 
+                    source_index_pattern_indices, vertex_pattern_index, expect_target_vertex);
+            // vertex_pattern_index = parent_pattern_index for the neighbours 
+            vis_queue->queue_visitor(new_visitor);
+        } else {
+            tppm_visitor new_visitor(neighbour, vertex, target_vertex, new_itr_count, max_itr_count, 
+                    source_index_pattern_indices, vertex_pattern_index, expect_target_vertex);
+            // vertex_pattern_index = parent_pattern_index for the neighbours 
+            vis_queue->queue_visitor(new_visitor);
+        }
+
         // Test
         //if (max_nbr_count == 20) {
         //  break;     
@@ -912,7 +951,7 @@ public:
 
   vertex_locator vertex;
   vertex_locator parent;  
-  EdgeData       edgedata;
+  EdgeData       edge_data;
   vertex_locator target_vertex; // for a cycle, this is also the originating vertex
   size_t itr_count; // TODO: change type
   size_t max_itr_count; // equal to diameter - 1 of the pattern as itr_count is initialized to 0 // TODO: change type
