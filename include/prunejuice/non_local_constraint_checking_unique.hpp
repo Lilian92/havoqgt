@@ -914,14 +914,14 @@ template <typename TGraph, typename VertexMetaData, typename PatternData,
   typename PatternIndices, typename VertexRank, typename PatternGraph, 
   typename VertexStateMap, typename TokenSourceMap, typename EdgeMetaData, 
   typename VertexSetCollection, typename VertexActive, typename TemplateVertex, 
-  typename VertexUint8MapCollection, typename BitSet>
+  typename VertexUint8EdgeDataMapCollection, typename BitSet>
 void token_passing_pattern_matching(TGraph* g, VertexMetaData& vertex_metadata, 
   PatternData& pattern, PatternIndices& pattern_indices, 
   VertexRank& vertex_rank, PatternGraph& pattern_graph, VertexStateMap& vertex_state_map,
   TokenSourceMap& token_source_map, size_t pattern_cycle_length, bool pattern_valid_cycle, 
   std::vector<uint8_t>::reference pattern_found, EdgeMetaData& edge_metadata, 
   VertexSetCollection& vertex_token_source_set, VertexActive& vertex_active, 
-  TemplateVertex& template_vertices, VertexUint8MapCollection& vertex_active_edges_map, 
+  TemplateVertex& template_vertices, VertexUint8EdgeDataMapCollection& vertex_active_edges_map, 
   bool pattern_selected_vertices, bool pattern_selected_edges,
   bool pattern_mark_join_vertex, bool pattern_ignore_join_vertex, size_t pattern_join_vertex, 
   uint64_t& message_count) { // TODO: bool& pattern_found does not work, why?

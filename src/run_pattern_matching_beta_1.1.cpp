@@ -1041,7 +1041,7 @@ int main(int argc, char** argv) {
   } else {     
     prunejuice::token_passing_pattern_matching<graph_type, VertexMetadata, decltype(pattern_tp), decltype(pattern_indices_tp), uint8_t, PatternGraph,
     VertexStateMap, VertexUint8Map, edge_data_t,
-    VertexSetCollection, VertexActive, TemplateVertex, VertexUint8MapCollection, BitSet>(graph, vertex_metadata, pattern_tp,
+    VertexSetCollection, VertexActive, TemplateVertex, VertexUint8EdgeDataMapCollection, BitSet>(graph, vertex_metadata, pattern_tp,
     pattern_indices_tp, vertex_rank, pattern_graph, vertex_state_map,
     token_source_map, pattern_cycle_length_tp, pattern_valid_cycle_tp,
     pattern_found[pl], *edge_data_ptr, vertex_token_source_set, vertex_active, 
