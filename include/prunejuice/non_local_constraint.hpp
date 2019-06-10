@@ -15,7 +15,7 @@
 
 using namespace prunejuice::utilities;
 
-template <typename Vertex, typename Edge, typename VertexData, typename PatternGraph> 
+template <typename Vertex, typename Edge, typename VertexData, typename EdgeData, typename PatternGraph> 
 class pattern_nonlocal_constraint {
   public:
 
@@ -195,7 +195,7 @@ class pattern_nonlocal_constraint {
     std::vector<std::vector<VertexData>> one_path_patterns;
     std::vector<std::vector<VertexData>> two_path_patterns; 
 
-    std::vector< std::tuple< std::vector<VertexData>, std::vector<Vertex>, Edge, bool, bool, bool> > input_patterns;
+    std::vector< std::tuple< std::vector<VertexData>, std::vector<Vertex>, Edge, bool, bool, bool, std::vector<EdgeData>> > input_patterns;
     // TODO: verify stoull, bool, uint8_t compatibility  
     std::vector<std::vector<Vertex>> enumeration_patterns;
     std::vector<std::vector<uint8_t>> aggregation_steps;
@@ -222,7 +222,7 @@ class pattern_nonlocal_constraint {
 	std::istringstream iss(line);
 
         auto tokens = split(line, ':');
-        assert(tokens.size() > 5); // TODO: improve 	   
+        assert(tokens.size() > 6); // TODO: improve 	   
 
         boost::trim(tokens[0]); // important  
         boost::trim(tokens[1]); // important
@@ -235,22 +235,46 @@ class pattern_nonlocal_constraint {
         assert(vertices.size()> 2);
 
         std::vector<VertexData> vertex_data(0);        
+        std::vector<EdgeData> edge_data(0);
 
         for (auto v = 0; v < vertices.size(); v++) {           
           vertex_data.push_back(pattern_graph.vertex_data[vertices[v]]);
         }
-  
+
+        //It seems to work for path, cycle or tds.
+        //TODO Jing: to verify: if it works for cycle constrain
+        for (auto i = 1; i < vertices.size(); i++) {
+            auto from_v = vertices[i-1];
+            auto to_v = vertices[i];
+            bool found_edge = false;
+            for (auto e=pattern_graph.vertices[from_v]; e < pattern_graph.vertices[from_v + 1]; e++) {
+                if (pattern_graph.edges[e] == to_v) {
+                    found_edge = true;
+                    edge_data.push_back(pattern_graph.edge_data[e]);
+                    break;
+                }
+            }
+
+            if (!found_edge) {
+                //TODO Jing: understand how tds works and then add the
+                //edgedata.
+                std::cerr << "edges no found for pattern" << std::endl;
+                exit(1);
+            }
+        }
+ 
         assert(vertices.size() == vertex_data.size());  
 
         if (is_integral_type) {
           input_patterns.push_back(
             std::forward_as_tuple(
-              vertex_data, 
+              vertex_data,
               vertices,
               (vertices.size() - 2), // path length
               std::stoull(tokens[3]), // 0 - acyclic, 1 - cyclic 
               std::stoull(tokens[4]), // 0 - regular, 1 - TDS
-              std::stoull(tokens[5]) // 0 - skip LCC, 1 - invoke LCC   
+              std::stoull(tokens[5]), // 0 - skip LCC, 1 - invoke LCC   
+              edge_data
             )
           );
      
@@ -333,7 +357,8 @@ class pattern_nonlocal_constraint {
             std::forward_as_tuple(
               split<VertexData>(tokens[0], ' '), split<Vertex>(tokens[1], ' '), 
               std::stoull(tokens[2]), std::stoull(tokens[3]), 
-              std::stoull(tokens[4]), std::stoull(tokens[5])
+              std::stoull(tokens[4]), std::stoull(tokens[5]),
+              std::vector<EdgeData>(0)
             )
           );
         } else { 
@@ -341,7 +366,8 @@ class pattern_nonlocal_constraint {
             std::forward_as_tuple( 
               split_char<VertexData>(tokens[0], ' '), split<Vertex>(tokens[1], ' '), 
               std::stoull(tokens[2]), std::stoull(tokens[3]),
-              std::stoull(tokens[4]), std::stoull(tokens[5]) 
+              std::stoull(tokens[4]), std::stoull(tokens[5]),
+              std::vector<EdgeData>(0)
             ) 
           );   
         }
