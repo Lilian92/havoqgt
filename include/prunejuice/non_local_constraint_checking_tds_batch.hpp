@@ -110,6 +110,55 @@ public:
  
     vertex(_vertex),
     parent(_parent),
+    edge_data(0),
+    target_vertex(_target_vertex),
+    vertex_label(_vertex_label),
+    target_vertex_label(_target_vertex_label),
+    sequence_number(_sequence_number),   
+    itr_count(_itr_count), 
+    max_itr_count(_max_itr_count), 
+    expect_target_vertex(_expect_target_vertex), 
+    do_pass_token(_do_pass_token), 
+    is_init_step(_is_init_step),
+    ack_success(_ack_success),
+    // msg_type(_msg_type), 
+    source_index_pattern_indices(_source_index_pattern_indices), 
+    parent_pattern_index(_parent_pattern_index) {
+      //if (itr_count == 0 && !_ack_success) { // probably never gets here
+      //  visited_vertices[itr_count] = vertex;  
+      //} else if (itr_count > 0 && itr_count <= max_itr_count && !_ack_success) {
+      if (!_ack_success) {
+        // copy to visited_vertices from the one received from the parent
+        std::copy(std::begin(_visited_vertices), 
+          std::end(_visited_vertices), // TODO: std::begin(_visited_vertices) + itr_count ? 
+          std::begin(visited_vertices));  
+        visited_vertices[itr_count + 1] = vertex; // Important : itr_count for the next hop   
+      }
+  }  
+
+  template <typename VertexLocatorArrayStatic> 
+  tppm_visitor_tds(vertex_locator _vertex,
+    vertex_locator _parent,  
+    EdgeData _edge_data,
+    vertex_locator _target_vertex,
+    Vertex _vertex_label,
+    Vertex _target_vertex_label,   
+    uint64_t _sequence_number,  
+    VertexLocatorArrayStatic& _visited_vertices, 
+    size_t _itr_count, 
+    size_t _max_itr_count, 
+    size_t _source_index_pattern_indices, 
+    size_t _parent_pattern_index, 
+    bool _expect_target_vertex = true, 
+    bool _do_pass_token = true, 
+    bool _is_init_step = false, 
+    bool _ack_success = false//,
+    //uint8_t _msg_type = 1
+    ) :
+ 
+    vertex(_vertex),
+    parent(_parent),
+    edge_data(_edge_data),
     target_vertex(_target_vertex),
     vertex_label(_vertex_label),
     target_vertex_label(_target_vertex_label),
