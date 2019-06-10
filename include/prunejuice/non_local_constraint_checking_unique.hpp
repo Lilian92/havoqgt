@@ -972,13 +972,15 @@ void token_passing_pattern_matching(TGraph* g, VertexMetaData& vertex_metadata,
   //18 pattern_mark_join_vertex
   //19 pattern_ignore_join_vertex
   //20 pattern_join_vertex
-  //TODO Jing: add enable_edge_matching
+  //21 enable_edge_matching
+  //22 pattern_edge_data
   typedef tppm_visitor<TGraph, BitSet> visitor_type;
   auto alg_data = std::forward_as_tuple(vertex_metadata, pattern, pattern_indices, vertex_rank, 
     pattern_graph, vertex_state_map, token_source_map, pattern_cycle_length, pattern_valid_cycle, pattern_found, 
     edge_metadata, g, vertex_token_source_set, vertex_active, template_vertices, vertex_active_edges_map, 
     pattern_selected_vertices, pattern_selected_edges, 
-    pattern_mark_join_vertex, pattern_ignore_join_vertex, pattern_join_vertex);
+    pattern_mark_join_vertex, pattern_ignore_join_vertex, pattern_join_vertex,
+    enable_edge_matching, pattern_edge_data);
   auto vq = havoqgt::create_visitor_queue<visitor_type, /*havoqgt::detail::visitor_priority_queue*/tppm_queue>(g, alg_data);
   ///vq.init_visitor_traversal_new();
   //vq.init_visitor_traversal_new_alt();
