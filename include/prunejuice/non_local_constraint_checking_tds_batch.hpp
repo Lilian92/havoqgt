@@ -1572,6 +1572,7 @@ void token_passing_pattern_matching(TGraph* g, VertexMetadata& vertex_metadata,
     // 24 pattern_edge_data
     //typedef tppm_visitor_tds<TGraph, Vertex, BitSet> visitor_type;
     //TODO Jing: understand what vertex_sequence_number
+    //TODO Jing: understand what the join vertex is about
     auto alg_data = std::forward_as_tuple(vertex_metadata, pattern, pattern_indices, vertex_rank, 
       pattern_graph, vertex_state_map, batch_token_source_map, pattern_cycle_length, pattern_valid_cycle, 
       pattern_found, 
