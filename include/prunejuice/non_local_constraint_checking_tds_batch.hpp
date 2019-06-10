@@ -200,6 +200,8 @@ public:
     auto& pattern_indices = std::get<2>(alg_data);
     //auto& pattern_graph = std::get<4>(alg_data);
     auto g = std::get<11>(alg_data); // graph
+    auto enable_edge_matching = std::get<23>(alg_data);
+    auto pattern_edge_data = std::get<24>(alg_data);
     // std::get<12>(alg_data); // vertex_token_source_set   
     // std::get<13>(alg_data); // vertex_active
     // std::get<14>(alg_data); // template_vertices
@@ -275,8 +277,11 @@ public:
          !vertex_template_vertices.test(pattern_indices[next_pattern_index])) {
          return false;  
        } else { 
-           //TODO Jing: add edge checking here
-         match_found = true;
+           if (enable_edge_matching) {
+               if (edge_data == pattern_edge_data[next_pattern_index - 1])
+                   match_found = true;
+           } else
+               match_found = true;
        } 
  
        // TODO: vertex_template_vertices.test(pattern_indices[next_pattern_index])
@@ -497,6 +502,8 @@ public:
 
     auto pattern_cycle_length = std::get<7>(alg_data);   
     auto pattern_valid_cycle = std::get<8>(alg_data);
+    auto enable_edge_matching = std::get<23>(alg_data);
+    auto pattern_edge_data = std::get<24>(alg_data);
     //auto& pattern_found = std::get<9>(alg_data);
     //auto& edge_metadata = std::get<10>(alg_data); 
     // std::get<11>(alg_data) // graph
@@ -632,8 +639,12 @@ public:
         !vertex_template_vertices.test(pattern_indices[next_pattern_index])) {
         return false;
       } else {
-          //TODO Jing: add edge checking
-        match_found = true;
+          if (enable_edge_matching) {
+              if (edge_data == pattern_edge_data[next_pattern_index - 1])
+                  match_found = true;
+          } else {
+              match_found = true;
+          }
       }
 
       // verify template vertex match  
@@ -1108,6 +1119,7 @@ void token_passing_pattern_matching(TGraph* g, VertexMetadata& vertex_metadata,
 
   auto pattern_is_tds = std::get<4>(pattern_utilities.input_patterns[pl]); // boolean
   auto pattern_interleave_label_propagation = std::get<5>(pattern_utilities.input_patterns[pl]); // boolean 
+  auto pattern_edge_data = std::get<6>(pattern_utilities.input_patterns[pl]); // std::vector<EdgeData>
   
   auto pattern_enumeration_indices = pattern_utilities.enumeration_patterns[pl];
   auto pattern_aggregation_steps = pattern_utilities.aggregation_steps[pl];
@@ -1556,6 +1568,8 @@ void token_passing_pattern_matching(TGraph* g, VertexMetadata& vertex_metadata,
     // 20 superstep_var
     // 21 vertex_sequence_number
     // 22 pattern_aggregation_steps
+    // 23 enable_edge_matching
+    // 24 pattern_edge_data
     //typedef tppm_visitor_tds<TGraph, Vertex, BitSet> visitor_type;
     //TODO Jing: understand what vertex_sequence_number
     auto alg_data = std::forward_as_tuple(vertex_metadata, pattern, pattern_indices, vertex_rank, 
@@ -1563,7 +1577,9 @@ void token_passing_pattern_matching(TGraph* g, VertexMetadata& vertex_metadata,
       pattern_found, 
       edge_metadata, g, vertex_token_source_set, vertex_active, template_vertices, vertex_active_edges_map, 
       pattern_selected_vertices, paths_result_file, pattern_enumeration_indices, visitor_set_receive,
-      superstep_var, vertex_sequence_number, pattern_aggregation_steps);
+      superstep_var, vertex_sequence_number, pattern_aggregation_steps,
+      enable_edge_matching,
+      pattern_edge_data);
 
     auto vq = havoqgt::create_visitor_queue<visitor_type, 
       /*havoqgt::detail::visitor_priority_queue*/tppm_queue_tds>(g, alg_data);
