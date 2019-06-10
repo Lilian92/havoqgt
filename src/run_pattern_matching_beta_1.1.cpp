@@ -1021,10 +1021,10 @@ int main(int argc, char** argv) {
     // token_passing_pattern_matching_nonunique_tds_batch_1.hpp 
     prunejuice::token_passing_pattern_matching<graph_type, Vertex, Edge, VertexData, 
       EdgeData, VertexMetadata, EdgeMetadata, VertexActive, 
-      VertexUint8MapCollection, TemplateVertex, VertexStateMap, PatternGraph, 
+      VertexUint8EdgeDataMapCollection, TemplateVertex, VertexStateMap, PatternGraph, 
       /*PatternUtilities*/PatternNonlocalConstraint, VertexUint8Map, VertexSetCollection, 
       DelegateGraphVertexDataSTDAllocator, Boolean, BitSet>
-      (graph, vertex_metadata, vertex_active, vertex_active_edges_map, 
+      (graph, vertex_metadata, enable_edge_matching, vertex_active, vertex_active_edges_map, 
        template_vertices, vertex_state_map, pattern_graph, ptrn_util_two, pl,
        token_source_map, vertex_token_source_set, 
        pattern_found[pl], tp_vertex_batch_size, paths_result_file, message_count);

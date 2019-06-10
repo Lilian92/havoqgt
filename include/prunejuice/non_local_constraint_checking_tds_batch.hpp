@@ -1004,7 +1004,7 @@ public:
 
 template <typename TGraph, typename Vertex, typename Edge, typename VertexData, 
   typename EdgeData, typename VertexMetadata, typename EdgeMetadata, 
-  typename VertexActive, typename VertexUint8MapCollection, 
+  typename VertexActive, typename VertexUint8EdgeDataMapCollection, 
   typename TemplateVertex, typename VertexStateMap, typename PatternGraph, 
   typename PatternUtilities, typename VertexUint8Map, 
   typename VertexSetCollection, 
@@ -1012,8 +1012,9 @@ template <typename TGraph, typename Vertex, typename Edge, typename VertexData,
   typename Boolean, typename BitSet>
 
 void token_passing_pattern_matching(TGraph* g, VertexMetadata& vertex_metadata,
+  bool enable_edge_matching,
   VertexActive& vertex_active, 
-  VertexUint8MapCollection& vertex_active_edges_map, 
+  VertexUint8EdgeDataMapCollection& vertex_active_edges_map, 
   TemplateVertex& template_vertices, VertexStateMap& vertex_state_map,
   PatternGraph& pattern_graph, PatternUtilities& pattern_utilities, size_t pl, 
   VertexUint8Map& token_source_map, 
