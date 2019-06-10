@@ -852,6 +852,8 @@ int main(int argc, char** argv) {
   auto pattern_indices_tp = std::get<1>(ptrn_util_two.input_patterns[pl]);
   auto pattern_cycle_length_tp = std::get<2>(ptrn_util_two.input_patterns[pl]); // uint
   auto pattern_valid_cycle_tp = std::get<3>(ptrn_util_two.input_patterns[pl]); // boolean
+  //TODO Jing: take pattern edge data out and add this as a parameter for
+  //token_pass function
 //  auto pattern_interleave_label_propagation_tp = std::get<4>(ptrn_util_two.input_patterns[pl]); // boolean
 //--  auto pattern_seleted_edges_tp = std::get<5>(ptrn_util_two.input_patterns[pl]); // boolean 
 //  auto pattern_selected_vertices_tp = std::get<5>(ptrn_util_two.input_patterns[pl]); // boolean

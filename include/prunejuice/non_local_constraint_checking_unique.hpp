@@ -75,6 +75,7 @@ public:
     source_index_pattern_indices(0), 
     parent_pattern_index(0) {}
    
+  //TODO Jing: create a new constructor that has edge data as input
   tppm_visitor(vertex_locator _vertex, 
     vertex_locator _parent, 
     vertex_locator _target_vertex, 
@@ -98,6 +99,9 @@ public:
     source_index_pattern_indices(_source_index_pattern_indices), 
     parent_pattern_index(_parent_pattern_index) {}  
 
+  //TODO Jing: Question, if pre_visit always run before visit, what is the meaning
+  //of it?
+  //There is a lot repeated checking in pre_visit and visit
   template<typename AlgData>
   bool pre_visit(AlgData& alg_data) const {
     tp_visitor_count++;
@@ -201,7 +205,7 @@ public:
 
        for (size_t i = 0; i < vertex_template_vertices.size(); i++) { // TODO: vertex_template_vertices.test(pattern_indices[next_pattern_index]) 
          if (vertex_template_vertices.test(i)) {
-           if (i == pattern_indices[next_pattern_index]) {
+           if (i == pattern_indices[next_pattern_index] /* TODO Jing: change here probablu*/) {
              match_found = true;
              vertex_pattern_index = i; 
              break;  
@@ -335,7 +339,7 @@ public:
         //return true; // false ?           
         return false;
       }
-      find_token_source->second = 1; //true;   
+      find_token_source->second = 1; //true;
 //    }
  
       std::get<9>(alg_data) = 1; // true; // pattern_found
@@ -449,6 +453,8 @@ public:
       // TODO: disabling 13 Dec 2017, do we want to keep this
       // nonunique vertex metadata
       // initiate tokens only from vertices with multiple template vertex matches 
+      // TODO Jing: Question, why is this the case? Why for path, the
+      // source vertex should also be the dst vertex
       if (!pattern_valid_cycle && !std::get<16>(alg_data))  { // path checking // not pattern_selected_vertices
         if (!(vertex_template_vertices.test(pattern_indices[0]) 
           && vertex_template_vertices.test(pattern_indices[pattern_indices.size() -1]) ) ) {
@@ -517,10 +523,13 @@ public:
 //          tppm_visitor new_visitor(neighbour, vertex, 0, (pattern_indices.size() - 2), 0, pattern_indices[0], true, true, false);
           
           // pattern_selected_edges          
-          if (std::get<17>(alg_data) && !item.second) {
+          if (std::get<17>(alg_data) && !item.second) { /*TODO Jing: .first*/
             continue;
           }
           
+          //TODO Jing: add enable edge matching option and based on that
+          //use different constructor
+          //EdgeData        edgedata = (item.second).second;
           tppm_visitor new_visitor(neighbour, vertex, vertex, 0, pattern_cycle_length, 0, pattern_indices[0], pattern_valid_cycle, true, false);
         
           // loop detection - path back to the source vertex is invalid
@@ -571,9 +580,11 @@ public:
         return false;
       }
 
+      //TODO Jing: Question, is it repeated with what has been checked in
+      //pre_visit ?
       for (size_t i = 0; i < vertex_template_vertices.size(); i++) { // TODO: vertex_template_vertices.test(pattern_indices[next_pattern_index])
         if (vertex_template_vertices.test(i)) {
-          if (i == pattern_indices[next_pattern_index]) {
+          if (i == pattern_indices[next_pattern_index]/* TODO Jing: && edge satisfy*/) {
             match_found = true;
             vertex_pattern_index = i;
             break; 
@@ -625,7 +636,9 @@ public:
 //              break; 
 //            }  
 //          } // for      
-          if (parent_pattern_index == pattern_indices[next_pattern_index - 1]) { 
+//TODO Jing: Question, is it repeated with what has been checked in
+//pre_visit ?
+            if (parent_pattern_index == pattern_indices[next_pattern_index - 1]) { 
             do_forward_token = true;
 
             // join vertex
@@ -679,7 +692,7 @@ public:
 //              break;
 //            }
 //          } // for
-          if (parent_pattern_index == pattern_indices[next_pattern_index - 1]) {
+          if (parent_pattern_index == pattern_indices[next_pattern_index - 1] /* TODO Jing: && edge satisfy*/) {
             match_found = true; 
           }      
         } // if
@@ -716,7 +729,7 @@ public:
                   return false;
                 }
 
-                find_token_source->second = 1; //true;   
+                find_token_source->second = 1; //true;
                 std::get<9>(alg_data) = 1; // true; // pattern_found
 	
               }
@@ -757,7 +770,7 @@ public:
             //return true; // false ?           
             return false;
           }
-          find_token_source->second = 1; //true;   
+          find_token_source->second = 1; //true;
 //          }
  
           std::get<9>(alg_data) = 1; // true; // pattern_found	
@@ -771,7 +784,7 @@ public:
             std::cerr << "Error: did not find the expected item in the map." << std::endl;
             return false;
           } else {
-            find_edge->second = 1; 
+            find_edge->second = 1; /*TODO Jing*/
           }  		
 
 	  return false;
@@ -843,7 +856,7 @@ public:
         }
       
         tppm_visitor new_visitor(neighbour, vertex, target_vertex, new_itr_count, max_itr_count, 
-          source_index_pattern_indices, vertex_pattern_index, expect_target_vertex); 
+          source_index_pattern_indices, vertex_pattern_index, expect_target_vertex /*TODO Jing: add edge data*/); 
         // vertex_pattern_index = parent_pattern_index for the neighbours 
         vis_queue->queue_visitor(new_visitor);
         // Test
@@ -938,6 +951,28 @@ void token_passing_pattern_matching(TGraph* g, VertexMetaData& vertex_metadata,
     //std::cout << "Token Passing [" << pl << "] ... " << std::endl;
   } 
 
+  // 0 vertex_metadata
+  // 1 pattern
+  // 2 pattern_indices
+  // 3 vertex_rank
+  // 4 pattern_graph
+  // 5 vertex_state_map
+  // 6 token_source_map
+  // 7 pattern_cycle_length
+  // 8 pattern_valid_cycle
+  // 9 pattern_found
+  //10 edge_metadata
+  //11 g
+  //12 vertex_token_source_set
+  //13 vertex_active
+  //14 template_vertices
+  //15 vertex_active_edges_map
+  //16 pattern_selected_vertices
+  //17 pattern_selected_edges
+  //18 pattern_mark_join_vertex
+  //19 pattern_ignore_join_vertex
+  //20 pattern_join_vertex
+  //TODO Jing: add enable_edge_matching
   typedef tppm_visitor<TGraph, BitSet> visitor_type;
   auto alg_data = std::forward_as_tuple(vertex_metadata, pattern, pattern_indices, vertex_rank, 
     pattern_graph, vertex_state_map, token_source_map, pattern_cycle_length, pattern_valid_cycle, pattern_found, 
