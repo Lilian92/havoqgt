@@ -858,12 +858,10 @@ public:
     } else {
       // first LP superstep of the first iteration
       if (std::get<8>(alg_data) == 0  && std::get<9>(alg_data)) {
-          /*TODOJ: change this to edge data instead of 1*/
         (find_edge->second).first= 1; // should never get here // TODO: receiving multiple messages from the same neighbour? 
         //std::cerr << "Error: unexpected item in the map." << std::endl;
         //return 0;  
       } else {
-          /*TODOJ: change this to edge data instead of 1*/
         (find_edge->second).first= 1;
       }
     }     
