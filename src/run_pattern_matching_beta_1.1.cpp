@@ -814,7 +814,7 @@ int main(int argc, char** argv) {
   }   
 
   //if ((token_passing_algo == 0) && global_not_finished) { // do token passing ?
-  if (do_nonlocal_constraint_checking && global_not_finished) { // TODO: do we need this? 
+  if (do_nonlocal_constraint_checking && global_not_finished && global_active_vertex) { // TODO: do we need this? 
 
   global_not_finished = false;  
 
