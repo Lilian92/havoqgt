@@ -1278,6 +1278,9 @@ int main(int argc, char** argv) {
   
   MPI_Barrier(MPI_COMM_WORLD); // TODO: do we need this here? // New
 
+  //TODO Jing: Question: No Token Source Found/ No Subpattern Found in
+  //path and cycle checking
+  //But Subpattern Found in TDS
   if (is_token_source_map_not_empty) {
 
   //if (pl <= 1 && pattern_found[pl] == 1) { // Test

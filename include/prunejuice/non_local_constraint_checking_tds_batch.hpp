@@ -261,6 +261,7 @@ public:
 
        // verify vertex data  
        // verify if received from a valid parent
+       // TODO Jing: Question, should it be ||, instead of &&
        if (vertex_data != pattern[next_pattern_index] && 
          parent_pattern_index != pattern_indices[next_pattern_index - 1]) {
          return false;
@@ -274,6 +275,7 @@ public:
          !vertex_template_vertices.test(pattern_indices[next_pattern_index])) {
          return false;  
        } else { 
+           //TODO Jing: add edge checking here
          match_found = true;
        } 
  
@@ -592,6 +594,7 @@ public:
             vis_queue->queue_visitor(new_visitor);
           }        
         } else { 
+            //TODO Jing: add edge data
           tppm_visitor_tds new_visitor(neighbour, vertex, vertex, 
             //g.locator_to_label(neighbour), // vertex_label
             g.locator_to_label(vertex), // vertex_label
@@ -629,6 +632,7 @@ public:
         !vertex_template_vertices.test(pattern_indices[next_pattern_index])) {
         return false;
       } else {
+          //TODO Jing: add edge checking
         match_found = true;
       }
 
@@ -669,6 +673,7 @@ public:
         // are vertex_data and vertex_pattern_index valid
 //        if (vertex_data == pattern[pattern_indices[next_pattern_index]] && 
 	// TODO: Important: for token passing only        
+    // TODO Jing: it's so redandent... 
         if (vertex_data == pattern[next_pattern_index] &&
           vertex_pattern_index == pattern_indices[next_pattern_index]) {
           // verify if received from a valid parent
@@ -725,6 +730,7 @@ public:
         // verify if received from a valid parent 
 //        if (vertex_data == pattern[pattern_indices[next_pattern_index]] &&
         // TODO: Important: for token passing only        
+        // TODO Jing: Question redandent
         if (vertex_data == pattern[next_pattern_index] &&        
           vertex_pattern_index == pattern_indices[next_pattern_index]) { 
           // verify if received from a valid parent
@@ -855,6 +861,8 @@ public:
 
         // penultimate hop, only forward to the target_vertex 
         if (max_itr_count == new_itr_count) {
+            // TODO Jing: Question program should never come here right,
+            // since this case has already been totally processed.
           if (expect_target_vertex && (g.locator_to_label(target_vertex) != g.locator_to_label(neighbour))) {
             // cycle checking
             continue;       
@@ -966,6 +974,7 @@ public:
           new_sequence_number = std::get<21>(alg_data)[vertex]++;
         }        
  
+        //TODO Jing: Add edge checking
         tppm_visitor_tds new_visitor(neighbour, vertex, target_vertex, 
           //g.locator_to_label(neighbour), // vertex_label
           g.locator_to_label(target_vertex), // vertex_label
@@ -1132,6 +1141,7 @@ void token_passing_pattern_matching(TGraph* g, VertexMetadata& vertex_metadata,
   typedef DelegateGraphVertexDataSTDAllocator<uint64_t> VertexUint64Collection;
   VertexUint64Collection vertex_sequence_number(*g);
 
+  //TODO Jing: Question what is this for? It's not used.
   struct VisitorCompare_2 {
     public:
       // WDC_C_4#8  
@@ -1307,6 +1317,7 @@ void token_passing_pattern_matching(TGraph* g, VertexMetadata& vertex_metadata,
       }
   };
 
+  //TODO Jing: Question, need to figure out what this is for.
   typedef std::unordered_set<visitor_type, VisitorHash, VisitorCompare> VisitorSet;
   //VisitorSet* visitor_set_receive = new VisitorSet();
   //VisitorSet* visitor_set_send = new VisitorSet();  
@@ -1521,6 +1532,29 @@ void token_passing_pattern_matching(TGraph* g, VertexMetadata& vertex_metadata,
     vertex_sequence_number.reset(0);
     path_count = 0; 
 
+    // 0  vertex_metadata
+    // 1  pattern
+    // 2  pattern_indices
+    // 3  vertex_rank
+    // 4  pattern_graph
+    // 5  vertex_state_map
+    // 6  batch_token_source_map
+    // 7  pattern_cycle_length
+    // 8  pattern_valid_cycle
+    // 9  pattern_found
+    // 10 edge_metadata
+    // 11 g
+    // 12 vertex_token_source_set
+    // 13 vertex_active
+    // 14 template_vertices
+    // 15 vertex_active_edges_map
+    // 16 pattern_selected_vertices
+    // 17 paths_result_file
+    // 18 pattern_enumeration_indices
+    // 19 visitor_set_receive,
+    // 20 superstep_var
+    // 21 vertex_sequence_number
+    // 22 pattern_aggregation_steps
     //typedef tppm_visitor_tds<TGraph, Vertex, BitSet> visitor_type;
     auto alg_data = std::forward_as_tuple(vertex_metadata, pattern, pattern_indices, vertex_rank, 
       pattern_graph, vertex_state_map, batch_token_source_map, pattern_cycle_length, pattern_valid_cycle, 
