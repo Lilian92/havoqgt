@@ -140,6 +140,8 @@ public:
     //auto& pattern_graph = std::get<4>(alg_data);
     // std::get<5>(alg_data); // vertex_state_map
     auto g = std::get<11>(alg_data); // graph
+    auto enable_edge_matching = std::get<21>(alg_data);
+    auto pattern_edge_data = std::get<22>(alg_data);
     // std::get<12>(alg_data); // vertex_token_source_set   
     // std::get<13>(alg_data); // vertex_active
     // std::get<14>(alg_data); // template_vertices
@@ -230,10 +232,19 @@ public:
 
        for (size_t i = 0; i < vertex_template_vertices.size(); i++) { // TODO: vertex_template_vertices.test(pattern_indices[next_pattern_index]) 
          if (vertex_template_vertices.test(i)) {
-           if (i == pattern_indices[next_pattern_index] /* TODO Jing: change here probablu*/) {
-             match_found = true;
-             vertex_pattern_index = i; 
-             break;  
+           if (i == pattern_indices[next_pattern_index]) {
+               if (enable_edge_matching) {
+                   if (edge_data == pattern_edge_data[next_pattern_index - 1]) {
+                       match_found = true;
+                       vertex_pattern_index = i;
+                       break;
+                   }
+               }
+               else {
+                   match_found = true;
+                   vertex_pattern_index = i;
+                   break;
+               }
            }    
          }   
        }
@@ -404,7 +415,8 @@ public:
     // std::get<5>(alg_data); // vertex_state_map
     auto pattern_cycle_length = std::get<7>(alg_data);   
     auto pattern_valid_cycle = std::get<8>(alg_data);
-    bool enable_edge_matching = std::get<21>(alg_data);
+    auto enable_edge_matching = std::get<21>(alg_data);
+    auto pattern_edge_data = std::get<22>(alg_data);
     //auto& pattern_found = std::get<9>(alg_data);
     //auto& edge_metadata = std::get<10>(alg_data); 
     // <11> // graph
@@ -615,10 +627,19 @@ public:
       //pre_visit ?
       for (size_t i = 0; i < vertex_template_vertices.size(); i++) { // TODO: vertex_template_vertices.test(pattern_indices[next_pattern_index])
         if (vertex_template_vertices.test(i)) {
-          if (i == pattern_indices[next_pattern_index]/* TODO Jing: && edge satisfy*/) {
-            match_found = true;
-            vertex_pattern_index = i;
-            break; 
+          if (i == pattern_indices[next_pattern_index]) {
+               if (enable_edge_matching) {
+                   if (edge_data == pattern_edge_data[next_pattern_index - 1]) {
+                       match_found = true;
+                       vertex_pattern_index = i;
+                       break;
+                   }
+               }
+               else {
+                   match_found = true;
+                   vertex_pattern_index = i;
+                   break;
+               }
           }
         }
       }
