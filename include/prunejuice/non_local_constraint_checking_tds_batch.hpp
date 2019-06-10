@@ -974,7 +974,7 @@ public:
           new_sequence_number = std::get<21>(alg_data)[vertex]++;
         }        
  
-        //TODO Jing: Add edge checking
+        //TODO Jing: Add edge data
         tppm_visitor_tds new_visitor(neighbour, vertex, target_vertex, 
           //g.locator_to_label(neighbour), // vertex_label
           g.locator_to_label(target_vertex), // vertex_label
@@ -1459,6 +1459,7 @@ void token_passing_pattern_matching(TGraph* g, VertexMetadata& vertex_metadata,
       << global_token_source_set_size << std::endl;
   }  
 
+  //TODO Jing: Question understand the batch thing
   // batch processing
    
   for (auto batch_mpi_rank = 0;  batch_mpi_rank < max_batch_size;
@@ -1556,6 +1557,7 @@ void token_passing_pattern_matching(TGraph* g, VertexMetadata& vertex_metadata,
     // 21 vertex_sequence_number
     // 22 pattern_aggregation_steps
     //typedef tppm_visitor_tds<TGraph, Vertex, BitSet> visitor_type;
+    //TODO Jing: understand what vertex_sequence_number
     auto alg_data = std::forward_as_tuple(vertex_metadata, pattern, pattern_indices, vertex_rank, 
       pattern_graph, vertex_state_map, batch_token_source_map, pattern_cycle_length, pattern_valid_cycle, 
       pattern_found, 
