@@ -852,8 +852,6 @@ int main(int argc, char** argv) {
   auto pattern_indices_tp = std::get<1>(ptrn_util_two.input_patterns[pl]);
   auto pattern_cycle_length_tp = std::get<2>(ptrn_util_two.input_patterns[pl]); // uint
   auto pattern_valid_cycle_tp = std::get<3>(ptrn_util_two.input_patterns[pl]); // boolean
-  //TODO Jing: take pattern edge data out and add this as a parameter for
-  //token_pass function
 //  auto pattern_interleave_label_propagation_tp = std::get<4>(ptrn_util_two.input_patterns[pl]); // boolean
 //--  auto pattern_seleted_edges_tp = std::get<5>(ptrn_util_two.input_patterns[pl]); // boolean 
 //  auto pattern_selected_vertices_tp = std::get<5>(ptrn_util_two.input_patterns[pl]); // boolean
@@ -862,6 +860,7 @@ int main(int argc, char** argv) {
   
   auto pattern_is_tds_tp = std::get<4>(ptrn_util_two.input_patterns[pl]); // boolean
   auto pattern_interleave_label_propagation_tp = std::get<5>(ptrn_util_two.input_patterns[pl]); // boolean
+  auto pattern_edge_data_tp = std::get<6>(ptrn_util_two.input_patterns[pl]);
 
   auto pattern_enumeration_tp = ptrn_util_two.enumeration_patterns[pl]; 
   auto pattern_aggregation_steps_tp = ptrn_util_two.aggregation_steps[pl]; 
@@ -1041,10 +1040,10 @@ int main(int argc, char** argv) {
       template_vertices, vertex_active_edges_map, pattern_selected_vertices_tp, 
       paths_result_file, message_count); // pass a boolean flag to indicate to use batching*/ 
   } else {     
-    prunejuice::token_passing_pattern_matching<graph_type, VertexMetadata, decltype(pattern_tp), decltype(pattern_indices_tp), uint8_t, PatternGraph,
+    prunejuice::token_passing_pattern_matching<graph_type, VertexMetadata, decltype(pattern_tp), decltype(pattern_indices_tp), decltype(pattern_edge_data_tp), uint8_t, PatternGraph,
     VertexStateMap, VertexUint8Map, edge_data_t,
     VertexSetCollection, VertexActive, TemplateVertex, VertexUint8EdgeDataMapCollection, BitSet>(graph, vertex_metadata, pattern_tp,
-    pattern_indices_tp, vertex_rank, pattern_graph, vertex_state_map,
+    pattern_indices_tp, pattern_edge_data_tp, vertex_rank, pattern_graph, vertex_state_map,
     token_source_map, pattern_cycle_length_tp, pattern_valid_cycle_tp,
     pattern_found[pl], *edge_data_ptr, enable_edge_matching, vertex_token_source_set, vertex_active, 
     template_vertices, vertex_active_edges_map, pattern_selected_vertices_tp, //);
