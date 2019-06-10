@@ -59,7 +59,7 @@ protected:
 };
 
 // token passing pattern matching visitor class
-template<typename Graph, typename Vertex, typename BitSet>
+template<typename Graph, typename Vertex, typename EdgeData, typename BitSet>
 class tppm_visitor_tds {
 
 public:
@@ -984,6 +984,7 @@ public:
 
   size_t source_index_pattern_indices; // index of the token source in the pattern_indices container 
   size_t parent_pattern_index; // TODO: change to the same type as in the pattern_graph
+  EdgeData edge_data;
   std::array<vertex_locator,16> visited_vertices; // I think we will have to replace vertex_locator with Vertex
 
   Vertex vertex_label;
@@ -1073,7 +1074,7 @@ void token_passing_pattern_matching(TGraph* g, VertexMetadata& vertex_metadata,
   typedef typename TGraph::vertex_iterator vertex_iterator;
   typedef typename TGraph::vertex_locator vertex_locator; 
 
-  typedef tppm_visitor_tds<TGraph, Vertex, BitSet> visitor_type;
+  typedef tppm_visitor_tds<TGraph, Vertex, EdgeData, BitSet> visitor_type;
 
   //typedef std::vector<visitor_type> VectorVisitor;
   //typedef DelegateGraphVertexDataSTDAllocator<VectorVisitor> VertexVisitorCollection;
