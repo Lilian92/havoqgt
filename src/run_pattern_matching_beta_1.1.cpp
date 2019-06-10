@@ -547,7 +547,7 @@ int main(int argc, char** argv) {
   
   //MPI_Barrier(MPI_COMM_WORLD); // TODO: ?
   
-  typedef pattern_nonlocal_constraint<Vertex, Edge, VertexData, PatternGraph>
+  typedef pattern_nonlocal_constraint<Vertex, Edge, VertexData, EdgeData, PatternGraph>
     PatternNonlocalConstraint;
 
   //PatternNonlocalConstraint ptrn_util_two(pattern_graph,

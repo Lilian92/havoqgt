@@ -222,7 +222,7 @@ class pattern_nonlocal_constraint {
 	std::istringstream iss(line);
 
         auto tokens = split(line, ':');
-        assert(tokens.size() > 6); // TODO: improve 	   
+        assert(tokens.size() > 6); // TODO: improve
 
         boost::trim(tokens[0]); // important  
         boost::trim(tokens[1]); // important
@@ -234,10 +234,10 @@ class pattern_nonlocal_constraint {
         auto vertices = split<Vertex>(tokens[0], ' ');
         assert(vertices.size()> 2);
 
-        std::vector<VertexData> vertex_data(0);        
+        std::vector<VertexData> vertex_data(0);
         std::vector<EdgeData> edge_data(0);
 
-        for (auto v = 0; v < vertices.size(); v++) {           
+        for (auto v = 0; v < vertices.size(); v++) {
           vertex_data.push_back(pattern_graph.vertex_data[vertices[v]]);
         }
 
@@ -273,7 +273,7 @@ class pattern_nonlocal_constraint {
               (vertices.size() - 2), // path length
               std::stoull(tokens[3]), // 0 - acyclic, 1 - cyclic 
               std::stoull(tokens[4]), // 0 - regular, 1 - TDS
-              std::stoull(tokens[5]), // 0 - skip LCC, 1 - invoke LCC   
+              std::stoull(tokens[5]), // 0 - skip LCC, 1 - invoke LCC
               edge_data
             )
           );
