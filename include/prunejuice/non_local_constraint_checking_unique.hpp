@@ -113,7 +113,7 @@ public:
     bool _ack_success = false) : 
     vertex(_vertex),
     parent(_parent),
-    edge_data(_edge_data)
+    edge_data(_edge_data),
     target_vertex(_target_vertex), 
     itr_count(_itr_count), 
     max_itr_count(_max_itr_count), 
