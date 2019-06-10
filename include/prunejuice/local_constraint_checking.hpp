@@ -657,8 +657,8 @@ public:
  
         //lppm_visitor new_visitor(neighbor, vertex_template_vertices_array, 1);
         if (enable_edge_matching) {
-            EdgeData edge_data = (item.second).second;
-            lppm_visitor new_visitor(neighbor, vertex, edge_data, vertex_template_vertices, 1); 
+            EdgeData _edge_data = (item.second).second;
+            lppm_visitor new_visitor(neighbor, vertex, _edge_data, vertex_template_vertices, 1); 
             vis_queue->queue_visitor(new_visitor);
         } else  {
             lppm_visitor new_visitor(neighbor, vertex, vertex_template_vertices, 1); 
