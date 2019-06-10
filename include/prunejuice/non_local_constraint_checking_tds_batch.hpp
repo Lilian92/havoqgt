@@ -601,14 +601,23 @@ public:
             vis_queue->queue_visitor(new_visitor);
           }        
         } else { 
-            //TODO Jing: add edge data
-          tppm_visitor_tds new_visitor(neighbour, vertex, vertex, 
-            //g.locator_to_label(neighbour), // vertex_label
-            g.locator_to_label(vertex), // vertex_label
-            g.locator_to_label(vertex), // token_label
-            std::get<21>(alg_data)[vertex], //0, // sequence_number
-            visited_vertices, 0, pattern_cycle_length, 0, pattern_indices[0], pattern_valid_cycle, true, false);
-          vis_queue->queue_visitor(new_visitor);
+            if (enable_edge_matching) {
+                tppm_visitor_tds new_visitor(neighbour, vertex, (item.second).second, vertex, 
+                        //g.locator_to_label(neighbour), // vertex_label
+                        g.locator_to_label(vertex), // vertex_label
+                        g.locator_to_label(vertex), // token_label
+                        std::get<21>(alg_data)[vertex], //0, // sequence_number
+                        visited_vertices, 0, pattern_cycle_length, 0, pattern_indices[0], pattern_valid_cycle, true, false);
+                vis_queue->queue_visitor(new_visitor);
+            } else {
+                tppm_visitor_tds new_visitor(neighbour, vertex, vertex, 
+                        //g.locator_to_label(neighbour), // vertex_label
+                        g.locator_to_label(vertex), // vertex_label
+                        g.locator_to_label(vertex), // token_label
+                        std::get<21>(alg_data)[vertex], //0, // sequence_number
+                        visited_vertices, 0, pattern_cycle_length, 0, pattern_indices[0], pattern_valid_cycle, true, false);
+                vis_queue->queue_visitor(new_visitor);
+            }
         } 
       }
 //++      return true;
@@ -985,17 +994,29 @@ public:
           new_sequence_number = std::get<21>(alg_data)[vertex]++;
         }        
  
-        //TODO Jing: Add edge data
-        tppm_visitor_tds new_visitor(neighbour, vertex, target_vertex, 
-          //g.locator_to_label(neighbour), // vertex_label
-          g.locator_to_label(target_vertex), // vertex_label
-          new_token_label, // token_label
-          new_sequence_number, //sequence_number 
-          visited_vertices, 
-          new_itr_count, max_itr_count, source_index_pattern_indices, vertex_pattern_index, 
-          expect_target_vertex); 
-          // vertex_pattern_index = parent_pattern_index for the neighbours 
-        vis_queue->queue_visitor(new_visitor);
+        if (enable_edge_matching) {
+            tppm_visitor_tds new_visitor(neighbour, vertex, (item.second).second, target_vertex, 
+                    //g.locator_to_label(neighbour), // vertex_label
+                    g.locator_to_label(target_vertex), // vertex_label
+                    new_token_label, // token_label
+                    new_sequence_number, //sequence_number 
+                    visited_vertices, 
+                    new_itr_count, max_itr_count, source_index_pattern_indices, vertex_pattern_index, 
+                    expect_target_vertex); 
+            // vertex_pattern_index = parent_pattern_index for the neighbours 
+            vis_queue->queue_visitor(new_visitor);
+        } else {
+            tppm_visitor_tds new_visitor(neighbour, vertex, target_vertex, 
+                    //g.locator_to_label(neighbour), // vertex_label
+                    g.locator_to_label(target_vertex), // vertex_label
+                    new_token_label, // token_label
+                    new_sequence_number, //sequence_number 
+                    visited_vertices, 
+                    new_itr_count, max_itr_count, source_index_pattern_indices, vertex_pattern_index, 
+                    expect_target_vertex); 
+            // vertex_pattern_index = parent_pattern_index for the neighbours 
+            vis_queue->queue_visitor(new_visitor);
+        }
       }
 	     
 //++      return true;
