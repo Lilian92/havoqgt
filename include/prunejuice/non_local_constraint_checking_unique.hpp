@@ -53,7 +53,7 @@ protected:
 };
 
 // token passing pattern matching visitor class
-template<typename Graph, typename BitSet>
+template<typename Graph, typename BitSet, typename EdgeData>
 class tppm_visitor {
 public:
   typedef typename Graph::vertex_locator vertex_locator;
