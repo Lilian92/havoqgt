@@ -1041,7 +1041,7 @@ int main(int argc, char** argv) {
       paths_result_file, message_count); // pass a boolean flag to indicate to use batching*/ 
   } else {     
     prunejuice::token_passing_pattern_matching<graph_type, VertexMetadata, decltype(pattern_tp), decltype(pattern_indices_tp), decltype(pattern_edge_data_tp), uint8_t, PatternGraph,
-    VertexStateMap, VertexUint8Map, edge_data_t,
+    VertexStateMap, VertexUint8Map, edge_data_t, EdgeData,
     VertexSetCollection, VertexActive, TemplateVertex, VertexUint8EdgeDataMapCollection, BitSet>(graph, vertex_metadata, pattern_tp,
     pattern_indices_tp, pattern_edge_data_tp, vertex_rank, pattern_graph, vertex_state_map,
     token_source_map, pattern_cycle_length_tp, pattern_valid_cycle_tp,

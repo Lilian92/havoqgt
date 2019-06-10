@@ -912,6 +912,7 @@ public:
 
   vertex_locator vertex;
   vertex_locator parent;  
+  EdgeData       edgedata;
   vertex_locator target_vertex; // for a cycle, this is also the originating vertex
   size_t itr_count; // TODO: change type
   size_t max_itr_count; // equal to diameter - 1 of the pattern as itr_count is initialized to 0 // TODO: change type
@@ -926,6 +927,7 @@ public:
 template <typename TGraph, typename VertexMetaData, typename PatternData, 
   typename PatternIndices, typename PatternEdgeData, typename VertexRank, typename PatternGraph, 
   typename VertexStateMap, typename TokenSourceMap, typename EdgeMetaData, 
+  typename EdgeData,
   typename VertexSetCollection, typename VertexActive, typename TemplateVertex, 
   typename VertexUint8EdgeDataMapCollection, typename BitSet>
 void token_passing_pattern_matching(TGraph* g, VertexMetaData& vertex_metadata, 
@@ -974,7 +976,7 @@ void token_passing_pattern_matching(TGraph* g, VertexMetaData& vertex_metadata,
   //20 pattern_join_vertex
   //21 enable_edge_matching
   //22 pattern_edge_data
-  typedef tppm_visitor<TGraph, BitSet> visitor_type;
+  typedef tppm_visitor<TGraph, BitSet, EdgeData> visitor_type;
   auto alg_data = std::forward_as_tuple(vertex_metadata, pattern, pattern_indices, vertex_rank, 
     pattern_graph, vertex_state_map, token_source_map, pattern_cycle_length, pattern_valid_cycle, pattern_found, 
     edge_metadata, g, vertex_token_source_set, vertex_active, template_vertices, vertex_active_edges_map, 
