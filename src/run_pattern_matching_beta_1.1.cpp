@@ -726,11 +726,11 @@ int main(int argc, char** argv) {
   }
 
   // TODO: What is the issue here? Preventing stdout from this file beyond this point.  	
-  // global_active_vertex = havoqgt::mpi::mpi_all_reduce(global_active_vertex, std::greater<uint8_t>(), MPI_COMM_WORLD); 
+  global_active_vertex = havoqgt::mpi_all_reduce(global_active_vertex, std::greater<uint8_t>(), MPI_COMM_WORLD); 
   // TODO: not working properly - why? // bool does not work
-  //MPI_Barrier(MPI_COMM_WORLD); // TODO: might not need this here
+  MPI_Barrier(MPI_COMM_WORLD); // TODO: might not need this here
 
-//  global_not_finished = global_active_vertex; // TODO: verify and fix
+  global_not_finished = (global_not_finished & global_active_vertex); // TODO: verify and fix
 
   if(mpi_rank == 0) {
     std::cout << "Pattern Matching | Global Active Vertex Status : ";
