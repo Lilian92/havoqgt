@@ -361,6 +361,8 @@ public:
              //std::cout << g->locator_to_label(vertex) << " pattern_enumeration_indices " 
              //  << new_itr_count << ", " 
              //  << std::get<18>(alg_data)[new_itr_count] << std::endl; // Test
+             //  TODO Jing: What is the difference between _source_index*
+             //  and itr_count
              if (std::get<18>(alg_data)[new_itr_count] == new_itr_count) {
                // duplicate is not expected in visited_vertices  
                for (size_t i = 0; i < new_itr_count; i++) { // Important : must be < not <=
@@ -723,6 +725,7 @@ public:
         
         // TDS 
         //std::get<18>(alg_data); // pattern_enumeration_indices
+        //TODO Jing: redandent checking, pre_visit had checked those
         if (std::get<18>(alg_data)[new_itr_count] == new_itr_count) {
           // duplicate is not expected in visited_vertices  
           for (size_t i = 0; i < new_itr_count; i++) { // Important : must be < not <=
@@ -750,7 +753,7 @@ public:
         // verify if received from a valid parent 
 //        if (vertex_data == pattern[pattern_indices[next_pattern_index]] &&
         // TODO: Important: for token passing only        
-        // TODO Jing: Question redandent
+        // TODO Jing: Question redandent, checked right before this
         if (vertex_data == pattern[next_pattern_index] &&        
           vertex_pattern_index == pattern_indices[next_pattern_index]) { 
           // verify if received from a valid parent
@@ -894,6 +897,7 @@ public:
             match_found = false;
              
             //std::get<18>(alg_data); // pattern_enumeration_indices
+            //TODO Jing: redandent checking
             if (std::get<18>(alg_data)[new_itr_count + 1] == new_itr_count + 1) {
               // duplicate is not expected in visited_vertices  
               for (size_t i = 0; i <= new_itr_count; i++) {
@@ -920,7 +924,7 @@ public:
             
           } 
         } else if (max_itr_count > itr_count) {
-          match_found = false;
+          match_found = false; //TODO Jing: this match means: match the case that we don't forward
    
           // TODO: do not forward to the target_vertex   
 
@@ -936,11 +940,14 @@ public:
           //}
                     
           //std::get<18>(alg_data); // pattern_enumeration_indices
+          //TODO Jing: if we check in advance, should we check still in
+          //pre_visit and in visit?
+          //It seems to be redandent again
           if (std::get<18>(alg_data)[new_itr_count + 1] == new_itr_count + 1) {
             // duplicate is not expected in visited_vertices  
             for (size_t i = 0; i <= new_itr_count; i++) {
               if (g.locator_to_label(visited_vertices[i]) == g.locator_to_label(neighbour)) {                
-                match_found = true; 
+                match_found = true;
                 break;
               }
             }  
