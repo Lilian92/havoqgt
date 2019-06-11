@@ -1350,7 +1350,6 @@ void token_passing_pattern_matching(TGraph* g, VertexMetadata& vertex_metadata,
       }
   };
 
-  //TODO Jing: Question, need to figure out what this is for.
   typedef std::unordered_set<visitor_type, VisitorHash, VisitorCompare> VisitorSet;
   //VisitorSet* visitor_set_receive = new VisitorSet();
   //VisitorSet* visitor_set_send = new VisitorSet();  
