@@ -28,6 +28,7 @@ for f in glob.glob('./output/output_pattern_matching_*.out'):
     print("Extracting data from: ", f)
     with open(f) as fi:
         cur = {}
+        cur['file'] = f
         cur['LCC times'] = 0
         cur['LCC total runtime'] = 0
         cur['TPT times'] = 0
@@ -77,6 +78,8 @@ for f in glob.glob('./output/output_pattern_matching_*.out'):
                 ls = l.split()
                 cur['TP times'] += 1
                 cur['TP total runtime'] += float(ls[8])
+            if l.find("No active vertex left") != -1:
+                cur['subpattern count'] = 0
             if l.startswith("Pattern Matching Time | Pattern"):
                 # Extract running time of pattern matching
                 ls = l.split()
@@ -85,7 +88,11 @@ for f in glob.glob('./output/output_pattern_matching_*.out'):
                 # Extract number of matched subpattern
                 ls = l.split()
                 cur['subpattern count'] = int(ls[8])
- 
+            if (l.find("srun: error") != -1) and (l.find("Out Of Memory") != -1):
+                cur['Pattern Matching Time runtime'] = "Run Out Of Memory"
+            if l.find(" DUE TO TIME LIMIT") != -1:
+                cur['Pattern Matching Time runtime'] = "Over 24 hours"
+
         results.append(cur)
 
 
