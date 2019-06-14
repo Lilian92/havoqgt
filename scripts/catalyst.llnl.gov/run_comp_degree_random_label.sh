@@ -54,7 +54,7 @@ for i in 0 1 2 3; do
         for flags_count in 0 2 4 8 16 32 64 128 256 512 1024; do
             echo $flags_count
             sbatch -N${nodes[i]}\
-                "--export=ARG=-i /dev/shm/rmat${scales[i]} -b $graph/rmat${scales[i]} -u $flags_count -p $pattern -o ./usr/results,P=$program/run_pattern_matching_beta_1.1" $sbatch/pattern_matching.sbatch
+                "--export=ARG=-i /dev/shm/rmat${scales[i]} -b $graph/rmat${scales[i]} -u $flags_count -p $pattern -o ./output,P=$program/run_pattern_matching_beta_1.1" $sbatch/pattern_matching.sbatch
         done
     done
 done
