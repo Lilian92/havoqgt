@@ -3,24 +3,36 @@
 import glob
 import csv
 import math
+import shutil
+import os
 
 # Read maximum degrees
 max_degs = {}
-for f in glob.glob('./output/output_gen_rmat_*.out'):
-    print("Extracting data from: ", f)
-    with open(f) as fi:
-        scale = 0
-        max_deg = 0
-        for l in fi:
-            if l.startswith("Running"):
-                # Extract the running parameters
-                ls = l.split()
-                scale = int(ls[3])
-            if l.startswith("Max Degree = "):
-                # Extract running time of vertex data generating
-                ls = l.split()
-                max_deg = int(ls[3])
-        max_degs[scale] = max_deg
+if os.path.isfile('./output/scale_max.csv'):
+    with open('scale_max.csv', 'r') as csv_file:
+        csv_reader = csv.DictReader(csv_file)
+        for row in csv_reader:
+            max_degs = row
+else:
+    for f in glob.glob('./output/output_gen_rmat_*.out'):
+        print("Extracting data from: ", f)
+        with open(f) as fi:
+            scale = 0
+            max_deg = 0
+            for l in fi:
+                if l.startswith("Running"):
+                    # Extract the running parameters
+                    ls = l.split()
+                    scale = int(ls[3])
+                if l.startswith("Max Degree = "):
+                    # Extract running time of vertex data generating
+                    ls = l.split()
+                    max_deg = int(ls[3])
+            max_degs[scale] = max_deg
+    with open('scale_max.csv', 'w') as f:
+        w = csv.DictWriter(f, max_degs.keys())
+        w.writeheader()
+        w.writerow(max_degs)
 
 # Read in the raw outputs
 results = []
@@ -63,6 +75,15 @@ for f in glob.glob('./output/output_pattern_matching_*.out'):
                 # Extract running time of vertex data generating
                 ls = l.split()
                 cur['mate data generating time'] = float(ls[8])
+            if l.startswith("label "):
+                # Extract label statics
+                ls = l.split() 
+                cur['label ' + ls[1] + ' percentage'] = float(ls[4])
+#            if l.startswith("edges from label "):
+#                # Extract label statics
+#                ls = l.split()
+#                cur['edge from label ' + ls[3] + ' count'] = int(ls[5].split(',')[0])
+#                cur['edge from label ' + ls[3] + ' percentage'] = float(ls[6])
             if l.startswith("Pattern Matching Time | Local Constraint Checking :"):
                 # Extract running time of local constraint checking
                 ls = l.split()

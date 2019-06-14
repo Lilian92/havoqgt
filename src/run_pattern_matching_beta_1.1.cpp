@@ -57,7 +57,7 @@
 
 //#define OUTPUT_RESULT
 //#define ENABLE_BLOCK
-#define HISTOGRAM_LABEL
+//#define HISTOGRAM_LABEL
 #define TP_ASYNC
 //#define TP_BATCH
 
