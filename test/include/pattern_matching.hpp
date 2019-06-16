@@ -35,7 +35,7 @@ template<typename T>
 using DelegateGraphEdgeDataSTDAllocator = graph_type::edge_data
 <T, std::allocator<T>>;  
 
-typedef uint8_t EdgeData; 
+typedef int EdgeData; 
 typedef graph_type::edge_data<EdgeData, 
         bip::allocator<EdgeData, segment_manager_t>> edge_data_t;
 typedef uint64_t Vertex;

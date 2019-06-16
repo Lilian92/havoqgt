@@ -29,8 +29,6 @@ void create_local_edge_list(graph_type& g, edge_data_t& edge_data_ptr,
     edge_target.push_back(g.locator_to_label(eitr.target()));
     //edge_data.push_back((uint64_t)eitr.edge_data());   
     edge_data.push_back((uint64_t)edge_data_ptr[eitr]); 
-    std::cout << g.locator_to_label(vertex) << " " << g.locator_to_label(eitr.target())
-        << ":" << (edge_data_ptr[eitr]) << " edge data "<< std::endl;
   }
 }
 
