@@ -221,7 +221,7 @@ class pattern_nonlocal_constraint {
 
 	std::istringstream iss(line);
 
-        auto tokens = split(line, ':');
+        auto tokens = prunejuice::utilities::split(line, ':');
         assert(tokens.size() > 6); // TODO: improve
 
         boost::trim(tokens[0]); // important  
