@@ -64,6 +64,9 @@ typedef graph_type::vertex_data<VertexSet, std::allocator<VertexSet> > VertexSet
 
 typedef std::unordered_map<Vertex, uint8_t> VertexUint8Map; 
 typedef graph_type::vertex_data<VertexUint8Map, std::allocator<VertexUint8Map> > VertexUint8MapCollection;    
+typedef std::unordered_map<Vertex, std::pair<uint8_t, EdgeData>> VertexUint8EdgeDataMap; 
+typedef graph_type::vertex_data<VertexUint8EdgeDataMap, std::allocator<VertexUint8EdgeDataMap> > VertexUint8EdgeDataMapCollection;    
+
 
 typedef graph_type::edge_data<EdgeData, std::allocator<EdgeData> > EdgeMetadata;
 typedef graph_type::edge_data<Boolean, std::allocator<Boolean> > EdgeActive; // TODO: solution_graph 
@@ -71,7 +74,7 @@ typedef graph_type::edge_data<Boolean, std::allocator<Boolean> > EdgeActive; // 
 typedef std::vector<Boolean> VectorBoolean;
 typedef prunejuice::pattern_graph_csr<Vertex, Edge, VertexData, 
         EdgeData> PatternGraph;
-typedef pattern_nonlocal_constraint<Vertex, Edge, VertexData, PatternGraph>
+typedef pattern_nonlocal_constraint<Vertex, Edge, VertexData, EdgeData, PatternGraph>
 PatternNonlocalConstraint;
 
 size_t pattern_matching_prunejuice(graph_type * graph,
@@ -134,7 +137,7 @@ size_t pattern_matching_prunejuice(graph_type * graph,
 
             VertexActive vertex_active(*graph);
             TemplateVertex template_vertices(*graph);
-            VertexUint8MapCollection vertex_active_edges_map(*graph);
+            VertexUint8EdgeDataMapCollection vertex_active_edges_map(*graph);
             VertexSetCollection vertex_token_source_set(*graph); // per vertex set
 
             uint8_t vertex_rank; // TODO: dummy
@@ -235,7 +238,7 @@ size_t pattern_matching_prunejuice(graph_type * graph,
                         false, false); // TODO: improve
 
                 PatternNonlocalConstraint ptrn_util_two(pattern_graph,
-                        pattern_dir + "/pattern_nonlocal_constraint"); 
+                        pattern_dir + "/pattern_nonlocal_constraint");
 
                 vertex_state_map.clear(); // important
                 vertex_active.reset(true); // initially all vertices are active
@@ -306,10 +309,22 @@ size_t pattern_matching_prunejuice(graph_type * graph,
                 /////////////////////////////////////////////////////////////////////////////
                 double label_propagation_time_start = MPI_Wtime();
 
-                prunejuice::label_propagation_pattern_matching_bsp<Vertex, VertexData, 
+#ifdef OUTPUT_EDGEDATA
+                for(auto vertex = graph->vertices_begin(); vertex != graph->vertices_end(); vertex++)
+                {
+                    for(auto eitr = graph->edges_begin(*vertex); eitr != graph->edges_end(*vertex);
+                            ++eitr) {
+                        std::cout << (graph->locator_to_label(*vertex)) << " ";
+                        std::cout << (graph->locator_to_label(eitr.target())) << " ";
+                        std::cout << "edge data" << (uint64_t)(*edge_data_ptr)[eitr] << std::endl;
+                    }
+                }
+#endif
+
+                prunejuice::label_propagation_pattern_matching_bsp<Vertex, VertexData, EdgeData, edge_data_t,
                     graph_type, VertexMetadata, VertexStateMap, VertexActive, 
-                    VertexUint8MapCollection, TemplateVertexBitSet, TemplateVertex, PatternGraph>
-                        (graph, vertex_metadata, vertex_state_map, vertex_active, 
+                    VertexUint8EdgeDataMapCollection, TemplateVertexBitSet, TemplateVertex, PatternGraph>
+                        (graph, *edge_data_ptr, enable_edge_matching, vertex_metadata, vertex_state_map, vertex_active, 
                          vertex_active_edges_map, template_vertices, pattern_graph, global_init_step, 
                          global_not_finished, global_itr_count, superstep_result_file, 
                          active_vertices_count_result_file, active_edges_count_result_file,
@@ -396,6 +411,7 @@ size_t pattern_matching_prunejuice(graph_type * graph,
                         auto pattern_indices_tp = std::get<1>(ptrn_util_two.input_patterns[pl]);
                         auto pattern_cycle_length_tp = std::get<2>(ptrn_util_two.input_patterns[pl]);
                         auto pattern_valid_cycle_tp = std::get<3>(ptrn_util_two.input_patterns[pl]);
+                        auto pattern_edge_data_tp = std::get<6>(ptrn_util_two.input_patterns[pl]);
 
                         auto pattern_selected_vertices_tp = 0; // TODO: remove
 
@@ -466,24 +482,26 @@ size_t pattern_matching_prunejuice(graph_type * graph,
                         if (pattern_is_tds_tp) {
                             prunejuice::token_passing_pattern_matching<graph_type, Vertex, Edge, VertexData, 
                                 EdgeData, VertexMetadata, EdgeMetadata, VertexActive, 
-                                VertexUint8MapCollection, TemplateVertex, VertexStateMap, PatternGraph, 
+                                VertexUint8EdgeDataMapCollection, TemplateVertex, VertexStateMap, PatternGraph, 
                                 PatternNonlocalConstraint, VertexUint8Map, VertexSetCollection, 
                                 DelegateGraphVertexDataSTDAllocator, Boolean, BitSet>
-                                    (graph, vertex_metadata, vertex_active, vertex_active_edges_map, 
+                                    (graph, vertex_metadata, enable_edge_matching, vertex_active, vertex_active_edges_map, 
                                      template_vertices, vertex_state_map, pattern_graph, ptrn_util_two, pl,
                                      token_source_map, vertex_token_source_set, 
                                      pattern_found[pl], tp_vertex_batch_size, paths_result_file, message_count);
                         } else {     
-                            prunejuice::token_passing_pattern_matching<graph_type, VertexMetadata, decltype(pattern_tp), decltype(pattern_indices_tp), uint8_t, PatternGraph,
-                                VertexStateMap, VertexUint8Map, edge_data_t,
-                                VertexSetCollection, VertexActive, TemplateVertex, VertexUint8MapCollection, BitSet>(graph, vertex_metadata, pattern_tp,
-                                        pattern_indices_tp, vertex_rank, pattern_graph, vertex_state_map,
-                                        token_source_map, pattern_cycle_length_tp, pattern_valid_cycle_tp,
-                                        pattern_found[pl], *edge_data_ptr, vertex_token_source_set, vertex_active, 
-                                        template_vertices, vertex_active_edges_map, pattern_selected_vertices_tp, //);
-                                pattern_selected_edges_tp, pattern_mark_join_vertex_tp,
-                                pattern_ignore_join_vertex_tp, pattern_join_vertex_tp, message_count);
-                        } 
+                            prunejuice::token_passing_pattern_matching<graph_type, VertexMetadata, decltype(pattern_tp),
+                                decltype(pattern_indices_tp), decltype(pattern_edge_data_tp), uint8_t, PatternGraph,
+                                VertexStateMap, VertexUint8Map, edge_data_t, EdgeData,
+                                VertexSetCollection, VertexActive, TemplateVertex, VertexUint8EdgeDataMapCollection, BitSet>
+                                    (graph, vertex_metadata, pattern_tp,
+                                     pattern_indices_tp, pattern_edge_data_tp, vertex_rank, pattern_graph, vertex_state_map,
+                                     token_source_map, pattern_cycle_length_tp, pattern_valid_cycle_tp,
+                                     pattern_found[pl], *edge_data_ptr, enable_edge_matching, vertex_token_source_set, vertex_active, 
+                                     template_vertices, vertex_active_edges_map, pattern_selected_vertices_tp,
+                                     pattern_selected_edges_tp, pattern_mark_join_vertex_tp,
+                                     pattern_ignore_join_vertex_tp, pattern_join_vertex_tp, message_count);
+                        }
 #endif
 
                         MPI_Barrier(MPI_COMM_WORLD);
@@ -664,10 +682,10 @@ size_t pattern_matching_prunejuice(graph_type * graph,
                             // lable propagation   
                             label_propagation_time_start = MPI_Wtime();
 
-                            prunejuice::label_propagation_pattern_matching_bsp<Vertex, VertexData, 
+                            prunejuice::label_propagation_pattern_matching_bsp<Vertex, VertexData, EdgeData, edge_data_t,
                                 graph_type, VertexMetadata, VertexStateMap, VertexActive, 
-                                VertexUint8MapCollection, TemplateVertexBitSet, TemplateVertex, PatternGraph>
-                                    (graph, vertex_metadata, vertex_state_map, vertex_active, 
+                                VertexUint8EdgeDataMapCollection, TemplateVertexBitSet, TemplateVertex, PatternGraph>
+                                    (graph, *edge_data_ptr, enable_edge_matching, vertex_metadata, vertex_state_map, vertex_active, 
                                      vertex_active_edges_map, template_vertices, pattern_graph, global_init_step, 
                                      global_not_finished, global_itr_count, superstep_result_file, 
                                      active_vertices_count_result_file, active_edges_count_result_file,
@@ -842,13 +860,13 @@ size_t pattern_matching_seq(graph_type * graph,
     return 0;
 }
 
-void generate_vertex_metadata(graph_type * graph, VertexMetadata & vertex_metadata, int uniform_random_vertex_metadata, std::string vertex_metadata_input = std::string()) {
+void generate_vertex_metadata(graph_type * graph, VertexMetadata & vertex_metadata, std::string vertex_metadata_input = std::string()) {
   if (vertex_metadata_input.size() > 0) {
     vertex_data_db_nostdfs<graph_type, VertexMetadata, Vertex, VertexData>
       (graph, vertex_metadata, vertex_metadata_input, 10000);
   } else {
     vertex_data_db_degree<graph_type, VertexMetadata, Vertex, VertexData>
-      (graph, vertex_metadata, uniform_random_vertex_metadata);
+      (graph, vertex_metadata);
   }
 }
 
