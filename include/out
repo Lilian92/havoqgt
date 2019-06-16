@@ -1,0 +1,107 @@
+./havoqgt/impl/delegate_partitioned_graph.ipp:            assert(m_owned_info[local_id].is_delegate == 1);
+./havoqgt/impl/delegate_partitioned_graph.ipp:          m_owned_info[t_local_id].is_delegate = 1;
+./havoqgt/impl/delegate_partitioned_graph.ipp:  if (locator.is_delegate()) {
+./havoqgt/impl/delegate_partitioned_graph.ipp:  if (locator.is_delegate()) {
+./havoqgt/impl/delegate_partitioned_graph.ipp:  if (locator.is_delegate()) {
+./havoqgt/impl/delegate_partitioned_graph.ipp:  if (locator.is_delegate()) {
+./havoqgt/impl/delegate_partitioned_graph.ipp:  if (locator.is_delegate()) {
+./havoqgt/impl/delegate_partitioned_graph.ipp:    if (m_owned_targets[i].is_delegate()) ++local_count_del_target;
+./havoqgt/impl/edge_data.hpp:    if (itr.m_source.is_delegate()) {
+./havoqgt/impl/edge_data.hpp:    if (itr.m_source.is_delegate()) {
+./havoqgt/impl/edge_data.hpp://   if(itr.m_source.is_delegate()) {
+./havoqgt/impl/edge_data.hpp://   if(itr.m_source.is_delegate()) {
+./havoqgt/impl/edge_iterator.hpp:  if(m_source.is_delegate()) {
+./havoqgt/impl/edge_iterator.hpp://  if(m_source.is_delegate()) {
+./havoqgt/impl/vert_info.hpp:  vert_info(bool in_is_delegate, uint64_t in_delegate_id,
+./havoqgt/impl/vert_info.hpp:  uint32_t is_delegate :  1;
+./havoqgt/impl/vert_info.hpp:    return  (x.is_delegate == y.is_delegate) &&
+./havoqgt/impl/vert_info.hpp:vert_info(bool in_is_delegate, uint64_t in_delegate_id, uint64_t in_low_csr_idx)
+./havoqgt/impl/vert_info.hpp:  : is_delegate(in_is_delegate)
+./havoqgt/impl/vert_info.hpp:  assert(is_delegate == in_is_delegate);
+./havoqgt/impl/vertex_data.hpp:    if(locator.is_delegate()) {
+./havoqgt/impl/vertex_data.hpp:    if(locator.is_delegate()) {
+./havoqgt/impl/vertex_iterator.hpp:  vertex_iterator(uint64_t index, const delegate_partitioned_graph*  pgraph, bool is_delegate); 
+./havoqgt/impl/vertex_iterator.hpp:  bool					  m_is_delegate; 
+./havoqgt/impl/vertex_iterator.hpp:  , m_is_delegate(false) {
+./havoqgt/impl/vertex_iterator.hpp:vertex_iterator(uint64_t index, const delegate_partitioned_graph<SegmentManager>*  pgraph, bool is_delegate) 
+./havoqgt/impl/vertex_iterator.hpp:  , m_is_delegate(is_delegate) {
+./havoqgt/impl/vertex_iterator.hpp:  if (m_is_delegate) {
+./havoqgt/impl/vertex_iterator.hpp:          && m_ptr_graph->m_owned_info[m_owned_vert_index].is_delegate == true;
+./havoqgt/impl/vertex_iterator.hpp:      assert(m_ptr_graph->m_owned_info[m_owned_vert_index].is_delegate == false);
+./havoqgt/impl/vertex_locator.hpp:    m_is_delegate  = 0;
+./havoqgt/impl/vertex_locator.hpp:  bool is_delegate_master() const {
+./havoqgt/impl/vertex_locator.hpp:    return (is_delegate() &&
+./havoqgt/impl/vertex_locator.hpp:  bool     is_delegate() const { return m_is_delegate == 1; }
+./havoqgt/impl/vertex_locator.hpp:    //        (uint64_t(m_is_delegate) << 60);
+./havoqgt/impl/vertex_locator.hpp:    if (m_is_delegate) {
+./havoqgt/impl/vertex_locator.hpp:    // if (x.m_is_delegate &&
+./havoqgt/impl/vertex_locator.hpp:    // if (y.m_is_delegate &&
+./havoqgt/impl/vertex_locator.hpp:    // if (x.m_is_delegate == y.m_is_delegate) {
+./havoqgt/impl/vertex_locator.hpp:    //   return x.m_is_delegate < y.m_is_delegate;
+./havoqgt/impl/vertex_locator.hpp:    if (x.m_is_delegate && y.m_is_delegate) {
+./havoqgt/impl/vertex_locator.hpp:    } else if (!x.m_is_delegate && !y.m_is_delegate) {
+./havoqgt/impl/vertex_locator.hpp:      return x.m_is_delegate < y.m_is_delegate;
+./havoqgt/impl/vertex_locator.hpp:  unsigned int m_is_delegate : 1;
+./havoqgt/impl/vertex_locator.hpp:  vertex_locator(bool is_delegate, uint64_t local_id, uint32_t owner_dest);
+./havoqgt/impl/vertex_locator.hpp:    SegmentManager>::vertex_locator::vertex_locator(bool     is_delegate,
+./havoqgt/impl/vertex_locator.hpp:  if (is_delegate) {
+./havoqgt/impl/vertex_locator.hpp:    m_is_delegate = true;
+./havoqgt/impl/vertex_locator.hpp:    if (!(m_is_delegate == true && m_local_id == local_id &&
+./havoqgt/impl/vertex_locator.hpp:    m_is_delegate = false;
+./havoqgt/impl/vertex_locator.hpp:    if (!(m_is_delegate == false && m_owner_dest == owner_dest &&
+./havoqgt/impl/vertex_locator.hpp:  return m_is_delegate == x.m_is_delegate && m_is_bcast == x.m_is_bcast &&
+./havoqgt/visitor_queue.hpp:    if (ret && v.is_delegate() && m_ptr_graph->master(v) == m_world_rank) {
+./havoqgt/visitor_queue.hpp:    if (ret && v.is_delegate() && m_ptr_graph->master(v) == m_world_rank) {
+./havoqgt/visitor_queue.hpp:    if (v.vertex.is_delegate()) {
+./havoqgt/visitor_queue.hpp:    if (v.vertex.is_delegate()) {
+./havoqgt/visitor_queue.hpp:    /*if(v.vertex.is_delegate()) {
+./havoqgt/ktruss_unroll.hpp:    if (vertex.is_delegate()) {
+./havoqgt/ktruss_unroll.hpp:      if (!vertex.is_delegate_master()) {
+./havoqgt/ktruss_unroll.hpp:    if (vertex.is_delegate()) {
+./havoqgt/ktruss_unroll.hpp:      if (!vertex.is_delegate_master()) {
+./havoqgt/ktruss_unroll.hpp:    if (vertex.is_delegate()) {
+./havoqgt/ktruss_unroll.hpp:      if (!vertex.is_delegate_master()) {
+./havoqgt/ktruss_unroll.hpp:    if (vertex.is_delegate()) {
+./havoqgt/ktruss_unroll.hpp:      if (!vertex.is_delegate_master()) {
+./havoqgt/new_triangle_count.hpp:    if (vertex.is_delegate()) {
+./havoqgt/new_triangle_count.hpp:      if (!vertex.is_delegate_master()) {
+./havoqgt/new_triangle_count.hpp:      if (vertex.is_delegate()) {
+./havoqgt/new_triangle_count.hpp:        if (!vertex.is_delegate_master()) {
+./havoqgt/new_triangle_count.hpp:        if (vertex.is_delegate()) {
+./havoqgt/new_triangle_count.hpp:          if (vertex.is_delegate_master()) {
+./havoqgt/new_triangle_count.hpp:    if (vertex.is_delegate()) {
+./havoqgt/new_triangle_count.hpp:      if (vertex.is_delegate_master()) {
+./havoqgt/triangle_count_per_edge.hpp:    if (vertex.is_delegate()) {
+./havoqgt/triangle_count_per_edge.hpp:      if (!vertex.is_delegate_master()) {
+./havoqgt/triangle_count_per_edge.hpp:    if (vertex.is_delegate()) {
+./havoqgt/triangle_count_per_edge.hpp:      if (!vertex.is_delegate_master()) {
+./havoqgt/triangle_count_per_edge.hpp:    if (vertex.is_delegate()) {
+./havoqgt/triangle_count_per_edge.hpp:      if (!vertex.is_delegate_master()) {
+./prunejuice/local_constraint_checking.hpp:      if (vertex.is_delegate() && g->master(vertex) != mpi_rank && msg_type == 0) {
+./prunejuice/local_constraint_checking.hpp:      if (vertex.is_delegate() && g->master(vertex) != mpi_rank && msg_type == 1) { 
+./prunejuice/local_constraint_checking.hpp:          if (vertex.is_delegate() && g->master(vertex) == mpi_rank) { // controller
+./prunejuice/local_constraint_checking.hpp:    if (!(vertex.is_delegate() && g.master(vertex) != mpi_rank)) {
+./prunejuice/local_constraint_checking.hpp:      if (vertex.is_delegate() && (g->master(vertex) == mpi_rank)) {
+./prunejuice/local_constraint_checking.hpp:      if (vertex.is_delegate() && (g->master(vertex) == mpi_rank)) {
+./prunejuice/local_constraint_checking.hpp:    if (vertex.is_delegate() && (g->master(vertex) == mpi_rank)) {
+./prunejuice/local_constraint_checking.hpp:      if (v_locator.is_delegate() && (g->master(v_locator) == mpi_rank)) {
+./prunejuice/local_constraint_checking.hpp:      } else if (!v_locator.is_delegate()) {
+./prunejuice/non_local_constraint_checking_tds_batch.hpp:/*//--       if (vertex.is_delegate() && g->master(vertex) != mpi_rank) { // delegate but not the controller
+./prunejuice/non_local_constraint_checking_tds_batch.hpp://+           if (vertex.is_delegate() && g->master(vertex) != mpi_rank) { // delegate but not the controller
+./prunejuice/non_local_constraint_checking_tds_batch.hpp:    if (vertex.is_delegate() && (g.master(vertex) != mpi_rank)) {  
+./prunejuice/non_local_constraint_checking_tds_batch.hpp:    if (!is_init_step && vertex.is_delegate() && (g.master(vertex) != mpi_rank)) { 
+./prunejuice/non_local_constraint_checking_tds_batch.hpp:/*//--      if (vertex.is_delegate() && g.master(vertex) != mpi_rank) { // delegate but not the controller
+./prunejuice/non_local_constraint_checking_tds_batch.hpp:/*++      if (vertex.is_delegate() && (g.master(vertex) != mpi_rank)) {
+./prunejuice/non_local_constraint_checking_unique.hpp://      if (vertex.is_delegate() && (g->master(vertex) != mpi_rank)) {
+./prunejuice/non_local_constraint_checking_unique.hpp:/*//--       if (vertex.is_delegate() && g->master(vertex) != mpi_rank) { // delegate but not the controller
+./prunejuice/non_local_constraint_checking_unique.hpp://+           if (vertex.is_delegate() && g->master(vertex) != mpi_rank) { // delegate but not the controller
+./prunejuice/non_local_constraint_checking_unique.hpp:             if (!(vertex.is_delegate() && (g->master(vertex) != mpi_rank))) { 
+./prunejuice/non_local_constraint_checking_unique.hpp:    if (vertex.is_delegate() && (g.master(vertex) != mpi_rank)) { // Test ++
+./prunejuice/non_local_constraint_checking_unique.hpp:    if (!is_init_step && vertex.is_delegate() && (g.master(vertex) != mpi_rank)) {
+./prunejuice/non_local_constraint_checking_unique.hpp://      if (vertex.is_delegate() && (g.master(vertex) != mpi_rank)) {
+./prunejuice/non_local_constraint_checking_unique.hpp://      if (!(vertex.is_delegate() && g.master(vertex) != mpi_rank)) {
+./prunejuice/non_local_constraint_checking_unique.hpp:/*//--      if (vertex.is_delegate() && g.master(vertex) != mpi_rank) { // delegate but not the controller
+./prunejuice/non_local_constraint_checking_unique.hpp:            if (!(vertex.is_delegate() && (g.master(vertex) != mpi_rank))) { 
+./prunejuice/non_local_constraint_checking_unique.hpp://          if (vertex.is_delegate() && (g.master(vertex) != mpi_rank)) {
+./prunejuice/non_local_constraint_checking_unique.hpp://          if (!(vertex.is_delegate() && g.master(vertex) != mpi_rank)) {
+./prunejuice/non_local_constraint_checking_unique.hpp:/*++      if (vertex.is_delegate() && (g.master(vertex) != mpi_rank)) {
