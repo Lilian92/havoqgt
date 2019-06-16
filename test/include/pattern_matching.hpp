@@ -856,7 +856,7 @@ size_t pattern_matching_seq(graph_type * graph,
         VertexMetadata & vertex_metadata,
         edge_data_t * edge_data_ptr,
         const std::string pattern_input) {
-    //return expected value
+    //TODO
     return 0;
 }
 
