@@ -231,7 +231,7 @@ class pattern_nonlocal_constraint {
         boost::trim(tokens[4]); // important
         boost::trim(tokens[5]); // important
 
-        auto vertices = split<Vertex>(tokens[0], ' ');
+        auto vertices = prunejuice::utilities::split<Vertex>(tokens[0], ' ');
         assert(vertices.size()> 2);
 
         std::vector<VertexData> vertex_data(0);
@@ -278,8 +278,8 @@ class pattern_nonlocal_constraint {
             )
           );
      
-          enumeration_patterns.push_back(split<Vertex>(tokens[1], ' ')); 
-          aggregation_steps.push_back(split<uint8_t>(tokens[2], ' ')); // TODO: verify type compatibility 
+          enumeration_patterns.push_back(prunejuice::utilities::split<Vertex>(tokens[1], ' ')); 
+          aggregation_steps.push_back(prunejuice::utilities::split<uint8_t>(tokens[2], ' ')); // TODO: verify type compatibility 
         }    
       }
       pattern_non_local_constraint_file.close();
@@ -293,7 +293,7 @@ class pattern_nonlocal_constraint {
       while (std::getline(pattern_vertex_non_local_constraint_file, line)) {
         std::istringstream iss(line);
 
-        auto tokens_a = split(line, ':');         
+        auto tokens_a = prunejuice::utilities::split(line, ':');         
         if (tokens_a.size() < 2) {
           // vertex does not have a non-local constraint
           // TODO: ?  
@@ -309,7 +309,7 @@ class pattern_nonlocal_constraint {
           
           if (i == 1) {
              
-            auto tokens_b = split(tokens_a[i], ',');
+            auto tokens_b = prunejuice::utilities::split(tokens_a[i], ',');
             if (tokens_b.size() < 1) {
               // TODO: error?
               continue; 
@@ -320,7 +320,7 @@ class pattern_nonlocal_constraint {
               // value - is the non-local constraint mandatory for 
               // the vertex type
               boost::trim(tokens_b[j]); 
-              auto tokens_c = split(tokens_b[j], ' ');
+              auto tokens_c = prunejuice::utilities::split(tokens_b[j], ' ');
               assert(tokens_c.size() == 2);
 
               boost::trim(tokens_c[0]); 
@@ -342,7 +342,7 @@ class pattern_nonlocal_constraint {
         std::istringstream iss(line);
         //std::cout << line << std::endl;
 
-        auto tokens = split(line, ':');
+        auto tokens = prunejuice::utilities::split(line, ':');
         assert(tokens.size() > 1);
 
         boost::trim(tokens[0]); // important  
@@ -355,7 +355,7 @@ class pattern_nonlocal_constraint {
         if (is_integral_type) {
           input_patterns.push_back(
             std::forward_as_tuple(
-              split<VertexData>(tokens[0], ' '), split<Vertex>(tokens[1], ' '), 
+              prunejuice::utilities::split<VertexData>(tokens[0], ' '), prunejuice::utilities::split<Vertex>(tokens[1], ' '), 
               std::stoull(tokens[2]), std::stoull(tokens[3]), 
               std::stoull(tokens[4]), std::stoull(tokens[5]),
               std::vector<EdgeData>(0)
@@ -364,7 +364,7 @@ class pattern_nonlocal_constraint {
         } else { 
           input_patterns.push_back( 
             std::forward_as_tuple( 
-              split_char<VertexData>(tokens[0], ' '), split<Vertex>(tokens[1], ' '), 
+              prunejuice::utilities::split_char<VertexData>(tokens[0], ' '), prunejuice::utilities::split<Vertex>(tokens[1], ' '), 
               std::stoull(tokens[2]), std::stoull(tokens[3]),
               std::stoull(tokens[4]), std::stoull(tokens[5]),
               std::vector<EdgeData>(0)
@@ -405,14 +405,14 @@ class pattern_nonlocal_constraint {
 
 	std::istringstream iss(line);
 
-        auto tokens = split(line, ':');
+        auto tokens = prunejuice::utilities::split(line, ':');
         assert(tokens.size() > 1); 	   
 
         //boost::trim(tokens[0]); // important  
         boost::trim(tokens[1]); // important 
 
         if (is_integral_type) {
-          enumeration_patterns.push_back(split<Vertex>(tokens[1], ' '));  
+          enumeration_patterns.push_back(prunejuice::utilities::split<Vertex>(tokens[1], ' '));  
         }    
       }
       pattern_enumeration_input_file.close();
@@ -429,7 +429,7 @@ class pattern_nonlocal_constraint {
 
 	std::istringstream iss(line);
 
-        auto tokens = split(line, ':');
+        auto tokens = prunejuice::utilities::split(line, ':');
         assert(tokens.size() > 2); 	   
 
         //boost::trim(tokens[0]); // important  
@@ -437,8 +437,8 @@ class pattern_nonlocal_constraint {
         boost::trim(tokens[2]); // important 
 
         if (is_integral_type) {
-          enumeration_patterns.push_back(split<Vertex>(tokens[1], ' ')); 
-          aggregation_steps.push_back(split<uint8_t>(tokens[2], ' ')); 
+          enumeration_patterns.push_back(prunejuice::utilities::split<Vertex>(tokens[1], ' ')); 
+          aggregation_steps.push_back(prunejuice::utilities::split<uint8_t>(tokens[2], ' ')); 
         }    
       }
       pattern_enumeration_input_file.close();
@@ -455,7 +455,7 @@ class pattern_nonlocal_constraint {
 
 	std::istringstream iss(line);
 
-        auto tokens = split(line, ':');
+        auto tokens = prunejuice::utilities::split(line, ':');
         assert(tokens.size() > 2); 	   
 
         //boost::trim(tokens[0]); // important  
@@ -463,7 +463,7 @@ class pattern_nonlocal_constraint {
         boost::trim(tokens[2]); // important 
 
         if (is_integral_type) {
-          enumeration_patterns.push_back(split<Vertex>(tokens[1], ' ')); 
+          enumeration_patterns.push_back(prunejuice::utilities::split<Vertex>(tokens[1], ' ')); 
           //aggregation_steps.push_back(split<uint8_t>(tokens[2], ' ')); 
         }    
       }
@@ -482,7 +482,7 @@ class pattern_nonlocal_constraint {
 	std::istringstream iss(line);        
 
         if (is_integral_type) {
-          aggregation_steps.push_back(split<uint8_t>(line, ' ')); 
+          aggregation_steps.push_back(prunejuice::utilities::split<uint8_t>(line, ' ')); 
         }    
       }
       pattern_aggregation_input_file.close();
