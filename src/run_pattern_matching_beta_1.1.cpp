@@ -313,7 +313,7 @@ int main(int argc, char** argv) {
   typedef uint64_t VertexData; // for string hash
   //typedef uint8_t VertexData; // for log binning 
   //typedef edge_data_type EdgeData;
-  typedef uint8_t EdgeData; 
+  typedef short EdgeData; 
   
   typedef uint64_t VertexRankType; // TODO: delete
 
