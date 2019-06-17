@@ -1,0 +1,32 @@
+This is used to test edge_pattern_matching
+
+In this pattern, it's a tree structure, and the same as the one in SC18 prunejuice paper.
+The difference is having:
+- edges connecting leafs are labeled as 1
+- edges connecting root are labeled as 2
+
+This can be used to test:
+First case:
+- have backgroup graph label range [1].
+- run the program with edge pattern matching
+- see if the program runs successfully
+- see if the patterns found are none
+
+Second case:
+- have backgroup graph label range [1,2].
+- run the program with edge pattern matching
+- see if the program runs successfully
+- there should (but still is possible not) exists some of the pattern
+
+Third case:
+- have backgroup graph label range [1,200] and scale at 18.
+- run the program with edge pattern matching
+- see if the program runs successfully
+- there should not (but still is possible) exists some of the pattern
+
+
+Forth case:
+- generate background graph with this graph
+- run the program with edge pattern matching
+- see if the program runs successfully
+- check if patterns found is only one

@@ -1,0 +1,11 @@
+This is used to test_pattern_matching.cpp in test
+And used to test for edge matching
+
+In this pattern, it's similiar with the one in SC18 prunejuice paper.
+The difference is:
+adding various edge data.
+combined the two vertices that both have label 7 to form a cycle.
+
+This can be used to test:
+With background graph input_graph_1.hpp
+There should be 1 match

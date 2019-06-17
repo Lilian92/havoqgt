@@ -1,0 +1,9 @@
+This is used to test_pattern_matching.cpp in test
+And used to test for edge matching
+
+In this pattern, it's a tree structure, and the same as the one in SC18 prunejuice paper.
+The difference is adding edge data.
+
+This can be used to test:
+With background graph input_graph_1.hpp
+There should be 4 matches

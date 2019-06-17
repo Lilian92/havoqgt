@@ -1,0 +1,7 @@
+This is used to test edge_pattern_matching
+
+In this pattern, it's a tree structure, and the same as the one in SC18 prunejuice paper.
+The difference is: aggregation steps to be 0.
+
+This can be used to test:
+The effect sequence number

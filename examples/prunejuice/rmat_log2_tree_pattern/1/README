@@ -1,0 +1,17 @@
+This is used to test edge_pattern_matching
+
+In this pattern, it's a tree structure, and the same as the one in SC18 prunejuice paper.
+The difference is having all the edges have label as 1.
+
+This can be used to test:
+First case:
+- have all the edge label same (1) in both the backgroup graph and the pattern.
+- run the program with edge pattern matching
+- see if the program runs successfully
+- compare if the patterns found is the same with the one with no edge pattern matching
+
+Second case:
+- generate background graph with this graph
+- run the program with edge pattern matching
+- see if the program runs successfully
+- check if patterns found is only one
