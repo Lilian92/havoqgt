@@ -264,7 +264,7 @@ public:
        // verify vertex data  
        // verify if received from a valid parent
        // TODO Jing: Question, should it be ||, instead of &&
-       if (vertex_data != pattern[next_pattern_index] && 
+       if (vertex_data != pattern[next_pattern_index] ||
          parent_pattern_index != pattern_indices[next_pattern_index - 1]) {
          return false;
        }
