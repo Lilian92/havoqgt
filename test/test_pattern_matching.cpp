@@ -10,6 +10,7 @@ namespace havoqgt { namespace test {
 const std::string graph_unique_instance_name = "graph_obj";
 const std::string edge_data_unique_instance_name = "graph_edge_data_obj";
 const std::string input_graph_file_name = "/dev/shm/test_havoqgt_graph_6";
+std::string pattern_input_filename = "../../../examples/prunejuice/rmat_log2_tree_pattern/8";
 
 std::vector<std::tuple<uint64_t, uint64_t, EdgeData>> input_graph;
 std::vector<std::tuple<uint64_t, uint64_t, EdgeData>> vec_global_edges; 
@@ -32,7 +33,6 @@ void create_local_edge_list(graph_type& g, edge_data_t& edge_data_ptr,
 bool test_pattern_matching() {
   int mpi_rank(0);
   CHK_MPI(MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank));
-  const std::string pattern_input_filename = "/p/lustre1/an4/patterns/tree/7";
   const std::string output_filename = "./results/";
   const std::string vertex_metadata_filename = "/p/lustre1/an4/metadata/head";
 
@@ -173,7 +173,8 @@ GTEST_API_ int main(int argc, char **argv) {
     //print_system_info(false); 
   }
   MPI_Barrier(MPI_COMM_WORLD);
-   
+  if (argc > 1)
+      havoqgt::test::pattern_input_filename = argv[1];
   // execute tests
   testing::InitGoogleTest(&argc, argv);
   to_return =  RUN_ALL_TESTS();
