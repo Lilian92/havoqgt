@@ -78,7 +78,7 @@ bool test_pattern_matching() {
   }
 
   size_t count_pj = pattern_matching_prunejuice(graph, vertex_metadata, edge_data_ptr,
-          pattern_input_filename, output_filename, true);
+          pattern_input_filename, output_filename, false);
   size_t count_seq = pattern_matching_seq(graph, vertex_metadata, edge_data_ptr,
           pattern_input_filename);
 

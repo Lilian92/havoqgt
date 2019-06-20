@@ -90,7 +90,7 @@ void usage()  {
       << " -i <string>   - input graph base filename (required)\n"
       << " -b <string>   - backup graph base filename. If set, \"input\" graph will be deleted if it exists\n"
       << " -v <string>   - vertex metadata base filename (optional. Default is degree based metadata)\n"
-      << " -c <bool>     - enable edge matching (optional. Defaule false)\n"
+      << " -u <int>      - vertex metadata random uniform labels with range [0, x). Default value is 0, which means using degree based label"
       << " -e <string>   - edge metadata base filename (optional, Default is reading from input graph)\n"
       << " -p <string>   - pattern base directory (required)\n"
       << " -o <string>   - output base directory (required)\n"
@@ -105,6 +105,7 @@ void usage()  {
 
 void parse_cmd_line(int argc, char** argv, std::string& graph_input, 
   std::string& backup_graph_input, std::string& vertex_metadata_input, 
+  int&         uniform_random_vertex_label,
   bool&        enable_edge_matching,
   std::string& edge_metadata_input, std::string& pattern_input, 
   std::string& result_output, uint64_t& tp_vertex_batch_size) {
@@ -120,11 +121,12 @@ void parse_cmd_line(int argc, char** argv, std::string& graph_input,
 
   bool print_help = false;
   enable_edge_matching = false;
+  uniform_random_vertex_label = 0;
   std::bitset<3> required_input;
   required_input.reset();
 
   char c;
-  while ((c = getopt(argc, argv, "i:b:v:c:e:p:o:x:h ")) != -1) {
+  while ((c = getopt(argc, argv, "i:b:v:u:e:p:o:x:h ")) != -1) {
     switch (c) {
       case 'h' :  
         print_help = true;
@@ -139,8 +141,8 @@ void parse_cmd_line(int argc, char** argv, std::string& graph_input,
       case 'v' :
         vertex_metadata_input = optarg;
         break;
-      case 'c':
-        enable_edge_matching = true;
+      case 'u' :
+        uniform_random_vertex_label = std::stoull(optarg);
         break;
       case 'e' :
         edge_metadata_input = optarg;
@@ -174,6 +176,9 @@ void parse_cmd_line(int argc, char** argv, std::string& graph_input,
     usage();
     exit(-1);
   }
+
+  if (uniform_random_vertex_label > 0)
+      srand(10);
 }
 
 int main(int argc, char** argv) {
@@ -219,6 +224,7 @@ int main(int argc, char** argv) {
   std::string graph_input;
   std::string backup_graph_input;
   std::string vertex_metadata_input;
+  int         uniform_random_vertex_label;
   bool        enable_edge_matching;
   std::string edge_metadata_input;
   std::string pattern_input;
@@ -227,7 +233,7 @@ int main(int argc, char** argv) {
   uint64_t tp_vertex_batch_size = comm_world().size();
 
   parse_cmd_line(argc, argv, graph_input, backup_graph_input, 
-    vertex_metadata_input, enable_edge_matching, edge_metadata_input, pattern_input, result_output, 
+    vertex_metadata_input, uniform_random_vertex_label, enable_edge_matching, edge_metadata_input, pattern_input, result_output, 
     tp_vertex_batch_size); 
 
   std::string pattern_dir = pattern_input; 
@@ -313,7 +319,7 @@ int main(int argc, char** argv) {
   typedef uint64_t VertexData; // for string hash
   //typedef uint8_t VertexData; // for log binning 
   //typedef edge_data_type EdgeData;
-  typedef short EdgeData; 
+  typedef VertexData EdgeData; 
   
   typedef uint64_t VertexRankType; // TODO: delete
 
@@ -348,7 +354,7 @@ int main(int argc, char** argv) {
   
   typedef std::unordered_map<Vertex, uint8_t> VertexUint8Map; 
   typedef graph_type::vertex_data<VertexUint8Map, std::allocator<VertexUint8Map> > VertexUint8MapCollection;    
-  typedef std::unordered_map<Vertex, std::pair<uint8_t, EdgeData>> VertexUint8EdgeDataMap; 
+  typedef std::unordered_map<Vertex, std::pair<uint8_t, VertexData>> VertexUint8EdgeDataMap; 
   typedef graph_type::vertex_data<VertexUint8EdgeDataMap, std::allocator<VertexUint8EdgeDataMap> > VertexUint8EdgeDataMapCollection;    
 
   typedef graph_type::edge_data<EdgeData, std::allocator<EdgeData> > EdgeMetadata;
@@ -423,7 +429,7 @@ int main(int argc, char** argv) {
       // TODO: each rank reads 10K lines from file at a time
   } else {
     vertex_data_db_degree<graph_type, VertexMetadata, Vertex, VertexData>
-      (graph, vertex_metadata);
+      (graph, vertex_metadata, uniform_random_vertex_label);
   }
 
   MPI_Barrier(MPI_COMM_WORLD); // TODO: do we need this?

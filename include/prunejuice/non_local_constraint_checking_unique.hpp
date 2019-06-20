@@ -572,11 +572,13 @@ public:
               //tppm_visitor new_visitor(neighbour, vertex, 0, 2, 0, pattern_indices[0], false, true, false);
               vis_queue->queue_visitor(new_visitor);
           } else {
+              if (pattern[1] == (item.second).second) {
               tppm_visitor new_visitor(neighbour, vertex, vertex, 0, pattern_cycle_length, 0, pattern_indices[0], pattern_valid_cycle, true, false);
 
               // loop detection - path back to the source vertex is invalid
               //tppm_visitor new_visitor(neighbour, vertex, 0, 2, 0, pattern_indices[0], false, true, false);
               vis_queue->queue_visitor(new_visitor);
+              }
           }
 //        } 
       }
@@ -913,10 +915,12 @@ public:
             // vertex_pattern_index = parent_pattern_index for the neighbours 
             vis_queue->queue_visitor(new_visitor);
         } else {
+              if (pattern[next_pattern_index + 1] == (item.second).second) {
             tppm_visitor new_visitor(neighbour, vertex, target_vertex, new_itr_count, max_itr_count, 
                     source_index_pattern_indices, vertex_pattern_index, expect_target_vertex);
             // vertex_pattern_index = parent_pattern_index for the neighbours 
             vis_queue->queue_visitor(new_visitor);
+              }
         }
 
         // Test

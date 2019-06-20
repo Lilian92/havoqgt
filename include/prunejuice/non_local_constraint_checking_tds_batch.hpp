@@ -612,6 +612,7 @@ public:
                         visited_vertices, 0, pattern_cycle_length, 0, pattern_indices[0], pattern_valid_cycle, true, false);
                 vis_queue->queue_visitor(new_visitor);
             } else {
+                if ((item.second).second == pattern[1]) {
                 tppm_visitor_tds new_visitor(neighbour, vertex, vertex, 
                         //g.locator_to_label(neighbour), // vertex_label
                         g.locator_to_label(vertex), // vertex_label
@@ -619,6 +620,7 @@ public:
                         std::get<21>(alg_data)[vertex], //0, // sequence_number
                         visited_vertices, 0, pattern_cycle_length, 0, pattern_indices[0], pattern_valid_cycle, true, false);
                 vis_queue->queue_visitor(new_visitor);
+                }
             }
         } 
       }
@@ -1013,6 +1015,7 @@ public:
             // vertex_pattern_index = parent_pattern_index for the neighbours 
             vis_queue->queue_visitor(new_visitor);
         } else {
+            if ((item.second).second == pattern[next_pattern_index+1]) {
             tppm_visitor_tds new_visitor(neighbour, vertex, target_vertex, 
                     //g.locator_to_label(neighbour), // vertex_label
                     g.locator_to_label(target_vertex), // vertex_label
@@ -1023,6 +1026,7 @@ public:
                     expect_target_vertex); 
             // vertex_pattern_index = parent_pattern_index for the neighbours 
             vis_queue->queue_visitor(new_visitor);
+            }
         }
       }
 	     

@@ -594,7 +594,7 @@ public:
               lppm_visitor new_visitor(neighbor, vertex, edge_data_ptr[eitr], vertex_template_vertices, 1);
               vis_queue->queue_visitor(new_visitor);
           } else {
-              lppm_visitor new_visitor(neighbor, vertex, vertex_template_vertices, 1);
+              lppm_visitor new_visitor(neighbor, vertex, vertex_data, vertex_template_vertices, 1);
               vis_queue->queue_visitor(new_visitor);
           }
         } // for 
@@ -661,7 +661,7 @@ public:
             lppm_visitor new_visitor(neighbor, vertex, _edge_data, vertex_template_vertices, 1); 
             vis_queue->queue_visitor(new_visitor);
         } else  {
-            lppm_visitor new_visitor(neighbor, vertex, vertex_template_vertices, 1); 
+            lppm_visitor new_visitor(neighbor, vertex, vertex_data, vertex_template_vertices, 1); 
             vis_queue->queue_visitor(new_visitor);
         }
 

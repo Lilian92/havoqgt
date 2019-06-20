@@ -106,7 +106,9 @@ public:
     }*/
 
     // log2  
-    std::get<0>(alg_data)[vertex] = static_cast<VertexData>(ceil(log2(g.degree(vertex) + 1)));
+    int uniform_random_vertex_label = std::get<1>(alg_data);
+    std::get<0>(alg_data)[vertex] = (uniform_random_vertex_label <= 0) ? \
+            static_cast<VertexData>(ceil(log2(g.degree(vertex) + 1))) : static_cast<VertexData>(rand() % uniform_random_vertex_label);
     
     //log6  
     //auto base = 8;
@@ -132,7 +134,7 @@ public:
 
 template <typename TGraph, typename VertexMetaData, typename Vertex, 
   typename VertexData>
-void vertex_data_db_degree(TGraph* g, VertexMetaData& vertex_metadata) {
+void vertex_data_db_degree(TGraph* g, VertexMetaData& vertex_metadata, int uniform_random_vertex_label) {
   ///int mpi_rank = havoqgt_env()->world_comm().rank();
   int mpi_rank = comm_world().rank();
 
@@ -141,7 +143,7 @@ void vertex_data_db_degree(TGraph* g, VertexMetaData& vertex_metadata) {
   }
 
   typedef vertex_data_degree_visitor<TGraph, VertexData> visitor_type;
-  auto alg_data = std::forward_as_tuple(vertex_metadata);
+  auto alg_data = std::forward_as_tuple(vertex_metadata, uniform_random_vertex_label);
   auto vq = create_visitor_queue<visitor_type, havoqgt::detail::visitor_priority_queue>(g, alg_data);
   ///vq.init_visitor_traversal_new();
   vq.init_visitor_traversal();

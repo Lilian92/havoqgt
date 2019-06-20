@@ -860,13 +860,13 @@ size_t pattern_matching_seq(graph_type * graph,
     return 0;
 }
 
-void generate_vertex_metadata(graph_type * graph, VertexMetadata & vertex_metadata, std::string vertex_metadata_input = std::string()) {
+void generate_vertex_metadata(graph_type * graph, VertexMetadata & vertex_metadata, int uniform_random_vertex_label=0, std::string vertex_metadata_input = std::string()) {
   if (vertex_metadata_input.size() > 0) {
     vertex_data_db_nostdfs<graph_type, VertexMetadata, Vertex, VertexData>
       (graph, vertex_metadata, vertex_metadata_input, 10000);
   } else {
     vertex_data_db_degree<graph_type, VertexMetadata, Vertex, VertexData>
-      (graph, vertex_metadata);
+      (graph, vertex_metadata, uniform_random_vertex_label);
   }
 }
 
