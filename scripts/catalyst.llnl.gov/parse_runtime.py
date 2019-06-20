@@ -71,6 +71,8 @@ for f in glob.glob('./output/output_pattern_matching_*.out'):
                 cur['nodes'] = 2
                 cur['tasks per nodes'] = 4
                 cur['pattern'] = int(ls[9].split('/')[-1])
+            if l.startswith("Runing round:"):
+                cur['round'] = int(ls[0])
             if l.startswith("Pattern Matching Time | Vertex Data DB :"):
                 # Extract running time of vertex data generating
                 ls = l.split()
@@ -94,10 +96,12 @@ for f in glob.glob('./output/output_pattern_matching_*.out'):
                 ls = l.split()
                 cur['TPT times'] += 1
                 cur['TPT total runtime'] += float(ls[9])
+                cur['TPT ' + str(ls[7]) + ' time'] = float(ls[9])
             if l.startswith("Pattern Matching Time | Token Passing ["):
                 # Extract running time of token passing
                 ls = l.split()
                 cur['TP times'] += 1
+                cur['TP ' + str(ls[6]) + ' time'] = float(ls[8])
                 cur['TP total runtime'] += float(ls[8])
             if l.find("No active vertex left") != -1:
                 cur['subpattern count'] = 0
