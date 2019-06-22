@@ -91,6 +91,7 @@ void usage()  {
       << " -b <string>   - backup graph base filename. If set, \"input\" graph will be deleted if it exists\n"
       << " -v <string>   - vertex metadata base filename (optional. Default is degree based metadata)\n"
       << " -c <bool>     - enable edge matching (optional. Defaule false)\n"
+      << " -d <bool>     - enable edge temperal matching (optional. Defaule false)\n"
       << " -e <string>   - edge metadata base filename (optional, Default is reading from input graph)\n"
       << " -p <string>   - pattern base directory (required)\n"
       << " -o <string>   - output base directory (required)\n"
@@ -106,6 +107,7 @@ void usage()  {
 void parse_cmd_line(int argc, char** argv, std::string& graph_input, 
   std::string& backup_graph_input, std::string& vertex_metadata_input, 
   bool&        enable_edge_matching,
+  bool&        enable_edge_temporal_matching,
   std::string& edge_metadata_input, std::string& pattern_input, 
   std::string& result_output, uint64_t& tp_vertex_batch_size) {
 
@@ -120,6 +122,7 @@ void parse_cmd_line(int argc, char** argv, std::string& graph_input,
 
   bool print_help = false;
   enable_edge_matching = false;
+  enable_edge_temporal_matching = false;
   std::bitset<3> required_input;
   required_input.reset();
 
@@ -141,6 +144,9 @@ void parse_cmd_line(int argc, char** argv, std::string& graph_input,
         break;
       case 'c':
         enable_edge_matching = true;
+        break;
+      case 'd':
+        enable_edge_temporal_matching = true;
         break;
       case 'e' :
         edge_metadata_input = optarg;
@@ -220,6 +226,7 @@ int main(int argc, char** argv) {
   std::string backup_graph_input;
   std::string vertex_metadata_input;
   bool        enable_edge_matching;
+  bool        enable_edge_temporal_matching;
   std::string edge_metadata_input;
   std::string pattern_input;
   std::string result_output;  
@@ -227,7 +234,7 @@ int main(int argc, char** argv) {
   uint64_t tp_vertex_batch_size = comm_world().size();
 
   parse_cmd_line(argc, argv, graph_input, backup_graph_input, 
-    vertex_metadata_input, enable_edge_matching, edge_metadata_input, pattern_input, result_output, 
+    vertex_metadata_input, enable_edge_matching, enable_edge_temporal_matching, edge_metadata_input, pattern_input, result_output, 
     tp_vertex_batch_size); 
 
   std::string pattern_dir = pattern_input; 
@@ -692,7 +699,7 @@ int main(int argc, char** argv) {
  prunejuice::label_propagation_pattern_matching_bsp<Vertex, VertexData, EdgeData, edge_data_t,
    graph_type, VertexMetadata, VertexStateMap, VertexActive, 
    VertexUint8EdgeDataMapCollection, TemplateVertexBitSet, TemplateVertex, PatternGraph>
-   (graph, *edge_data_ptr, enable_edge_matching, vertex_metadata, vertex_state_map, vertex_active, 
+   (graph, *edge_data_ptr, enable_edge_matching, enable_edge_temporal_matching, vertex_metadata, vertex_state_map, vertex_active, 
    vertex_active_edges_map, template_vertices, pattern_graph, global_init_step, 
    global_not_finished, global_itr_count, superstep_result_file, 
    active_vertices_count_result_file, active_edges_count_result_file,
@@ -1025,7 +1032,7 @@ int main(int argc, char** argv) {
       VertexUint8EdgeDataMapCollection, TemplateVertex, VertexStateMap, PatternGraph, 
       /*PatternUtilities*/PatternNonlocalConstraint, VertexUint8Map, VertexSetCollection, 
       DelegateGraphVertexDataSTDAllocator, Boolean, BitSet>
-      (graph, vertex_metadata, enable_edge_matching, vertex_active, vertex_active_edges_map, 
+      (graph, vertex_metadata, enable_edge_matching, enable_edge_temporal_matching, vertex_active, vertex_active_edges_map, 
        template_vertices, vertex_state_map, pattern_graph, ptrn_util_two, pl,
        token_source_map, vertex_token_source_set, 
        pattern_found[pl], tp_vertex_batch_size, paths_result_file, message_count);
@@ -1046,7 +1053,7 @@ int main(int argc, char** argv) {
     VertexSetCollection, VertexActive, TemplateVertex, VertexUint8EdgeDataMapCollection, BitSet>(graph, vertex_metadata, pattern_tp,
     pattern_indices_tp, pattern_edge_data_tp, vertex_rank, pattern_graph, vertex_state_map,
     token_source_map, pattern_cycle_length_tp, pattern_valid_cycle_tp,
-    pattern_found[pl], *edge_data_ptr, enable_edge_matching, vertex_token_source_set, vertex_active, 
+    pattern_found[pl], *edge_data_ptr, enable_edge_matching, enable_edge_temporal_matching, vertex_token_source_set, vertex_active, 
     template_vertices, vertex_active_edges_map, pattern_selected_vertices_tp, //);
     pattern_selected_edges_tp, pattern_mark_join_vertex_tp,
     pattern_ignore_join_vertex_tp, pattern_join_vertex_tp, message_count);
@@ -1350,7 +1357,7 @@ int main(int argc, char** argv) {
   prunejuice::label_propagation_pattern_matching_bsp<Vertex, VertexData, EdgeData, edge_data_t,
     graph_type, VertexMetadata, VertexStateMap, VertexActive, 
     VertexUint8EdgeDataMapCollection, TemplateVertexBitSet, TemplateVertex, PatternGraph>
-    (graph, *edge_data_ptr, enable_edge_matching, vertex_metadata, vertex_state_map, vertex_active, 
+    (graph, *edge_data_ptr, enable_edge_matching, enable_edge_temporal_matching, vertex_metadata, vertex_state_map, vertex_active, 
     vertex_active_edges_map, template_vertices, pattern_graph, global_init_step, 
     global_not_finished, global_itr_count, superstep_result_file, 
     active_vertices_count_result_file, active_edges_count_result_file,

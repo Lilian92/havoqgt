@@ -1167,6 +1167,7 @@ template <typename Vertex, typename VertexData, typename EdgeData, typename edge
 void label_propagation_pattern_matching_bsp(TGraph* g, 
   edge_data_t& edge_data_ptr,
   bool enable_edge_matching,
+  bool enable_edge_temporal_matching,
   VertexMetaData& vertex_metadata,VertexStateMapGeneric& vertex_state_map_generic,  
   VertexActive& vertex_active, 
   VertexUint8EdgeDataMapCollection& vertex_active_edges_map, 
@@ -1218,9 +1219,10 @@ void label_propagation_pattern_matching_bsp(TGraph* g,
     //12  vertex_active_edges_map
     //13  edge_data_ptr
     //14  enable_edge_matching
+    //15  enable_edge_temporal_matching
   typedef lppm_visitor<TGraph, Vertex, VertexData, EdgeData, BitSet> visitor_type;
   auto alg_data = std::forward_as_tuple(vertex_metadata, pattern, pattern_indices, vertex_rank,
-    vertex_active, vertex_iteration, vertex_state_map_generic, pattern_graph, superstep_var, global_init_step, g, template_vertices, vertex_active_edges_map, edge_data_ptr, enable_edge_matching);
+    vertex_active, vertex_iteration, vertex_state_map_generic, pattern_graph, superstep_var, global_init_step, g, template_vertices, vertex_active_edges_map, edge_data_ptr, enable_edge_matching, enable_edge_temporal_matching);
   auto vq = havoqgt::create_visitor_queue<visitor_type, havoqgt::detail::visitor_priority_queue>(g, alg_data);
 
   if (mpi_rank == 0) {

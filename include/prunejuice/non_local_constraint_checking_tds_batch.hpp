@@ -1111,6 +1111,7 @@ template <typename TGraph, typename Vertex, typename Edge, typename VertexData,
 
 void token_passing_pattern_matching(TGraph* g, VertexMetadata& vertex_metadata,
   bool enable_edge_matching,
+  bool enable_edge_temporal_matching,
   VertexActive& vertex_active, 
   VertexUint8EdgeDataMapCollection& vertex_active_edges_map, 
   TemplateVertex& template_vertices, VertexStateMap& vertex_state_map,
@@ -1597,6 +1598,7 @@ void token_passing_pattern_matching(TGraph* g, VertexMetadata& vertex_metadata,
     // 22 pattern_aggregation_steps
     // 23 enable_edge_matching
     // 24 pattern_edge_data
+    // 25 enable_edge_temporal_matching
     //typedef tppm_visitor_tds<TGraph, Vertex, BitSet> visitor_type;
     //TODO Jing: understand what vertex_sequence_number
     //TODO Jing: understand what the join vertex is about
@@ -1607,7 +1609,8 @@ void token_passing_pattern_matching(TGraph* g, VertexMetadata& vertex_metadata,
       pattern_selected_vertices, paths_result_file, pattern_enumeration_indices, visitor_set_receive,
       superstep_var, vertex_sequence_number, pattern_aggregation_steps,
       enable_edge_matching,
-      pattern_edge_data);
+      pattern_edge_data,
+      enable_edge_temporal_matching);
 
     auto vq = havoqgt::create_visitor_queue<visitor_type, 
       /*havoqgt::detail::visitor_priority_queue*/tppm_queue_tds>(g, alg_data);

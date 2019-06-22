@@ -996,6 +996,7 @@ void token_passing_pattern_matching(TGraph* g, VertexMetaData& vertex_metadata,
   TokenSourceMap& token_source_map, size_t pattern_cycle_length, bool pattern_valid_cycle, 
   std::vector<uint8_t>::reference pattern_found, EdgeMetaData& edge_metadata, 
   bool enable_edge_matching,
+  bool enable_edge_temporal_matching,
   VertexSetCollection& vertex_token_source_set, VertexActive& vertex_active, 
   TemplateVertex& template_vertices, VertexUint8EdgeDataMapCollection& vertex_active_edges_map, 
   bool pattern_selected_vertices, bool pattern_selected_edges,
@@ -1036,13 +1037,15 @@ void token_passing_pattern_matching(TGraph* g, VertexMetaData& vertex_metadata,
   //20 pattern_join_vertex
   //21 enable_edge_matching
   //22 pattern_edge_data
+  //23 enable_edge_temporal_matching
   typedef tppm_visitor<TGraph, BitSet, EdgeData> visitor_type;
   auto alg_data = std::forward_as_tuple(vertex_metadata, pattern, pattern_indices, vertex_rank, 
     pattern_graph, vertex_state_map, token_source_map, pattern_cycle_length, pattern_valid_cycle, pattern_found, 
     edge_metadata, g, vertex_token_source_set, vertex_active, template_vertices, vertex_active_edges_map, 
     pattern_selected_vertices, pattern_selected_edges, 
     pattern_mark_join_vertex, pattern_ignore_join_vertex, pattern_join_vertex,
-    enable_edge_matching, pattern_edge_data);
+    enable_edge_matching, pattern_edge_data,
+    enable_edge_temporal_matching);
   auto vq = havoqgt::create_visitor_queue<visitor_type, /*havoqgt::detail::visitor_priority_queue*/tppm_queue>(g, alg_data);
   ///vq.init_visitor_traversal_new();
   //vq.init_visitor_traversal_new_alt();
