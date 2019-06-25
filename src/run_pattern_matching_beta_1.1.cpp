@@ -571,7 +571,7 @@ int main(int argc, char** argv) {
 
   PatternTemporalConstraint ptrn_temp_const(pattern_graph,
           ptrn_util_two,
-    pattern_dir + "/pattern_temporal_constraint");
+    pattern_dir + "/pattern_temporal_constraint", enable_edge_temporal_matching);
 
 
   //auto pattern = std::get<0>(ptrn_util_two.input_patterns[0]); // TODO: remove

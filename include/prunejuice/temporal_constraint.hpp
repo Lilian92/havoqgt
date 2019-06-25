@@ -21,7 +21,7 @@ class pattern_temporal_constraint {
     public:
     pattern_temporal_constraint(PatternGraph& pattern_graph,
             PatternNonlocalConstraint& pattern_non_local_constraint,
-            std::string pattern_temporal_constraint_filename, bool _directed=false) :
+            std::string pattern_temporal_constraint_filename, bool enable_edge_temporal_matching = true, bool _directed=false) :
         edge_count(0),
         vertex_count(0),
         all_constraints(),
@@ -30,6 +30,9 @@ class pattern_temporal_constraint {
         local_constraints(),
         non_local_constraints(),
         directed(_directed) {
+        if (!enable_edge_temporal_matching)
+            return ;
+
         if (directed) {
             //TODO
             std::cerr << "directed not supported yet" << std::endl;
