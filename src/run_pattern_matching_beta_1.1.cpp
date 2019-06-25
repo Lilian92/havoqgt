@@ -348,7 +348,7 @@ int main(int argc, char** argv) {
 
   //typedef vertex_state<uint8_t> VertexState;
 ///  typedef prunejuice::vertex_state_generic<Vertex, VertexData, uint8_t, BitSet> VertexState;
-  typedef prunejuice::vertex_state<Vertex, VertexData, BitSet> VertexState;
+  typedef prunejuice::vertex_state<Vertex, VertexData, BitSet, EdgeData> VertexState;
   typedef std::unordered_map<Vertex, VertexState> VertexStateMap; // TODO: solution_graph
 
   typedef std::unordered_set<Vertex> VertexSet;  

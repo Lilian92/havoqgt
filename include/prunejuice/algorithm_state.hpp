@@ -4,7 +4,7 @@
 
 namespace prunejuice {
 
-template<typename Vertex, typename VertexData, typename BitSet>
+template<typename Vertex, typename VertexData, typename BitSet, typename EdgeData>
 class vertex_state {
   public :
     vertex_state() :
@@ -18,6 +18,9 @@ class vertex_state {
  
     size_t vertex_pattern_index; // TODO: dummy, to be removed
     bool is_active; 		  
+
+    std::unordered_map<Vertex, std::tuple<EdgeData, EdgeData>> last_itr_min_max,
+    std::unordered_map<Vertex, std::tuple<EdgeData, EdgeData>> cur_itr_min_max,
 };
   
 } // end namespace prunejuice 

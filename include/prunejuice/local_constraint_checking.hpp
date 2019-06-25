@@ -695,7 +695,7 @@ public:
 
 //    typedef vertex_state_generic<VertexData, DynamicBitSet, uint64_t> VertexState;
 ///    typedef vertex_state_generic<Vertex, VertexData, uint8_t, BitSet> VertexState;
-    typedef vertex_state<Vertex, VertexData, BitSet> VertexState;
+    typedef vertex_state<Vertex, VertexData, BitSet, EdgeData> VertexState;
     
     // std::get<6>(alg_data) - vertex_state_map 
     auto& pattern_graph = std::get<7>(alg_data); 
