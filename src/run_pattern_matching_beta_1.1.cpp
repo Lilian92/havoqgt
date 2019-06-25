@@ -1368,7 +1368,7 @@ int main(int argc, char** argv) {
     graph_type, VertexMetadata, VertexStateMap, VertexActive, 
     VertexUint8EdgeDataMapCollection, TemplateVertexBitSet, TemplateVertex, PatternGraph, PatternTemporalConstraint>
     (graph, *edge_data_ptr, enable_edge_matching, enable_edge_temporal_matching, vertex_metadata, vertex_state_map, vertex_active, 
-    vertex_active_edges_map, template_vertices, pattern_graph, ptrn_temp_const, global_init_step, 
+    vertex_active_edges_map, template_vertices, pattern_graph, ptrn_temp_const, global_init_step,
     global_not_finished, global_itr_count, superstep_result_file, 
     active_vertices_count_result_file, active_edges_count_result_file,
     message_count_result_file);  
