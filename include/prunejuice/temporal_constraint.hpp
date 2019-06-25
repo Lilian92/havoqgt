@@ -222,14 +222,18 @@ class pattern_temporal_constraint {
         }
 
         void output_operation () {
-            std::cout << "current operator kind: ";
+            if (!opt.test(STORE_POS) && !opt.test(COMP_POS)) {
+                std::cout << " no";
+                return ;
+            }
+
             if (opt.test(STORE_POS))
-                std::cout << "store" << std::endl;
+                std::cout << " store;";
             if (opt.test(COMP_POS)) {
-                std::cout << "compare" << std::endl;
+                std::cout << " compare:";
                 for (auto comp : compare_to_edges) {
                     std::cout << ((comp.second == true)? "smaller than " : "larger than ") \
-                                            << comp.first << std::endl;
+                                            << comp.first << ";";
                 }
             }
         }
@@ -295,6 +299,15 @@ class pattern_temporal_constraint {
             line_count++;
         }
         pattern_temporal_constraint_file.close();
+    }
+
+    void output_all_constraints() {
+        for (Edge i=0; i<edge_count; i++) {
+            std::cout << "edge " << i << " smaller to:";
+                for (auto e : all_constraints[i])
+                    std::cout << e << " ";
+            std::cout << std::endl;
+        }
     }
 
     void check_all_constraints(PatternGraph& pattern_graph) {
