@@ -986,13 +986,14 @@ public:
 
 template <typename TGraph, typename VertexMetaData, typename PatternData, 
   typename PatternIndices, typename PatternEdgeData, typename VertexRank, typename PatternGraph, 
+  typename PatternTemporalConstraint,
   typename VertexStateMap, typename TokenSourceMap, typename EdgeMetaData, 
   typename EdgeData,
   typename VertexSetCollection, typename VertexActive, typename TemplateVertex, 
   typename VertexUint8EdgeDataMapCollection, typename BitSet>
 void token_passing_pattern_matching(TGraph* g, VertexMetaData& vertex_metadata, 
   PatternData& pattern, PatternIndices& pattern_indices, PatternEdgeData& pattern_edge_data,
-  VertexRank& vertex_rank, PatternGraph& pattern_graph, VertexStateMap& vertex_state_map,
+  VertexRank& vertex_rank, PatternGraph& pattern_graph, PatternTemporalConstraint & ptrn_temp_const, VertexStateMap& vertex_state_map,
   TokenSourceMap& token_source_map, size_t pattern_cycle_length, bool pattern_valid_cycle, 
   std::vector<uint8_t>::reference pattern_found, EdgeMetaData& edge_metadata, 
   bool enable_edge_matching,

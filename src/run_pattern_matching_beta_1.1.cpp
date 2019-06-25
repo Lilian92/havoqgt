@@ -707,9 +707,9 @@ int main(int argc, char** argv) {
 
  prunejuice::label_propagation_pattern_matching_bsp<Vertex, VertexData, EdgeData, edge_data_t,
    graph_type, VertexMetadata, VertexStateMap, VertexActive, 
-   VertexUint8EdgeDataMapCollection, TemplateVertexBitSet, TemplateVertex, PatternGraph>
+   VertexUint8EdgeDataMapCollection, TemplateVertexBitSet, TemplateVertex, PatternGraph, PatternTemporalConstraint>
    (graph, *edge_data_ptr, enable_edge_matching, enable_edge_temporal_matching, vertex_metadata, vertex_state_map, vertex_active, 
-   vertex_active_edges_map, template_vertices, pattern_graph, global_init_step, 
+   vertex_active_edges_map, template_vertices, pattern_graph, ptrn_temp_const, global_init_step, 
    global_not_finished, global_itr_count, superstep_result_file, 
    active_vertices_count_result_file, active_edges_count_result_file,
    message_count_result_file);
@@ -1039,10 +1039,10 @@ int main(int argc, char** argv) {
     prunejuice::token_passing_pattern_matching<graph_type, Vertex, Edge, VertexData, 
       EdgeData, VertexMetadata, EdgeMetadata, VertexActive, 
       VertexUint8EdgeDataMapCollection, TemplateVertex, VertexStateMap, PatternGraph, 
-      /*PatternUtilities*/PatternNonlocalConstraint, VertexUint8Map, VertexSetCollection, 
+      /*PatternUtilities*/PatternNonlocalConstraint, PatternTemporalConstraint, VertexUint8Map, VertexSetCollection, 
       DelegateGraphVertexDataSTDAllocator, Boolean, BitSet>
       (graph, vertex_metadata, enable_edge_matching, enable_edge_temporal_matching, vertex_active, vertex_active_edges_map, 
-       template_vertices, vertex_state_map, pattern_graph, ptrn_util_two, pl,
+       template_vertices, vertex_state_map, pattern_graph, ptrn_util_two, ptrn_temp_const, pl,
        token_source_map, vertex_token_source_set, 
        pattern_found[pl], tp_vertex_batch_size, paths_result_file, message_count);
     // token_passing_pattern_matching_nonunique_tds_1.hpp
@@ -1058,9 +1058,10 @@ int main(int argc, char** argv) {
       paths_result_file, message_count); // pass a boolean flag to indicate to use batching*/ 
   } else {     
     prunejuice::token_passing_pattern_matching<graph_type, VertexMetadata, decltype(pattern_tp), decltype(pattern_indices_tp), decltype(pattern_edge_data_tp), uint8_t, PatternGraph,
+        PatternTemporalConstraint,
     VertexStateMap, VertexUint8Map, edge_data_t, EdgeData,
     VertexSetCollection, VertexActive, TemplateVertex, VertexUint8EdgeDataMapCollection, BitSet>(graph, vertex_metadata, pattern_tp,
-    pattern_indices_tp, pattern_edge_data_tp, vertex_rank, pattern_graph, vertex_state_map,
+    pattern_indices_tp, pattern_edge_data_tp, vertex_rank, pattern_graph, ptrn_temp_const, vertex_state_map,
     token_source_map, pattern_cycle_length_tp, pattern_valid_cycle_tp,
     pattern_found[pl], *edge_data_ptr, enable_edge_matching, enable_edge_temporal_matching, vertex_token_source_set, vertex_active, 
     template_vertices, vertex_active_edges_map, pattern_selected_vertices_tp, //);
@@ -1365,9 +1366,9 @@ int main(int argc, char** argv) {
 
   prunejuice::label_propagation_pattern_matching_bsp<Vertex, VertexData, EdgeData, edge_data_t,
     graph_type, VertexMetadata, VertexStateMap, VertexActive, 
-    VertexUint8EdgeDataMapCollection, TemplateVertexBitSet, TemplateVertex, PatternGraph>
+    VertexUint8EdgeDataMapCollection, TemplateVertexBitSet, TemplateVertex, PatternGraph, PatternTemporalConstraint>
     (graph, *edge_data_ptr, enable_edge_matching, enable_edge_temporal_matching, vertex_metadata, vertex_state_map, vertex_active, 
-    vertex_active_edges_map, template_vertices, pattern_graph, global_init_step, 
+    vertex_active_edges_map, template_vertices, pattern_graph, ptrn_temp_const, global_init_step, 
     global_not_finished, global_itr_count, superstep_result_file, 
     active_vertices_count_result_file, active_edges_count_result_file,
     message_count_result_file);  
