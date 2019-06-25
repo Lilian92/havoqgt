@@ -5,7 +5,8 @@
 #include <string>
 #include <vector>
 
-namespace prunejuice { namespace utilities {
+namespace prunejuice {
+  namespace utilities {
 
 /**
   * Returns elapsed (monotonic) time.

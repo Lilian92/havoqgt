@@ -24,6 +24,7 @@
 #include <prunejuice/non_local_constraint.hpp>
 #include <prunejuice/algorithm_state.hpp>
 #include <prunejuice/local_constraint_checking.hpp>
+#include <prunejuice/temporal_constraint.hpp>
 #include <prunejuice/non_local_constraint_checking_unique.hpp>
 #include <prunejuice/non_local_constraint_checking_tds_batch.hpp> // TODO: optimize for batch_size = mpi_size
 
@@ -127,7 +128,7 @@ void parse_cmd_line(int argc, char** argv, std::string& graph_input,
   required_input.reset();
 
   char c;
-  while ((c = getopt(argc, argv, "i:b:v:c:e:p:o:x:h ")) != -1) {
+  while ((c = getopt(argc, argv, "i:b:v:c:d:e:p:o:x:h ")) != -1) {
     switch (c) {
       case 'h' :  
         print_help = true;
@@ -557,13 +558,21 @@ int main(int argc, char** argv) {
   typedef pattern_nonlocal_constraint<Vertex, Edge, VertexData, EdgeData, PatternGraph>
     PatternNonlocalConstraint;
 
+  typedef pattern_temporal_constraint<Vertex, Edge, VertexData, EdgeData, PatternGraph, PatternNonlocalConstraint, BitSet>
+    PatternTemporalConstraint;
+
   //PatternNonlocalConstraint ptrn_util_two(pattern_graph,
   //  pattern_input_filename + "_non_local_constraints",
   //  pattern_input_filename + "vertex_non_local_constraints");     
 
   PatternNonlocalConstraint ptrn_util_two(pattern_graph,
     //pattern_input_filename + "_nonlocal_constraint");
-    pattern_dir + "/pattern_nonlocal_constraint"); 
+    pattern_dir + "/pattern_nonlocal_constraint");
+
+  PatternTemporalConstraint ptrn_temp_const(pattern_graph,
+          ptrn_util_two,
+    pattern_dir + "/pattern_temporal_constraint");
+
 
   //auto pattern = std::get<0>(ptrn_util_two.input_patterns[0]); // TODO: remove
   //auto pattern_indices = std::get<1>(ptrn_util_two.input_patterns[0]); // TODO: remove
