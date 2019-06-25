@@ -1,0 +1,14 @@
+This is used to test temporal_matching
+
+In this pattern, it's a tree structure, and the same as the one in SC18 prunejuice paper.
+The difference is:
+It adds a vertex (7) with label 1 and connected to the vertex (1) with label 4.
+It has pattern_temporal_constraint:
+edge(0) < edge(1)
+edge(1) < edge(6)
+edge(0) < edge(3)
+edge(1) < edge(3)
+edge(6) < edge(5)
+
+In which, edge(6) < edge(5) is not covered by existing non local constraints.
+Extra non local chekcing needs to be added for these.
