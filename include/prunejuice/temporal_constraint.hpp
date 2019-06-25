@@ -57,15 +57,103 @@ class pattern_temporal_constraint {
                 std::cout << ((v.second == true)? "smaller than " : "larger than ") <<  v.first << std::endl;
             }
         }
-        std::cout << "BitSet:" << local_vertices << std::endl;
+        std::cout << "BitSet:" << std::endl;
+        std::cout << "local vertices: " << local_vertices.to_string() << std::endl;
+        std::cout << "local neigbor:" << std::endl;
         for (auto neig : local_neighbors)
-            std::cout << neig << std::endl;
+            std::cout << neig.to_string() << std::endl;
 
-        std::cout << "global temporal constraints: " << std::endl;
-        for (auto gc : non_local_constraints) {
-            for (auto opt : gc)
+        std::cout << "global temporal constraints:" << std::endl;
+        for (size_t i=0; i<non_local_constraints.size(); i++) {
+            std::cout << "non local checking " << i << " :" << std::endl;
+            auto gc = non_local_constraints[i];
+            for (size_t s=0; s<gc.size(); s++) {
+                std::cout << "step " << i << "(" << s << ")" << " :";
+                auto opt = gc[s];
                 opt.output_operation();
+                std::cout << std::endl;
+            }
         }
+    }
+
+    //call when cur vertex recevies a message 1
+    bool do_local_checking(BitSet & cur) {
+        if ( (cur & local_vertices) != 0 )
+            return true;
+
+        return false;
+    }
+
+    //call before the process of each role of cur vertex
+    bool do_local_checking(Vertex cur, BitSet & neighbor) {
+        if ( (neighbor & local_neighbors[cur]) != 0)
+            return true;
+
+        return false;
+    }
+
+    bool local_checking(bool compare,
+            Vertex cur,
+            Vertex neighbor,
+            EdgeData edgedata,
+            std::unordered_map<Vertex, std::tuple<EdgeData, EdgeData>> & last_min_max,
+            std::unordered_map<Vertex, std::tuple<EdgeData, EdgeData>> & cur_min_max) {
+        if (!local_neighbors[cur].test(neighbor))
+            return true;
+
+        //supper step and global init
+        //before cur's min and max are inited as MAX, MIN, or being clear
+        update_min_max(neighbor, edgedata, cur_min_max);
+
+        if (compare) {
+            return compare_min_max(cur, neighbor, edgedata, last_min_max);
+        }
+
+        return true;
+    }
+
+    void update_min_max(Vertex neighbor, EdgeData edge_data, std::unordered_map<Vertex, std::tuple<EdgeData, EdgeData>> & min_max) {
+        auto find = min_max.find(neighbor);
+        if (find == min_max.end()) {
+            auto insert_status = min_max.insert( {neighbor, std::tuple<EdgeData, EdgeData>(max_edgedata_type(), min_edgedata_type())} );
+            if (!insert_status.second) {
+                std::cerr << "Fail to insert neighbor-<min, max> pair" << std::endl;
+                return ;
+            }
+        }
+        if (std::get<0>(find->second) > edge_data)
+            std::get<0>(find->second) = edge_data;
+        if (std::get<1>(find->second) < edge_data)
+            std::get<1>(find->second) = edge_data;
+    }
+
+    bool compare_min_max(Vertex cur, Vertex neighbor, EdgeData edge_data, std::unordered_map<Vertex, std::tuple<EdgeData, EdgeData>> & min_max) {
+        auto find_compare_list = local_constraints.find(std::make_pair(cur, neighbor));
+        if (find_compare_list == local_constraints.end()) {
+            std::cerr << "Fail to find compare list in the temporal pattern" << std::endl;
+            return false;
+        }
+
+        for (auto compare_to : find_compare_list -> second) {
+            Edge compare_to_edge = std::get<0>(compare_to);
+            bool smaller_to = std::get<1>(compare_to);
+
+            auto find_min_max = min_max.find(compare_to_edge);
+            if (find_min_max == min_max.end()) {
+                std::cerr << "Fail to find <min, max> from last round" << std::endl;
+                return false;
+            }
+
+            if (smaller_to) {
+                if (edge_data >= std::get<1>(find_min_max -> second))
+                    return false;
+            } else {
+                if (edge_data <= std::get<0>(find_min_max -> second))
+                    return false;
+            }
+        }
+
+        return true;
     }
 
     struct NonLocalOPT {
