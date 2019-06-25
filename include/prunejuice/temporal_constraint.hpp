@@ -242,6 +242,8 @@ class pattern_temporal_constraint {
         }
     };
 
+  private:
+
     bool directed;
     Edge edge_count;
     Vertex vertex_count;
@@ -255,8 +257,6 @@ class pattern_temporal_constraint {
     std::vector<std::vector<NonLocalOPT>> non_local_constraints;
     std::unordered_map<std::tuple<Vertex, Vertex>, Edge, boost::hash<std::tuple<Vertex, Vertex>>> edge_to_id_map;
     std::unordered_map<Edge, std::tuple<Vertex, Vertex>> id_to_edge_map;
-
-  private:
 
     void init(PatternGraph & pattern_graph) {
         //get edge count from edge_ID
