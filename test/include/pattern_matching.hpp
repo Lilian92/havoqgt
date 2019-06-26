@@ -15,6 +15,7 @@
 
 #include <prunejuice/template.hpp>
 #include <prunejuice/non_local_constraint.hpp>
+#include <prunejuice/temporal_constraint.hpp>
 #include <prunejuice/algorithm_state.hpp>
 #include <prunejuice/local_constraint_checking.hpp>
 #include <prunejuice/non_local_constraint_checking_unique.hpp>
@@ -35,7 +36,7 @@ template<typename T>
 using DelegateGraphEdgeDataSTDAllocator = graph_type::edge_data
 <T, std::allocator<T>>;  
 
-typedef int EdgeData; 
+typedef short EdgeData; 
 typedef graph_type::edge_data<EdgeData, 
         bip::allocator<EdgeData, segment_manager_t>> edge_data_t;
 typedef uint64_t Vertex;
@@ -52,11 +53,14 @@ typedef uint8_t Boolean; // TODO: replace all bool with Boolean?
 typedef graph_type::vertex_data<VertexData, std::allocator<VertexData> > VertexMetadata;
 typedef graph_type::vertex_data<Boolean, std::allocator<Boolean> > VertexActive; // TODO: solution_graph // TODO: you are mixing bool and uint!
 typedef graph_type::vertex_data<TemplateVertexType, std::allocator<TemplateVertexType> > TemplateVertex; // TODO: solution_graph, rename to VertexTemplateVertexBitSetToUint
+typedef std::unordered_map<Vertex, std::tuple<EdgeData, EdgeData>> VertexMinMaxMap;
+typedef graph_type::vertex_data<VertexMinMaxMap, std::allocator<VertexMinMaxMap> > VertexMinMax;
+
 
 typedef graph_type::vertex_data<uint64_t, std::allocator<uint64_t> > VertexIteration; // TODO: delete
 typedef graph_type::vertex_data<VertexRankType, std::allocator<VertexRankType> > VertexRank; // TODO: delete
 
-typedef prunejuice::vertex_state<Vertex, VertexData, BitSet> VertexState;
+typedef prunejuice::vertex_state<Vertex, VertexData, BitSet, VertexMinMaxMap> VertexState;
 typedef std::unordered_map<Vertex, VertexState> VertexStateMap; // TODO: solution_graph
 
 typedef std::unordered_set<Vertex> VertexSet;  
@@ -77,11 +81,16 @@ typedef prunejuice::pattern_graph_csr<Vertex, Edge, VertexData,
 typedef pattern_nonlocal_constraint<Vertex, Edge, VertexData, EdgeData, PatternGraph>
 PatternNonlocalConstraint;
 
+typedef pattern_temporal_constraint<Vertex, Edge, VertexData, EdgeData, PatternGraph, PatternNonlocalConstraint, BitSet, VertexMinMaxMap>
+PatternTemporalConstraint;
+
+
 size_t pattern_matching_prunejuice(graph_type * graph,
         VertexMetadata & vertex_metadata,
         edge_data_t * edge_data_ptr,
         const std::string pattern_input,
         const std::string result_output, bool enable_edge_matching = false,
+        bool  enable_edge_temporal_matching = false,
         uint64_t tp_vertex_batch_size = 0) {
 
     int mpi_rank(0), mpi_size(0);
@@ -137,6 +146,7 @@ size_t pattern_matching_prunejuice(graph_type * graph,
 
             VertexActive vertex_active(*graph);
             TemplateVertex template_vertices(*graph);
+            VertexMinMax vertexminmax_vertices(*graph);
             VertexUint8EdgeDataMapCollection vertex_active_edges_map(*graph);
             VertexSetCollection vertex_token_source_set(*graph); // per vertex set
 
@@ -240,6 +250,11 @@ size_t pattern_matching_prunejuice(graph_type * graph,
                 PatternNonlocalConstraint ptrn_util_two(pattern_graph,
                         pattern_dir + "/pattern_nonlocal_constraint");
 
+                PatternTemporalConstraint ptrn_temp_const(pattern_graph,
+                        ptrn_util_two,
+                        pattern_dir + "/pattern_temporal_constraint", enable_edge_temporal_matching);
+
+
                 vertex_state_map.clear(); // important
                 vertex_active.reset(true); // initially all vertices are active
                 vertex_active_edges_map.clear(); // important
@@ -321,14 +336,15 @@ size_t pattern_matching_prunejuice(graph_type * graph,
                 }
 #endif
 
-                prunejuice::label_propagation_pattern_matching_bsp<Vertex, VertexData, EdgeData, edge_data_t,
-                    graph_type, VertexMetadata, VertexStateMap, VertexActive, 
-                    VertexUint8EdgeDataMapCollection, TemplateVertexBitSet, TemplateVertex, PatternGraph>
-                        (graph, *edge_data_ptr, enable_edge_matching, vertex_metadata, vertex_state_map, vertex_active, 
-                         vertex_active_edges_map, template_vertices, pattern_graph, global_init_step, 
-                         global_not_finished, global_itr_count, superstep_result_file, 
-                         active_vertices_count_result_file, active_edges_count_result_file,
-                         message_count_result_file);
+ prunejuice::label_propagation_pattern_matching_bsp<Vertex, VertexData, EdgeData, edge_data_t,
+   graph_type, VertexMetadata, VertexStateMap, VertexActive, 
+   VertexUint8EdgeDataMapCollection, TemplateVertexBitSet, TemplateVertex, VertexMinMaxMap, VertexMinMax, PatternGraph, PatternTemporalConstraint>
+   (graph, *edge_data_ptr, enable_edge_matching, enable_edge_temporal_matching, vertex_metadata, vertex_state_map, vertex_active, 
+   vertex_active_edges_map, template_vertices, vertexminmax_vertices, pattern_graph, ptrn_temp_const, global_init_step, 
+   global_not_finished, global_itr_count, superstep_result_file, 
+   active_vertices_count_result_file, active_edges_count_result_file,
+   message_count_result_file);
+
 
                 MPI_Barrier(MPI_COMM_WORLD); // TODO: might not need this here
                 double label_propagation_time_end = MPI_Wtime();
@@ -482,25 +498,24 @@ size_t pattern_matching_prunejuice(graph_type * graph,
                         if (pattern_is_tds_tp) {
                             prunejuice::token_passing_pattern_matching<graph_type, Vertex, Edge, VertexData, 
                                 EdgeData, VertexMetadata, EdgeMetadata, VertexActive, 
-                                VertexUint8EdgeDataMapCollection, TemplateVertex, VertexStateMap, PatternGraph, 
-                                PatternNonlocalConstraint, VertexUint8Map, VertexSetCollection, 
+                                VertexUint8EdgeDataMapCollection, TemplateVertex, VertexMinMax, VertexStateMap, PatternGraph, 
+                                /*PatternUtilities*/PatternNonlocalConstraint, PatternTemporalConstraint, VertexUint8Map, VertexSetCollection, 
                                 DelegateGraphVertexDataSTDAllocator, Boolean, BitSet>
-                                    (graph, vertex_metadata, enable_edge_matching, vertex_active, vertex_active_edges_map, 
-                                     template_vertices, vertex_state_map, pattern_graph, ptrn_util_two, pl,
+                                    (graph, vertex_metadata, enable_edge_matching, enable_edge_temporal_matching, vertex_active, vertex_active_edges_map, 
+                                     template_vertices, vertexminmax_vertices, vertex_state_map, pattern_graph, ptrn_util_two, ptrn_temp_const, pl,
                                      token_source_map, vertex_token_source_set, 
                                      pattern_found[pl], tp_vertex_batch_size, paths_result_file, message_count);
                         } else {     
-                            prunejuice::token_passing_pattern_matching<graph_type, VertexMetadata, decltype(pattern_tp),
-                                decltype(pattern_indices_tp), decltype(pattern_edge_data_tp), uint8_t, PatternGraph,
+                            prunejuice::token_passing_pattern_matching<graph_type, VertexMetadata, decltype(pattern_tp), decltype(pattern_indices_tp), decltype(pattern_edge_data_tp), uint8_t, PatternGraph,
+                                PatternTemporalConstraint,
                                 VertexStateMap, VertexUint8Map, edge_data_t, EdgeData,
-                                VertexSetCollection, VertexActive, TemplateVertex, VertexUint8EdgeDataMapCollection, BitSet>
-                                    (graph, vertex_metadata, pattern_tp,
-                                     pattern_indices_tp, pattern_edge_data_tp, vertex_rank, pattern_graph, vertex_state_map,
-                                     token_source_map, pattern_cycle_length_tp, pattern_valid_cycle_tp,
-                                     pattern_found[pl], *edge_data_ptr, enable_edge_matching, vertex_token_source_set, vertex_active, 
-                                     template_vertices, vertex_active_edges_map, pattern_selected_vertices_tp,
-                                     pattern_selected_edges_tp, pattern_mark_join_vertex_tp,
-                                     pattern_ignore_join_vertex_tp, pattern_join_vertex_tp, message_count);
+                                VertexSetCollection, VertexActive, TemplateVertex, VertexMinMax, VertexUint8EdgeDataMapCollection, BitSet>(graph, vertex_metadata, pattern_tp,
+                                        pattern_indices_tp, pattern_edge_data_tp, vertex_rank, pattern_graph, ptrn_temp_const, vertex_state_map,
+                                        token_source_map, pattern_cycle_length_tp, pattern_valid_cycle_tp,
+                                        pattern_found[pl], *edge_data_ptr, enable_edge_matching, enable_edge_temporal_matching, vertex_token_source_set, vertex_active, 
+                                        template_vertices, vertexminmax_vertices, vertex_active_edges_map, pattern_selected_vertices_tp, //);
+                                pattern_selected_edges_tp, pattern_mark_join_vertex_tp,
+                                pattern_ignore_join_vertex_tp, pattern_join_vertex_tp, message_count);
                         }
 #endif
 
@@ -684,12 +699,13 @@ size_t pattern_matching_prunejuice(graph_type * graph,
 
                             prunejuice::label_propagation_pattern_matching_bsp<Vertex, VertexData, EdgeData, edge_data_t,
                                 graph_type, VertexMetadata, VertexStateMap, VertexActive, 
-                                VertexUint8EdgeDataMapCollection, TemplateVertexBitSet, TemplateVertex, PatternGraph>
-                                    (graph, *edge_data_ptr, enable_edge_matching, vertex_metadata, vertex_state_map, vertex_active, 
-                                     vertex_active_edges_map, template_vertices, pattern_graph, global_init_step, 
+                                VertexUint8EdgeDataMapCollection, TemplateVertexBitSet, TemplateVertex, VertexMinMaxMap, VertexMinMax, PatternGraph, PatternTemporalConstraint>
+                                    (graph, *edge_data_ptr, enable_edge_matching, enable_edge_temporal_matching, vertex_metadata, vertex_state_map, vertex_active, 
+                                     vertex_active_edges_map, template_vertices, vertexminmax_vertices, pattern_graph, ptrn_temp_const, global_init_step,
                                      global_not_finished, global_itr_count, superstep_result_file, 
                                      active_vertices_count_result_file, active_edges_count_result_file,
                                      message_count_result_file);  
+
 
                             MPI_Barrier(MPI_COMM_WORLD); // TODO: might not need this here
                             label_propagation_time_end = MPI_Wtime();

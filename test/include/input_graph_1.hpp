@@ -6,7 +6,6 @@
  * weight associated with the corresponding edge.
  * Same edges have same weight.
  */
-typedef int EdgeData; 
 std::vector<std::tuple<uint64_t, uint64_t, EdgeData>>
   grid_graph_sym_weighted_edges() {
   std::vector<std::tuple<uint64_t, uint64_t, EdgeData>> graph;
