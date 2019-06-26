@@ -205,6 +205,11 @@ public:
       }
 
       if (vertex.is_delegate() && g->master(vertex) != mpi_rank && msg_type == 1) { 
+          //TODO: Jing verify that if master will receive all the
+          //messages
+          //I am assuming so currectly. So I am only doing min/max updating at master
+          //However, if so, why the calculation here is necessary?
+
         // the vertex_state is only maintained on the controller
 
         // first LP superstep of the first iteration 
@@ -241,19 +246,23 @@ public:
 
               for (size_t i = 0; i < parent_template_vertices_bitset.size(); i++) {
                 if (parent_template_vertices_bitset.test(i)) {
+                    //TODO: Jing This loop can be improved as
+                    //pattern_graph.neighbors[vertex_pattern_index].test(i);
+                    //This whole loop about mound_find and
+                    //valid_patren_found can be all changed to & operation
+                    //if we did a little preprocess of pattern.
                   for (auto e = pattern_graph.vertices[vertex_pattern_index]; 
                     e < pattern_graph.vertices[vertex_pattern_index + 1]; e++) {       
-                    if (pattern_graph.edges[e] == i) {
-                        if (enable_edge_matching) {
-                            if (edge_data == pattern_graph.edge_data[e]) {
-                                valid_parent_found = true;
-                                break;
-                            }
-                        } else {
-                            valid_parent_found = true;
-                            break;
+                    if (pattern_graph.edges[e] != i) {
+                        continue ;
+                    }
+                    if (enable_edge_matching) {
+                        if (edge_data != pattern_graph.edge_data[e]) {
+                            continue ;
                         }
                     }
+                    valid_parent_found = true;
+                    break;
                   } // for
                   if (valid_parent_found) {
                     break;  
@@ -331,20 +340,19 @@ public:
                   if (parent_template_vertices_bitset.test(i)) {
                     for (auto e = pattern_graph.vertices[vertex_pattern_index]; 
                       e < pattern_graph.vertices[vertex_pattern_index + 1]; e++) {       
-                      if (pattern_graph.edges[e] == i) {
-                        if (enable_edge_matching) {
-                            if (edge_data == pattern_graph.edge_data[e]) {
-                                valid_parent_found = true;
-                                break;
-                            }
-                        } else {
-                            valid_parent_found = true;
-                            break;
+                        if (pattern_graph.edges[e] != i) {
+                            continue ;
                         }
-                      }   
+                        if (enable_edge_matching) {
+                            if (edge_data != pattern_graph.edge_data[e]) {
+                                continue ;
+                            }
+                        }
+                        valid_parent_found = true;
+                        break;
                     } // for
                     if (valid_parent_found) {
-                      break;  
+                        break;  
                     } 
                   } // if  
                 } // for       
@@ -591,6 +599,7 @@ public:
           eitr != g.edges_end(vertex); ++eitr) {
           vertex_locator neighbor = eitr.target();
           if (enable_edge_matching) {
+              //both kinds of edge need edge data
               lppm_visitor new_visitor(neighbor, vertex, edge_data_ptr[eitr], vertex_template_vertices, 1);
               vis_queue->queue_visitor(new_visitor);
           } else {
@@ -736,17 +745,17 @@ public:
 
                   for (auto e = pattern_graph.vertices[vertex_pattern_index]; 
                     e < pattern_graph.vertices[vertex_pattern_index + 1]; e++) {
-                      if (pattern_graph.edges[e] == i) {
-                          if(enable_edge_matching) {
-                              if (edge_data == pattern_graph.edge_data[e]) {
-                                  valid_parent_found = true;
-                                  break;
-                              }
-                          } else {
-                              valid_parent_found = true;
-                              break;
+                      //TODO: Jing update the checking here
+                      if (pattern_graph.edges[e] != i) {
+                          continue ;
+                      }
+                      if (enable_edge_matching) {
+                          if (edge_data != pattern_graph.edge_data[e]) {
+                              continue ;
                           }
                       }
+                      valid_parent_found = true;
+                      break;
                   } // for
 
                   if (valid_parent_found) {
@@ -764,6 +773,7 @@ public:
  
           } // if
 
+          //TODO: Jing Update here
           if (valid_parent_found) {
             //std::cout << "Valid parent found." << std::endl; // Test
             break;
@@ -796,6 +806,7 @@ public:
       }     	
       find_vertex = insert_status.first;
       //find_vertex->second.vertex_pattern_index = vertex_pattern_index; // ID of the vertex in the pattern_graph 
+      //TODO: Jing update here, and get min max
       find_vertex->second.template_vertices = vertex_template_vertices;       
     }
 

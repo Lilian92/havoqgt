@@ -343,7 +343,7 @@ int main(int argc, char** argv) {
   typedef graph_type::vertex_data<Boolean, std::allocator<Boolean> > VertexActive; // TODO: solution_graph // TODO: you are mixing bool and uint!
   typedef graph_type::vertex_data<TemplateVertexType, std::allocator<TemplateVertexType> > TemplateVertex; // TODO: solution_graph, rename to VertexTemplateVertexBitSetToUint
   typedef std::unordered_map<Vertex, std::tuple<EdgeData, EdgeData>> VertexMinMaxMap;
-  typedef graph_type::vertex_data<VertexMinMaxMap, std::allocator<VertexMinMaxMap> > VertexMinMax; // TODO: solution_graph, rename to VertexTemplateVertexBitSetToUint
+  typedef graph_type::vertex_data<VertexMinMaxMap, std::allocator<VertexMinMaxMap> > VertexMinMax;
 
   typedef graph_type::vertex_data<uint64_t, std::allocator<uint64_t> > VertexIteration; // TODO: delete
   typedef graph_type::vertex_data<VertexRankType, std::allocator<VertexRankType> > VertexRank; // TODO: delete
