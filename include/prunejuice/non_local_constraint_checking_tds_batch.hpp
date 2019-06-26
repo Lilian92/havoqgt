@@ -1103,7 +1103,7 @@ public:
 template <typename TGraph, typename Vertex, typename Edge, typename VertexData, 
   typename EdgeData, typename VertexMetadata, typename EdgeMetadata, 
   typename VertexActive, typename VertexUint8EdgeDataMapCollection, 
-  typename TemplateVertex, typename VertexStateMap, typename PatternGraph, 
+  typename TemplateVertex, typename VertexMinMax, typename VertexStateMap, typename PatternGraph, 
   typename PatternUtilities, typename PatternTemporalConstraint, typename VertexUint8Map,
   typename VertexSetCollection, 
   template<typename> class DelegateGraphVertexDataSTDAllocator,
@@ -1114,7 +1114,7 @@ void token_passing_pattern_matching(TGraph* g, VertexMetadata& vertex_metadata,
   bool enable_edge_temporal_matching,
   VertexActive& vertex_active, 
   VertexUint8EdgeDataMapCollection& vertex_active_edges_map, 
-  TemplateVertex& template_vertices, VertexStateMap& vertex_state_map,
+  TemplateVertex& template_vertices, VertexMinMax& vertexminmax_vertices, VertexStateMap& vertex_state_map,
   PatternGraph& pattern_graph, PatternUtilities& pattern_utilities, PatternTemporalConstraint & ptrn_temp_const,
   size_t pl,
   VertexUint8Map& token_source_map, 
@@ -1600,6 +1600,8 @@ void token_passing_pattern_matching(TGraph* g, VertexMetadata& vertex_metadata,
     // 23 enable_edge_matching
     // 24 pattern_edge_data
     // 25 enable_edge_temporal_matching
+    // 28 ptrn_temp_const
+    // 27 vertexminmax_vertices
     //typedef tppm_visitor_tds<TGraph, Vertex, BitSet> visitor_type;
     //TODO Jing: understand what vertex_sequence_number
     //TODO Jing: understand what the join vertex is about
@@ -1611,7 +1613,9 @@ void token_passing_pattern_matching(TGraph* g, VertexMetadata& vertex_metadata,
       superstep_var, vertex_sequence_number, pattern_aggregation_steps,
       enable_edge_matching,
       pattern_edge_data,
-      enable_edge_temporal_matching);
+      enable_edge_temporal_matching,
+      ptrn_temp_const,
+      vertexminmax_vertices);
 
     auto vq = havoqgt::create_visitor_queue<visitor_type, 
       /*havoqgt::detail::visitor_priority_queue*/tppm_queue_tds>(g, alg_data);

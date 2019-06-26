@@ -16,7 +16,7 @@
 
 using namespace prunejuice::utilities;
 
-template <typename Vertex, typename Edge, typename VertexData, typename EdgeData, typename PatternGraph, typename PatternNonlocalConstraint, typename BitSet>
+template <typename Vertex, typename Edge, typename VertexData, typename EdgeData, typename PatternGraph, typename PatternNonlocalConstraint, typename BitSet, typename VertexMinMaxMap>
 class pattern_temporal_constraint {
     public:
     pattern_temporal_constraint(PatternGraph& pattern_graph,
@@ -99,14 +99,11 @@ class pattern_temporal_constraint {
             Vertex cur,
             Vertex neighbor,
             EdgeData edgedata,
-            std::unordered_map<Vertex, std::tuple<EdgeData, EdgeData>> & last_min_max,
-            std::unordered_map<Vertex, std::tuple<EdgeData, EdgeData>> & cur_min_max) {
-        if (!local_neighbors[cur].test(neighbor))
-            return true;
-
+            VertexMinMaxMap & last_min_max,
+            VertexMinMaxMap & cur_min_max) {
         //supper step and global init
         //before cur's min and max are inited as MAX, MIN, or being clear
-        update_min_max(neighbor, edgedata, cur_min_max);
+        update_min_max(cur, neighbor, edgedata, cur_min_max);
 
         if (compare) {
             return compare_min_max(cur, neighbor, edgedata, last_min_max);
@@ -115,7 +112,10 @@ class pattern_temporal_constraint {
         return true;
     }
 
-    void update_min_max(Vertex neighbor, EdgeData edge_data, std::unordered_map<Vertex, std::tuple<EdgeData, EdgeData>> & min_max) {
+    void update_min_max(Vertex cur, Vertex neighbor, EdgeData edge_data, VertexMinMaxMap & min_max) {
+        if (!local_neighbors[cur].test(neighbor))
+            return ;
+
         auto find = min_max.find(neighbor);
         if (find == min_max.end()) {
             auto insert_status = min_max.insert( {neighbor, std::tuple<EdgeData, EdgeData>(max_edgedata_type(), min_edgedata_type())} );
@@ -130,7 +130,7 @@ class pattern_temporal_constraint {
             std::get<1>(find->second) = edge_data;
     }
 
-    bool compare_min_max(Vertex cur, Vertex neighbor, EdgeData edge_data, std::unordered_map<Vertex, std::tuple<EdgeData, EdgeData>> & min_max) {
+    bool compare_min_max(Vertex cur, Vertex neighbor, EdgeData edge_data, VertexMinMaxMap & min_max) {
         auto find_compare_list = local_constraints.find(std::make_pair(cur, neighbor));
         if (find_compare_list == local_constraints.end()) {
             std::cerr << "Fail to find compare list in the temporal pattern" << std::endl;

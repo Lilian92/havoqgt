@@ -103,7 +103,7 @@ protected:
 };
 
 // label propagation pattern matching visitor class
-template<typename Graph, typename Vertex, typename VertexData, typename EdgeData, typename BitSet>
+template<typename Graph, typename Vertex, typename VertexData, typename EdgeData, typename BitSet, typename VertexMinMaxMap>
 class lppm_visitor {
 public:
   typedef typename Graph::vertex_locator vertex_locator;
@@ -695,7 +695,7 @@ public:
 
 //    typedef vertex_state_generic<VertexData, DynamicBitSet, uint64_t> VertexState;
 ///    typedef vertex_state_generic<Vertex, VertexData, uint8_t, BitSet> VertexState;
-    typedef vertex_state<Vertex, VertexData, BitSet, EdgeData> VertexState;
+    typedef vertex_state<Vertex, VertexData, BitSet, VertexMinMaxMap> VertexState;
     
     // std::get<6>(alg_data) - vertex_state_map 
     auto& pattern_graph = std::get<7>(alg_data); 
@@ -880,14 +880,14 @@ public:
 };
 
 template <typename TGraph, typename AlgData, typename VertexStateMap, 
-  typename PatternGraph, typename VertexActive, typename VertexIteration, 
-  typename BitSet, typename TemplateVertex, typename VertexUint8EdgeDataMapCollection>
+  typename PatternGraph, typename PatternTemporalConstraint, typename VertexActive, typename VertexIteration, 
+  typename BitSet, typename TemplateVertex, typename VertexMinMax, typename VertexUint8EdgeDataMapCollection>
 void verify_and_update_vertex_state(TGraph* g, AlgData& alg_data, 
-  VertexStateMap& vertex_state_map, PatternGraph& pattern_graph, 
+  VertexStateMap& vertex_state_map, PatternGraph& pattern_graph, PatternTemporalConstraint& ptrn_temp_const,
   VertexActive& vertex_active, 
   VertexIteration& vertex_iteration, uint64_t superstep, bool global_init_step, 
   bool& global_not_finished, bool& not_finished, 
-  TemplateVertex& template_vertices, VertexUint8EdgeDataMapCollection& vertex_active_edges_map) {
+  TemplateVertex& template_vertices, VertexMinMax& vertexminmax_vertices, VertexUint8EdgeDataMapCollection& vertex_active_edges_map) {
 
   typedef typename TGraph::vertex_iterator vertex_iterator;
   typedef typename TGraph::vertex_locator vertex_locator;
@@ -1162,7 +1162,7 @@ void verify_and_update_vertex_state(TGraph* g, AlgData& alg_data,
 
 template <typename Vertex, typename VertexData, typename EdgeData, typename edge_data_t, typename TGraph, 
   typename VertexMetaData, typename VertexStateMapGeneric, typename VertexActive,
-  typename VertexUint8EdgeDataMapCollection, typename BitSet, typename TemplateVertex, 
+  typename VertexUint8EdgeDataMapCollection, typename BitSet, typename TemplateVertex, typename VertexMinMaxMap, typename VertexMinMax,
   typename PatternGraph,
   typename PatternTemporalConstraint>
 void label_propagation_pattern_matching_bsp(TGraph* g, 
@@ -1172,7 +1172,7 @@ void label_propagation_pattern_matching_bsp(TGraph* g,
   VertexMetaData& vertex_metadata,VertexStateMapGeneric& vertex_state_map_generic,  
   VertexActive& vertex_active, 
   VertexUint8EdgeDataMapCollection& vertex_active_edges_map, 
-  TemplateVertex& template_vertices, PatternGraph& pattern_graph, 
+  TemplateVertex& template_vertices, VertexMinMax& vertexminmax_vertices, PatternGraph& pattern_graph, 
   PatternTemporalConstraint& ptrn_temp_const,
   bool global_init_step, bool& global_not_finished, size_t global_itr_count, 
   std::ofstream& superstep_result_file, 
@@ -1222,9 +1222,11 @@ void label_propagation_pattern_matching_bsp(TGraph* g,
     //13  edge_data_ptr
     //14  enable_edge_matching
     //15  enable_edge_temporal_matching
-  typedef lppm_visitor<TGraph, Vertex, VertexData, EdgeData, BitSet> visitor_type;
+    //16  ptrn_temp_const
+    //17  vertexminmax_vertices
+  typedef lppm_visitor<TGraph, Vertex, VertexData, EdgeData, BitSet, VertexMinMaxMap> visitor_type;
   auto alg_data = std::forward_as_tuple(vertex_metadata, pattern, pattern_indices, vertex_rank,
-    vertex_active, vertex_iteration, vertex_state_map_generic, pattern_graph, superstep_var, global_init_step, g, template_vertices, vertex_active_edges_map, edge_data_ptr, enable_edge_matching, enable_edge_temporal_matching);
+    vertex_active, vertex_iteration, vertex_state_map_generic, pattern_graph, superstep_var, global_init_step, g, template_vertices, vertex_active_edges_map, edge_data_ptr, enable_edge_matching, enable_edge_temporal_matching, ptrn_temp_const, vertexminmax_vertices);
   auto vq = havoqgt::create_visitor_queue<visitor_type, havoqgt::detail::visitor_priority_queue>(g, alg_data);
 
   if (mpi_rank == 0) {
@@ -1266,8 +1268,9 @@ void label_propagation_pattern_matching_bsp(TGraph* g,
     // TODO: TBA new verify_and_update_vertex_state_generic( ... )
  
     verify_and_update_vertex_state<TGraph, decltype(alg_data), VertexStateMapGeneric,
-      PatternGraph, VertexActive, VertexIteration, BitSet, TemplateVertex>(g, alg_data, vertex_state_map_generic, pattern_graph, 
-      vertex_active, vertex_iteration, superstep, global_init_step, global_not_finished, not_finished, template_vertices, vertex_active_edges_map);
+      PatternGraph, PatternTemporalConstraint, VertexActive, VertexIteration, BitSet, TemplateVertex, VertexMinMax>
+          (g, alg_data, vertex_state_map_generic, pattern_graph, ptrn_temp_const,
+      vertex_active, vertex_iteration, superstep, global_init_step, global_not_finished, not_finished, template_vertices, vertexminmax_vertices, vertex_active_edges_map);
     //MPI_Barrier(MPI_COMM_WORLD);
     //std::cout << "MPI Rank : " << mpi_rank <<  " - vertex_state_map_generic.size() : " << vertex_state_map_generic.size() << std::endl; // Test
   
