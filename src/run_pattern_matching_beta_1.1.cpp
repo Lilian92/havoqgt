@@ -271,7 +271,7 @@ int main(int argc, char** argv) {
   assert(graph != nullptr);
 
   // edge data
-  if (enable_edge_matching) {
+  if (enable_edge_matching || enable_edge_temporal_matching) {
       if (mpi_rank == 0) {
           std::cout << "Loading / Initializing Edge Data ... " << std::endl;
       }
@@ -285,7 +285,7 @@ int main(int argc, char** argv) {
     bip::allocator<edge_data_type, segment_manager_t>> edge_data_t;
 
   edge_data_t* edge_data_ptr = nullptr;
-  if (enable_edge_matching) {
+  if (enable_edge_matching || enable_edge_temporal_matching) {
       if (edge_metadata_input.size() > 0) {
           //TODO: read edge matedata from file
           //But this seems inefficient, it's probably good to directly

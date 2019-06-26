@@ -9,7 +9,8 @@ class vertex_state {
   public :
     vertex_state() :
     vertex_pattern_index(0),
-    is_active(false) {}
+    is_active(false),
+    last_itr_min_max() {}
   
     BitSet template_vertices;
     BitSet template_neighbors;

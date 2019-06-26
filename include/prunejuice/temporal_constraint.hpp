@@ -80,7 +80,7 @@ class pattern_temporal_constraint {
     }
 
     //call when cur vertex recevies a message 1
-    bool do_local_checking(BitSet & cur) {
+    bool do_local_checking(const BitSet cur) {
         if ( (cur & local_vertices) != 0 )
             return true;
 
@@ -88,7 +88,7 @@ class pattern_temporal_constraint {
     }
 
     //call before the process of each role of cur vertex
-    bool do_local_checking(Vertex cur, BitSet & neighbor) {
+    bool do_local_checking(const Vertex cur, const BitSet neighbor) {
         if ( (neighbor & local_neighbors[cur]) != 0)
             return true;
 
