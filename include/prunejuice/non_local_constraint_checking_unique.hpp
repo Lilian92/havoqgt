@@ -277,22 +277,24 @@ public:
 
        for (size_t i = 0; i < vertex_template_vertices.size(); i++) { // TODO: vertex_template_vertices.test(pattern_indices[next_pattern_index]) 
          if (vertex_template_vertices.test(i)) {
-           if (i == pattern_indices[next_pattern_index]) {
-               if (enable_edge_matching) {
-                   if (edge_data == pattern_edge_data[next_pattern_index - 1]) {
-                       match_found = true;
-                       vertex_pattern_index = i;
-                       break;
-                   }
-               }
-               else {
-                   match_found = true;
-                   vertex_pattern_index = i;
+           if (i != pattern_indices[next_pattern_index]) {
+               continue;
+           }
+           if (enable_edge_matching) {
+               if (edge_data != pattern_edge_data[next_pattern_index - 1]) {
                    break;
                }
+           }
+           if (enable_edge_temporal_matching) {
+               if (!temporal_non_local_constraints[next_pattern_index].checking(stored_edge_data, edge_data)) {
+                   break;
+               }
+           }
+           match_found = true;
+           vertex_pattern_index = i;
+           break;
            }    
-         }   
-       }
+       }   
  
        if (!match_found) {
          return false;
@@ -676,22 +678,24 @@ public:
       //TODO Jing: Question, is it repeated with what has been checked in
       //pre_visit ?
       for (size_t i = 0; i < vertex_template_vertices.size(); i++) { // TODO: vertex_template_vertices.test(pattern_indices[next_pattern_index])
-        if (vertex_template_vertices.test(i)) {
-          if (i == pattern_indices[next_pattern_index]) {
-               if (enable_edge_matching) {
-                   if (edge_data == pattern_edge_data[next_pattern_index - 1]) {
-                       match_found = true;
-                       vertex_pattern_index = i;
-                       break;
-                   }
-               }
-               else {
-                   match_found = true;
-                   vertex_pattern_index = i;
-                   break;
-               }
+          if (vertex_template_vertices.test(i)) {
+              if (i != pattern_indices[next_pattern_index]) {
+                  continue;
+              }
+              if (enable_edge_matching) {
+                  if (edge_data != pattern_edge_data[next_pattern_index - 1]) {
+                      break;
+                  }
+              }
+              if (enable_edge_temporal_matching) {
+                  if (!temporal_non_local_constraints[next_pattern_index].checking(stored_edge_data, edge_data)) {
+                      break;
+                  }
+              }
+              match_found = true;
+              vertex_pattern_index = i;
+              break;
           }
-        }
       }
 
       if (!match_found) {
