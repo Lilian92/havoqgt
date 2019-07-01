@@ -95,23 +95,45 @@ class pattern_temporal_constraint {
         return local_neighbors[cur].test(neighbor);
     }
 
-    bool local_checking(bool compare,
-            Vertex cur,
-            Vertex neighbor,
-            EdgeData edgedata,
-            VertexMinMaxMap & last_min_max,
-            VertexMinMaxMap & cur_min_max) {
-        //supper step and global init
-        //before cur's min and max are inited as MAX, MIN, or being clear
-        update_min_max(cur, neighbor, edgedata, cur_min_max);
+    //TODO: Jing another way of shrink checking and resetting is:
+    //resetting: clear all the items
+    //shrink: search last_itr_min_max in cur, and it couldn't find it then
+    //put it in remove list and then remove items in the remove list after
+    //updating loop.
+    bool shrink_min_max_range(VertexMinMaxMap & last_itr_min_max, VertexMinMaxMap & cur_itr_min_max) {
+        bool updated = false;
+        for (auto item : cur_itr_min_max) {
+            auto find_vertex = last_itr_min_max.find(item.first);
+            if (find_vertex == last_itr_min_max.end()) {
+                std::cerr << "Error: couldn't find cur min max in last iteration" << std::endl;
+                return false;
+            }
+            if (std::get<0>(find_vertex -> second) < std::get<0>(item.second)) {
+                std::get<0>(find_vertex -> second) = std::get<0>(item.second);
+                updated = true;
+            } else if (std::get<0>(find_vertex -> second) > std::get<0>(item.second)) {
+                std::cerr << "Error: last iteration's min is bigger" << std::endl;
+                return false;
+            }
+            if (std::get<1>(find_vertex -> second) > std::get<1>(item.second)) {
+                std::get<1>(find_vertex -> second) = std::get<1>(item.second);
+                updated = true;
+            } else if (std::get<1>(find_vertex -> second) < std::get<1>(item.second)) {
+                std::cerr << "Error: last iteration's max is smaller" << std::endl;
+                return false;
+            }
 
-        if (compare) {
-            return compare_min_max(cur, neighbor, edgedata, last_min_max);
         }
-
-        return true;
+        return updated;
     }
 
+    void reset_min_max(VertexMinMaxMap & cur_itr_min_max) {
+        for (auto & item : cur_itr_min_max) {
+            std::get<0>(item.second) = max_edgedata_type();
+            std::get<1>(item.second) = min_edgedata_type();
+        }
+    }
+ 
     void update_min_max(Vertex cur, Vertex neighbor, EdgeData edge_data, VertexMinMaxMap & min_max) {
         if (!local_neighbors[cur].test(neighbor))
             return ;
