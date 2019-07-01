@@ -185,6 +185,7 @@ class pattern_temporal_constraint {
         static constexpr size_t COMP_POS = 0;
         std::bitset<OPT_KIND> opt;
         std::vector<std::pair<Edge, bool>> compare_to_edges;
+        size_t store_at;
 
         NonLocalOPT() : opt(0) {}
         NonLocalOPT(std::bitset<OPT_KIND> _opt,
@@ -196,8 +197,9 @@ class pattern_temporal_constraint {
                     assert(compare_to_edges.size() > 0);
         }
 
-        void set_store() {
+        void set_store(size_t _store_at = 0) {
             opt.set(STORE_POS);
+            store_at = _store_at;
         }
 
         void set_compare(std::vector<std::pair<Vertex, bool>> & _compare_to_edges) {
@@ -223,7 +225,16 @@ class pattern_temporal_constraint {
 
         bool operate(std::vector<Edge> & stored, EdgeData cur_edge_data) {
             if (store()) {
-                stored.push_back(cur_edge_data);
+                size_t stored_num = stored.size();
+                if (stored_num == store_at)
+                    stored.push_back(cur_edge_data);
+                else if (stored_num > store_at)
+                    stored[store_at] = cur_edge_data;
+                else {
+                    std::cerr << "Error: storing from operator; there is missing storage" << std::endl;
+                    return false;
+                }
+
             }
             if (compare()) {
                 for (auto comp : compare_to_edges) {
@@ -459,11 +470,12 @@ class pattern_temporal_constraint {
 
     void compress_stored(std::vector<NonLocalOPT> & opts) {
         std::vector<Edge> compressed_position(opts.size(), 0);
-        Edge stored = 0;
+        Edge stored_at = 0;
         for (Edge i=1; i<opts.size(); i++) {
             if (opts[i].store()) {
-                compressed_position[i] = stored;
-                stored++;
+                opts[i].set_store(stored_at);
+                compressed_position[i] = stored_at;
+                stored_at++;
             }
             if (opts[i].compare()) {
                 for (auto & compare_to_edge : opts[i].compare_to_edges) {
