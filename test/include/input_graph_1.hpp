@@ -36,7 +36,7 @@ std::vector<std::tuple<uint64_t, uint64_t, EdgeData>>
   graph.push_back(std::make_tuple(8, 3, 8));
   graph.push_back(std::make_tuple(8, 7, 7));
   graph.push_back(std::make_tuple(8, 9, 9));
-  graph.push_back(std::make_tuple(8, 13, 6));
+  graph.push_back(std::make_tuple(8, 13, 10));
   graph.push_back(std::make_tuple(9, 4, 6));
   graph.push_back(std::make_tuple(9, 8, 9));
   graph.push_back(std::make_tuple(9, 14, 6));
@@ -48,7 +48,7 @@ std::vector<std::tuple<uint64_t, uint64_t, EdgeData>>
   graph.push_back(std::make_tuple(12, 7, 7));
   graph.push_back(std::make_tuple(12, 11, 9));
   graph.push_back(std::make_tuple(12, 13, 8));
-  graph.push_back(std::make_tuple(13, 8, 6));
+  graph.push_back(std::make_tuple(13, 8, 10));
   graph.push_back(std::make_tuple(13, 12, 8));
   graph.push_back(std::make_tuple(13, 14, 8));
   graph.push_back(std::make_tuple(14, 9, 6));
