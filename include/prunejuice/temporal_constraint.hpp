@@ -270,14 +270,14 @@ class pattern_temporal_constraint {
         }
 
         void output_operation () {
-            if (!opt.test(STORE_POS) && !opt.test(COMP_POS)) {
+            if (opt.none()) {
                 std::cout << " no";
                 return ;
             }
 
-            if (opt.test(STORE_POS))
-                std::cout << " store;";
-            if (opt.test(COMP_POS)) {
+            if (store())
+                std::cout << " store at: " << store_at << ";";
+            if (compare()) {
                 std::cout << " compare:";
                 for (auto comp : compare_to_edges) {
                     std::cout << ((comp.second == true)? "smaller than " : "larger than ") \
