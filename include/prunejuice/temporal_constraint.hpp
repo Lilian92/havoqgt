@@ -193,8 +193,6 @@ class pattern_temporal_constraint {
             opt(_opt), compare_to_edges() {
                 if (store())
                     assert(compare_to_edges.size() == 0);
-                if (compare())
-                    assert(compare_to_edges.size() > 0);
         }
 
         void set_store(size_t _store_at = 0) {
