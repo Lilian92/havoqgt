@@ -60,6 +60,7 @@ public:
   typedef typename Graph::edge_iterator eitr_type;
   tppm_visitor() : 
   itr_count(0), 
+  stored_edge_data(),
   do_pass_token(false),
   is_init_step(true),
   ack_success(false),
@@ -69,6 +70,7 @@ public:
   tppm_visitor(vertex_locator _vertex) :  
     vertex(_vertex), 
     itr_count(0),
+    stored_edge_data(),
     do_pass_token(false), 
     is_init_step(true),
     ack_success(false),
@@ -89,6 +91,7 @@ public:
     vertex(_vertex),
     parent(_parent),
     edge_data(0),
+    stored_edge_data(),
     target_vertex(_target_vertex), 
     itr_count(_itr_count), 
     max_itr_count(_max_itr_count), 
@@ -114,6 +117,7 @@ public:
     vertex(_vertex),
     parent(_parent),
     edge_data(_edge_data),
+    stored_edge_data(),
     target_vertex(_target_vertex), 
     itr_count(_itr_count), 
     max_itr_count(_max_itr_count), 
@@ -123,6 +127,43 @@ public:
     ack_success(_ack_success), 
     source_index_pattern_indices(_source_index_pattern_indices), 
     parent_pattern_index(_parent_pattern_index) {}  
+
+  template<typename EdgeDataArray, typename TemporalNonLocalOPT>
+  tppm_visitor(vertex_locator _vertex, 
+    vertex_locator _parent, 
+    EdgeData _edge_data,
+    bool _enable_temporal_edge_checking,
+    EdgeDataArray & _stored_edge_data,
+    TemporalNonLocalOPT & _temp_non_local_checking,
+    vertex_locator _target_vertex, 
+    size_t _itr_count, 
+    size_t _max_itr_count, 
+    size_t _source_index_pattern_indices, 
+    size_t _parent_pattern_index, 
+    bool _expect_target_vertex = true, 
+    bool _do_pass_token = true, 
+    bool _is_init_step = false, 
+    bool _ack_success = false) : 
+    vertex(_vertex),
+    parent(_parent),
+    edge_data(_edge_data),
+    stored_edge_data(_stored_edge_data),
+    target_vertex(_target_vertex), 
+    itr_count(_itr_count), 
+    max_itr_count(_max_itr_count), 
+    expect_target_vertex(_expect_target_vertex), 
+    do_pass_token(_do_pass_token), 
+    is_init_step(_is_init_step),
+    ack_success(_ack_success), 
+    source_index_pattern_indices(_source_index_pattern_indices), 
+    parent_pattern_index(_parent_pattern_index) {
+        if(_enable_temporal_edge_checking) {
+            _temp_non_local_checking.update_stored_edge_data(stored_edge_data, edge_data);
+        } else {
+            std::cerr << "Error: wrong constructor is called for tppm_visitor" << std::endl;
+        }
+    }  
+
 
   //TODO Jing: Question, if pre_visit always run before visit, what is the meaning
   //of it?
@@ -571,7 +612,10 @@ public:
             continue;
           }
           
-          if (enable_edge_matching) {
+          if (enable_edge_temporal_matching) {
+              tppm_visitor new_visitor(neighbour, vertex, (item.second).second, enable_edge_temporal_matching, stored_edge_data, temporal_non_local_constraints[1], vertex, 0, pattern_cycle_length, 0, pattern_indices[0], pattern_valid_cycle, true, false);
+              vis_queue->queue_visitor(new_visitor);
+          } else if (enable_edge_matching) {
               tppm_visitor new_visitor(neighbour, vertex, (item.second).second, vertex, 0, pattern_cycle_length, 0, pattern_indices[0], pattern_valid_cycle, true, false);
 
               // loop detection - path back to the source vertex is invalid
@@ -912,8 +956,11 @@ public:
         if (g.locator_to_label(neighbour) == g.locator_to_label(parent)) {
           continue;
         }
-      
-        if (enable_edge_matching) {
+        if (enable_edge_temporal_matching) {
+            tppm_visitor new_visitor(neighbour, vertex, (item.second).second, enable_edge_temporal_matching, stored_edge_data, temporal_non_local_constraints[new_itr_count+1], target_vertex, new_itr_count, max_itr_count, 
+                    source_index_pattern_indices, vertex_pattern_index, expect_target_vertex);
+            vis_queue->queue_visitor(new_visitor);
+        } else if (enable_edge_matching) {
             tppm_visitor new_visitor(neighbour, vertex, (item.second).second, target_vertex, new_itr_count, max_itr_count, 
                     source_index_pattern_indices, vertex_pattern_index, expect_target_vertex);
             // vertex_pattern_index = parent_pattern_index for the neighbours 
@@ -979,6 +1026,7 @@ public:
   vertex_locator vertex;
   vertex_locator parent;  
   EdgeData       edge_data;
+  std::vector<EdgeData> stored_edge_data;
   vertex_locator target_vertex; // for a cycle, this is also the originating vertex
   size_t itr_count; // TODO: change type
   size_t max_itr_count; // equal to diameter - 1 of the pattern as itr_count is initialized to 0 // TODO: change type
