@@ -723,6 +723,17 @@ public:
     // verify if vertex heard from a valid neighbor (parent)
     bool valid_parent_found = false;
     
+    //Get vertex state for checking temporal
+    //whether do min max updating for this vertex
+    bool do_min_max_updating = false;
+    if (enable_edge_temporal_matching)
+        do_min_max_updating = temporal_constraints.do_local_checking(vertex_template_vertices);
+    auto find_vertex = std::get<6>(alg_data).find(g->locator_to_label(vertex));
+    if (find_vertex == std::get<6>(alg_data).end() && !global_init_step) {
+        std::cerr << "Error: couldn't find vertex state at not init step" << std::endl;
+        return 0;
+    }
+
 //    DynamicBitSet parent_template_vertices_bitset(pattern_graph.vertex_count);
 
 //    for (size_t i = 0; i < pattern_graph.vertex_count; i++) { // TODO: temporary fix
@@ -739,6 +750,12 @@ public:
           if (vertex_template_vertices.test(vertex_pattern_index)) {
             match_found = true;  
 
+            //whether do min max updating for this vertex_pattern_index
+            bool _do_min_max_updating = do_min_max_updating;
+            if (_do_min_max_updating) {
+                _do_min_max_updating &= temporal_constraints.do_local_checking(
+                        vertex_pattern_index, parent_template_vertices_bitset);
+            }
 	    //TODO: represent the pattern_graph using a bitset
 	    // t = parent_template_vertices_bitset & pattern_graph.vertices[vertex_pattern_index].edges_bitset
 	    // if (t.any()) valid_parent_found = true;  
@@ -760,11 +777,27 @@ public:
                               continue ;
                           }
                       }
+                      if (_do_min_max_updating) {
+                          if (temporal_constraints.do_local_checking(vertex_pattern_index, i)) {
+                              if (!global_init_step) {
+                                  if (find_vertex == std::get<6>(alg_data).end()) {
+                                      std::cerr << "Error: couldn't find vertex state at not init step" << std::endl;
+                                      return 0;
+                                  }
+                                  if(!temporal_constraints.compare_min_max(vertex_pattern_index,
+                                              i, edge_data, find_vertex->second.last_itr_min_max))
+                                      continue;
+                              }
+
+                              temporal_constraints.update_min_max(vertex_pattern_index, i,
+                                      edge_data, std::get<17>(alg_data)[vertex]);
+                          }
+                      }
                       valid_parent_found = true;
                       break;
                   } // for
 
-                  if (valid_parent_found) {
+                  if (valid_parent_found && !_do_min_max_updating) {
                     break;  
                   } 
                 } // if  
@@ -780,7 +813,7 @@ public:
           } // if
 
           //TODO: Jing Update here
-          if (valid_parent_found) {
+          if (valid_parent_found && !do_min_max_updating) {
             //std::cout << "Valid parent found." << std::endl; // Test
             break;
           }
@@ -800,8 +833,6 @@ public:
     // vertex heard from a valid neighbor (parent) 
     // create an entry for this vertex in the vertex_state_map or
     // update it, if exists already 
-
-    auto find_vertex = std::get<6>(alg_data).find(g->locator_to_label(vertex));
     if (find_vertex == std::get<6>(alg_data).end()) {
       auto insert_status = std::get<6>(alg_data)
         .insert({g->locator_to_label(vertex), 
