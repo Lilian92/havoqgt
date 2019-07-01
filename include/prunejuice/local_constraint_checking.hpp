@@ -1009,6 +1009,16 @@ void verify_and_update_vertex_state(TGraph* g, AlgData& alg_data,
 //    }   
 //  } // for
 
+  if (enable_edge_temporal_matching && (superstep == 0) && global_init_step) {
+      if (!global_not_finished) {
+          global_not_finished = true;
+      }
+
+      if (!not_finished) {
+          not_finished = true;
+      }
+  }
+
   for (auto& v : vertex_state_map) {
     auto v_locator = g->label_to_locator(v.first);
     // v.second.template_vertices // bitset 
