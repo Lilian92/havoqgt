@@ -142,7 +142,9 @@ public:
     auto g = std::get<11>(alg_data); // graph
     auto enable_edge_matching = std::get<21>(alg_data);
     auto pattern_edge_data = std::get<22>(alg_data);
-    // std::get<12>(alg_data); // vertex_token_source_set   
+    auto enable_edge_temporal_matching = std::get<23>(alg_data);
+    auto temporal_non_local_constraints = std::get<24>(alg_data);
+    // std::get<12>(alg_data); // token_source_edge_data_vertices
     // std::get<13>(alg_data); // vertex_active
     // std::get<14>(alg_data); // template_vertices
     // std::get<15>(alg_data); // vertex_active_edges_map
@@ -163,10 +165,12 @@ public:
       return true; // Important : must return true to handle delegates 
     } 
    
+    //TODO: Jing, if with temporal checking, this will become much less
+    //Since we need to check the stored_edge_data too
     if(enable_vertex_token_source) {    
     // verify if this vertex have already forwarded a token from the originating vertex
     if (!is_init_step && max_itr_count > itr_count) {
-      auto find_token_source_forwarded = std::get<12>(alg_data)[vertex].find(g->locator_to_label(target_vertex));
+      auto find_token_source_forwarded = std::get<12>(alg_data)[vertex].find(std::make_pair(g->locator_to_label(target_vertex), stored_edge_data));
       if (find_token_source_forwarded != std::get<12>(alg_data)[vertex].end()) {
         return false;
       }
@@ -312,10 +316,10 @@ public:
              }  
 
              if (enable_vertex_token_source) {  
-             // OK to forwarded a token from a source, now update vertex_token_source_set
-             auto find_token_source_forwarded = std::get<12>(alg_data)[vertex].find(g->locator_to_label(target_vertex));
+             // OK to forwarded a token from a source, now update token_source_edge_data_vertices
+             auto find_token_source_forwarded = std::get<12>(alg_data)[vertex].find(std::make_pair(g->locator_to_label(target_vertex), stored_edge_data));
              if (find_token_source_forwarded == std::get<12>(alg_data)[vertex].end()) {
-               auto insert_status = std::get<12>(alg_data)[vertex].insert(g->locator_to_label(target_vertex));
+               auto insert_status = std::get<12>(alg_data)[vertex].insert(std::make_pair(g->locator_to_label(target_vertex), stored_edge_data));
                if(!insert_status.second) {
                  std::cerr << "Error: failed to add an element to the set." << std::endl;
                  return false;
@@ -391,7 +395,7 @@ public:
       if (enable_vertex_token_source) { 
       // verify if this vertex have already forwarded a token from the originating vertex
       if (!is_init_step && max_itr_count > itr_count) {
-        auto find_token_source_forwarded = std::get<12>(alg_data)[vertex].find(g.locator_to_label(target_vertex));
+        auto find_token_source_forwarded = std::get<12>(alg_data)[vertex].find(std::make_pair(g.locator_to_label(target_vertex), stored_edge_data));
         if (find_token_source_forwarded != std::get<12>(alg_data)[vertex].end()) {
           return false; 
         } 		
@@ -417,10 +421,12 @@ public:
     auto pattern_valid_cycle = std::get<8>(alg_data);
     auto enable_edge_matching = std::get<21>(alg_data);
     auto pattern_edge_data = std::get<22>(alg_data);
+    bool enable_edge_temporal_matching = std::get<23>(alg_data);
+    auto temporal_non_local_constraints = std::get<24>(alg_data);
     //auto& pattern_found = std::get<9>(alg_data);
     //auto& edge_metadata = std::get<10>(alg_data); 
     // <11> // graph
-    // std::get<12>(alg_data); // vertex_token_source_set
+    // std::get<12>(alg_data); // token_source_edge_data_vertices
     // std::get<13>(alg_data); // vertex_active 
     // std::get<14>(alg_data); // template_vertices
     // std::get<15>(alg_data); // vertex_active_edges_map
@@ -477,7 +483,7 @@ public:
         } 
       }   
 
-      // pattern_selected_vertices and  vertex_token_source_set 
+      // pattern_selected_vertices and token_source_edge_data_vertices
       //if (std::get<16>(alg_data) && std::get<12>(alg_data)[vertex].empty()) { 
       //  return false;          
       //}  
@@ -768,8 +774,8 @@ public:
               //std::cout << "found valid path " << vertex_data << " " 
               //  << std::get<12>(alg_data)[vertex].size() << std::endl; // Test
                 
-              // find the target_vertex in the vertex_token_source_set
-              auto find_token_source_forwarded = std::get<12>(alg_data)[vertex].find(g.locator_to_label(target_vertex));
+              // find the target_vertex in the token_source_edge_data_vertices
+              auto find_token_source_forwarded = std::get<12>(alg_data)[vertex].find(std::make_pair(g.locator_to_label(target_vertex), stored_edge_data));
               if (find_token_source_forwarded == std::get<12>(alg_data)[vertex].end()) {
                 return false;    
               } else {     
@@ -989,16 +995,18 @@ template <typename TGraph, typename VertexMetaData, typename PatternData,
   typename PatternTemporalConstraint,
   typename VertexStateMap, typename TokenSourceMap, typename EdgeMetaData, 
   typename EdgeData,
-  typename VertexSetCollection, typename VertexActive, typename TemplateVertex, typename VertexMinMax,
+  typename VertexEdgeDataVectorSetCollection, typename VertexActive, typename TemplateVertex, typename VertexMinMax,
   typename VertexUint8EdgeDataMapCollection, typename BitSet>
 void token_passing_pattern_matching(TGraph* g, VertexMetaData& vertex_metadata, 
   PatternData& pattern, PatternIndices& pattern_indices, PatternEdgeData& pattern_edge_data,
-  VertexRank& vertex_rank, PatternGraph& pattern_graph, PatternTemporalConstraint & ptrn_temp_const, VertexStateMap& vertex_state_map,
+  VertexRank& vertex_rank, PatternGraph& pattern_graph, PatternTemporalConstraint & ptrn_temp_const,
+  size_t pl,
+  VertexStateMap& vertex_state_map,
   TokenSourceMap& token_source_map, size_t pattern_cycle_length, bool pattern_valid_cycle, 
   std::vector<uint8_t>::reference pattern_found, EdgeMetaData& edge_metadata, 
   bool enable_edge_matching,
   bool enable_edge_temporal_matching,
-  VertexSetCollection& vertex_token_source_set, VertexActive& vertex_active, 
+  VertexEdgeDataVectorSetCollection& token_source_edge_data_vertices, VertexActive& vertex_active, 
   TemplateVertex& template_vertices, VertexMinMax& vertexminmax_vertices, VertexUint8EdgeDataMapCollection& vertex_active_edges_map, 
   bool pattern_selected_vertices, bool pattern_selected_edges,
   bool pattern_mark_join_vertex, bool pattern_ignore_join_vertex, size_t pattern_join_vertex, 
@@ -1027,7 +1035,7 @@ void token_passing_pattern_matching(TGraph* g, VertexMetaData& vertex_metadata,
   // 9 pattern_found
   //10 edge_metadata
   //11 g
-  //12 vertex_token_source_set
+  //12 token_source_edge_data_vertices
   //13 vertex_active
   //14 template_vertices
   //15 vertex_active_edges_map
@@ -1039,17 +1047,17 @@ void token_passing_pattern_matching(TGraph* g, VertexMetaData& vertex_metadata,
   //21 enable_edge_matching
   //22 pattern_edge_data
   //23 enable_edge_temporal_matching
-  //24 ptrn_temp_const
+  //24 temporal_non_local_constraints
   //25 vertexminmax_vertices
   typedef tppm_visitor<TGraph, BitSet, EdgeData> visitor_type;
   auto alg_data = std::forward_as_tuple(vertex_metadata, pattern, pattern_indices, vertex_rank, 
     pattern_graph, vertex_state_map, token_source_map, pattern_cycle_length, pattern_valid_cycle, pattern_found, 
-    edge_metadata, g, vertex_token_source_set, vertex_active, template_vertices, vertex_active_edges_map, 
+    edge_metadata, g, token_source_edge_data_vertices, vertex_active, template_vertices, vertex_active_edges_map, 
     pattern_selected_vertices, pattern_selected_edges, 
     pattern_mark_join_vertex, pattern_ignore_join_vertex, pattern_join_vertex,
     enable_edge_matching, pattern_edge_data,
     enable_edge_temporal_matching,
-    ptrn_temp_const,
+    ptrn_temp_const.non_local_constraints[pl],
     vertexminmax_vertices);
   auto vq = havoqgt::create_visitor_queue<visitor_type, /*havoqgt::detail::visitor_priority_queue*/tppm_queue>(g, alg_data);
   ///vq.init_visitor_traversal_new();
