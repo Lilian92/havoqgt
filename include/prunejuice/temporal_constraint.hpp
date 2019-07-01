@@ -221,7 +221,13 @@ class pattern_temporal_constraint {
             return opt.test(COMP_POS);
         }
 
-        bool operate(std::vector<Edge> & stored, EdgeData cur_edge_data) {
+        bool operate(std::vector<EdgeData> & stored, EdgeData cur_edge_data) {
+            if (update_stored_edgedata(stored, cur_edge_data))
+                return checking(stored, cur_edge_data);
+            return false;
+        }
+
+        bool update_stored_edge_data(std::vector<EdgeData> & stored, EdgeData cur_edge_data) {
             if (store()) {
                 size_t stored_num = stored.size();
                 if (stored_num == store_at)
@@ -234,6 +240,10 @@ class pattern_temporal_constraint {
                 }
 
             }
+            return true;
+        }
+
+        bool checking(const std::vector<EdgeData> & stored, EdgeData cur_edge_data) {
             if (compare()) {
                 for (auto comp : compare_to_edges) {
                     EdgeData compared_to_edge_data = stored[comp.first];
