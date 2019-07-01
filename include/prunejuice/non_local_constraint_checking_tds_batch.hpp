@@ -1445,6 +1445,19 @@ void token_passing_pattern_matching(TGraph* g, VertexMetadata& vertex_metadata,
         auto return_value = (v1.itr_count == v2.itr_count) && 
           (v1.target_vertex_label == v2.target_vertex_label) && 
           (v1.sequence_number == v2.sequence_number);   
+
+        // add visited edge data checking for temporal checking
+        // not checking if it's temporal checking is because if it's not,
+        // then both stored_edge_data should be empty, so it would stay
+        // as true.
+        if (return_value) {
+            if (v1.stored_edge_data.size() != v2.stored_edge_data.size()) {
+                std::cerr << "Error: size of stored edge data is different for tokens in same itr_count" << std::endl;
+                return false;
+            }
+
+           return_value &= (v1.stored_edge_data == v2.stored_edge_data);
+        } 
         return return_value; 
       }			
   };
