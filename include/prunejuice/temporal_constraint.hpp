@@ -287,6 +287,8 @@ class pattern_temporal_constraint {
         }
     };
 
+    std::vector<std::vector<NonLocalOPT>> non_local_constraints;
+
   private:
 
     bool directed;
@@ -299,7 +301,6 @@ class pattern_temporal_constraint {
     std::vector<BitSet> local_neighbors;
     std::unordered_map<std::pair<Vertex, Vertex>, std::vector<std::pair<Vertex, bool>>, boost::hash<std::pair<Vertex, Vertex>>> local_constraints;
     //TODO: global opt
-    std::vector<std::vector<NonLocalOPT>> non_local_constraints;
     std::unordered_map<std::tuple<Vertex, Vertex>, Edge, boost::hash<std::tuple<Vertex, Vertex>>> edge_to_id_map;
     std::unordered_map<Edge, std::tuple<Vertex, Vertex>> id_to_edge_map;
 
