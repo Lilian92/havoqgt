@@ -339,13 +339,17 @@ public:
        if (vertex_template_vertices.none() || 
          !vertex_template_vertices.test(pattern_indices[next_pattern_index])) {
          return false;  
-       } else { 
-           if (enable_edge_matching) {
-               if (edge_data == pattern_edge_data[next_pattern_index - 1])
-                   match_found = true;
-           } else
-               match_found = true;
-       } 
+       }
+       if (enable_edge_matching) {
+           if (edge_data != pattern_edge_data[next_pattern_index - 1])
+               return false;
+       }
+       if (enable_edge_temporal_matching) {
+           std::cout << "enable edge temporal matching" << std::endl;
+           if (!temporal_non_local_constraints[next_pattern_index].checking(stored_edge_data, edge_data))
+               return false;
+       }
+       match_found = true;
  
        // TODO: vertex_template_vertices.test(pattern_indices[next_pattern_index])
        //for (size_t i = 0; i < vertex_template_vertices.size(); i++) {  
@@ -728,16 +732,18 @@ public:
       BitSet vertex_template_vertices(std::get<14>(alg_data)[vertex]); // template_vertices
 
       if (vertex_template_vertices.none() || 
-        !vertex_template_vertices.test(pattern_indices[next_pattern_index])) {
-        return false;
-      } else {
-          if (enable_edge_matching) {
-              if (edge_data == pattern_edge_data[next_pattern_index - 1])
-                  match_found = true;
-          } else {
-              match_found = true;
-          }
+              !vertex_template_vertices.test(pattern_indices[next_pattern_index])) {
+          return false;
       }
+      if (enable_edge_matching) {
+          if (edge_data != pattern_edge_data[next_pattern_index - 1])
+              return false;
+      } 
+      if (enable_edge_temporal_matching) {
+          if (!temporal_non_local_constraints[next_pattern_index].checking(stored_edge_data, edge_data))
+              return false;
+      }
+      match_found = true;
 
       // verify template vertex match  
       // TODO: replace the loop by vertex_template_vertices.test(pattern_indices[next_pattern_index])
