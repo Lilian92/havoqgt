@@ -600,6 +600,7 @@ int main(int argc, char** argv) {
   vertex_active.reset(true); // initially all vertices are active
   //vertex_iteration.reset(0); // TODO: -1 ?
   vertex_active_edges_map.clear(); // important
+  vertexminmax_vertices.clear();
   vertex_token_source_set.clear(); // clear all the sets on all the vertices
   //edge_metadata.reset(55); // Test
   //edge_active.reset(0); //  initially all edges are active / inactive
@@ -1033,7 +1034,6 @@ int main(int argc, char** argv) {
 //    token_source_map, pattern_cycle_length_tp, pattern_valid_cycle_tp, pattern_seleted_edges_tp, 
 //    pattern_found[pl], edge_active, /**edge_data_ptr,*/ vertex_token_source_set, token_source_edge_set, vertex_active);
   //if (do_tds_tp) {
-  //TODO Jing: is there edge elimilation after non local checking
   if (pattern_is_tds_tp) {
     // token_passing_pattern_matching_nonunique_tds_batch_1.hpp
     // token_passing_pattern_matching_nonunique_iterative_tds_1.hpp
