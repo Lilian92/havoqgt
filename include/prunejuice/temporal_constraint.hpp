@@ -135,9 +135,6 @@ class pattern_temporal_constraint {
     }
  
     void update_min_max(Vertex cur, Vertex neighbor, EdgeData edge_data, VertexMinMaxMap & min_max) {
-        if (!local_neighbors[cur].test(neighbor))
-            return ;
-
         auto find = min_max.find(neighbor);
         if (find == min_max.end()) {
             auto insert_status = min_max.insert( {neighbor, std::tuple<EdgeData, EdgeData>(max_edgedata_type(), min_edgedata_type())} );
@@ -145,6 +142,7 @@ class pattern_temporal_constraint {
                 std::cerr << "Fail to insert neighbor-<min, max> pair" << std::endl;
                 return ;
             }
+            find = insert_status.first;
         }
         if (std::get<0>(find->second) > edge_data)
             std::get<0>(find->second) = edge_data;
