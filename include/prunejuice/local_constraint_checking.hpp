@@ -8,6 +8,7 @@
 #include <havoqgt/detail/visitor_priority_queue.hpp>
 
 # define OUTPUT_RESULT
+#define DEBUG_TEMPORAL_LOCAL
 
 //using namespace havoqgt;
 
@@ -207,7 +208,7 @@ public:
       if (vertex.is_delegate() && g->master(vertex) != mpi_rank && msg_type == 1) { 
           //TODO: Jing verify that if master will receive all the
           //messages
-          //I am assuming so currectly. So I am only doing min/max updating at master
+          //I am assuming so currectly. So I am only doing min/max updating at master and don't update min/max here
           //However, if so, why the calculation here is necessary?
 
         // the vertex_state is only maintained on the controller
@@ -535,6 +536,7 @@ public:
     auto& pattern_graph = std::get<7>(alg_data);
     auto& edge_data_ptr = std::get<13>(alg_data);
     bool enable_edge_matching = std::get<14>(alg_data);
+    bool enable_edge_temporal_matching = std::get<15>(alg_data);
     // std::get<8>(alg_data) - superstep
     // std::get<9>(alg_data) - global_init_step
     // std::get<10>(alg_data) - g
@@ -598,7 +600,7 @@ public:
         for(eitr_type eitr = g.edges_begin(vertex);
           eitr != g.edges_end(vertex); ++eitr) {
           vertex_locator neighbor = eitr.target();
-          if (enable_edge_matching) {
+          if (enable_edge_matching || enable_edge_temporal_matching) {
               //both kinds of edge need edge data
               lppm_visitor new_visitor(neighbor, vertex, edge_data_ptr[eitr], vertex_template_vertices, 1);
               vis_queue->queue_visitor(new_visitor);
@@ -665,7 +667,7 @@ public:
         //  << std::get<11>(alg_data)[vertex] << std::endl; // Test
  
         //lppm_visitor new_visitor(neighbor, vertex_template_vertices_array, 1);
-        if (enable_edge_matching) {
+        if (enable_edge_matching || enable_edge_temporal_matching) {
             EdgeData _edge_data = (item.second).second;
             lppm_visitor new_visitor(neighbor, vertex, _edge_data, vertex_template_vertices, 1); 
             vis_queue->queue_visitor(new_visitor);
@@ -708,8 +710,12 @@ public:
     
     // std::get<6>(alg_data) - vertex_state_map 
     auto& pattern_graph = std::get<7>(alg_data); 
+    bool global_init_step = (std::get<9>(alg_data) && (std::get<8>(alg_data) == 0));
+
     auto g = std::get<10>(alg_data);   
     bool enable_edge_matching = std::get<14>(alg_data);
+    bool enable_edge_temporal_matching = std::get<15>(alg_data);
+    auto temporal_constraints = std::get<16>(alg_data);
     // std::get<11>(alg_data) - template_vertices 
  
     bool match_found = false; 
@@ -894,11 +900,12 @@ template <typename TGraph, typename AlgData, typename VertexStateMap,
   typename PatternGraph, typename PatternTemporalConstraint, typename VertexActive, typename VertexIteration, 
   typename BitSet, typename TemplateVertex, typename VertexMinMax, typename VertexUint8EdgeDataMapCollection>
 void verify_and_update_vertex_state(TGraph* g, AlgData& alg_data, 
-  VertexStateMap& vertex_state_map, PatternGraph& pattern_graph, PatternTemporalConstraint& ptrn_temp_const,
+  VertexStateMap& vertex_state_map, PatternGraph& pattern_graph, PatternTemporalConstraint& temporal_constraints,
   VertexActive& vertex_active, 
   VertexIteration& vertex_iteration, uint64_t superstep, bool global_init_step, 
   bool& global_not_finished, bool& not_finished, 
-  TemplateVertex& template_vertices, VertexMinMax& vertexminmax_vertices, VertexUint8EdgeDataMapCollection& vertex_active_edges_map) {
+  TemplateVertex& template_vertices, VertexMinMax& vertexminmax_vertices, VertexUint8EdgeDataMapCollection& vertex_active_edges_map,
+  bool enable_edge_temporal_matching) {
 
   typedef typename TGraph::vertex_iterator vertex_iterator;
   typedef typename TGraph::vertex_locator vertex_locator;
@@ -1281,7 +1288,7 @@ void label_propagation_pattern_matching_bsp(TGraph* g,
     verify_and_update_vertex_state<TGraph, decltype(alg_data), VertexStateMapGeneric,
       PatternGraph, PatternTemporalConstraint, VertexActive, VertexIteration, BitSet, TemplateVertex, VertexMinMax>
           (g, alg_data, vertex_state_map_generic, pattern_graph, ptrn_temp_const,
-      vertex_active, vertex_iteration, superstep, global_init_step, global_not_finished, not_finished, template_vertices, vertexminmax_vertices, vertex_active_edges_map);
+      vertex_active, vertex_iteration, superstep, global_init_step, global_not_finished, not_finished, template_vertices, vertexminmax_vertices, vertex_active_edges_map, enable_edge_temporal_matching);
     //MPI_Barrier(MPI_COMM_WORLD);
     //std::cout << "MPI Rank : " << mpi_rank <<  " - vertex_state_map_generic.size() : " << vertex_state_map_generic.size() << std::endl; // Test
   
