@@ -246,6 +246,12 @@ class pattern_temporal_constraint {
         bool checking(const std::vector<EdgeData> & stored, EdgeData cur_edge_data) {
             if (compare()) {
                 for (auto comp : compare_to_edges) {
+#ifdef DEBUG_TEMPORAL
+                    std::cout << "opt comp: " << comp.second << " " << stored[comp.first] << " " << cur_edge_data << std::endl;
+                    if (comp.first >= stored.size()) {
+                        std::cerr << "Error: invalid access of compared position" << std::endl;
+                    }
+#endif
                     EdgeData compared_to_edge_data = stored[comp.first];
                     if (comp.second && (cur_edge_data >= compared_to_edge_data))
                         return false;
@@ -381,7 +387,10 @@ class pattern_temporal_constraint {
 
     void generate_non_local_opt(PatternGraph& pattern_graph,
             PatternNonlocalConstraint& pattern_non_local_constraint) {
-
+        //TODO: Jing for compress, we should only check/store edge data
+        //that will be compared with and remove those that won't be
+        //accessed again.
+        //Then it can help work aggregation too.
         auto constraints_embeded = alloc_embeded_sign();
 
         for (auto input_pattern : pattern_non_local_constraint.input_patterns) {
