@@ -355,7 +355,9 @@ int main(int argc, char** argv) {
 
   typedef std::unordered_set<Vertex> VertexSet;  
   typedef graph_type::vertex_data<VertexSet, std::allocator<VertexSet> > VertexSetCollection; 
-  
+  typedef std::unordered_set<std::pair<Vertex, std::vector<EdgeData>>, boost::hash<std::pair<Vertex, std::vector<EdgeData>>> > VertexEdgeDataVectorSet;  
+  typedef graph_type::vertex_data<VertexEdgeDataVectorSet, std::allocator<VertexEdgeDataVectorSet> > VertexEdgeDataVectorSetCollection; 
+
   typedef std::unordered_map<Vertex, uint8_t> VertexUint8Map; 
   typedef graph_type::vertex_data<VertexUint8Map, std::allocator<VertexUint8Map> > VertexUint8MapCollection;    
   typedef std::unordered_map<Vertex, std::pair<uint8_t, EdgeData>> VertexUint8EdgeDataMap; 
@@ -394,6 +396,7 @@ int main(int argc, char** argv) {
   VertexMinMax vertexminmax_vertices(*graph);
   VertexUint8EdgeDataMapCollection vertex_active_edges_map(*graph);
   VertexSetCollection vertex_token_source_set(*graph); // per vertex set
+  VertexEdgeDataVectorSetCollection token_source_edge_data_vertices(*graph);
 //--  VertexSetCollection token_source_edge_set(*graph); // per vertex set // edge aware
 
 //  VertexRank vertex_rank(*graph);
@@ -602,6 +605,7 @@ int main(int argc, char** argv) {
   vertex_active_edges_map.clear(); // important
   vertexminmax_vertices.clear();
   vertex_token_source_set.clear(); // clear all the sets on all the vertices
+  token_source_edge_data_vertices.clear();
   //edge_metadata.reset(55); // Test
   //edge_active.reset(0); //  initially all edges are active / inactive
 
@@ -951,6 +955,7 @@ int main(int argc, char** argv) {
   if (!pattern_selected_vertices_tp) {
     token_source_map.clear(); // Important
     vertex_token_source_set.clear(); // Important
+    token_source_edge_data_vertices.clear();
   } else {
     // TODO: delete
 
@@ -991,10 +996,11 @@ int main(int argc, char** argv) {
       vloc_type vertex = *vitr;
       if (vertex_active[vertex] && 
         (vertex_metadata[vertex] == pattern_tp[pattern_tp.size() - 1])) {
-        //std::cout << mpi_rank << " " << graph->locator_to_label(vertex) << " [l] " << vertex_token_source_set[vertex].size() << std::endl; // Test  
+        //std::cout << mpi_rank << " " << graph->locator_to_label(vertex) << " [l] " << token_source_edge_data_vertices[vertex].size() << std::endl; // Test  
         continue; 
       } else {
         vertex_token_source_set[vertex].clear();
+        token_source_edge_data_vertices[vertex].clear();
       }
     } 	
     	
@@ -1003,10 +1009,11 @@ int main(int argc, char** argv) {
       vloc_type vertex = *vitr;
       if (vertex_active[vertex] &&
         (vertex_metadata[vertex] == pattern_tp[pattern_tp.size() - 1])) {
-        //std::cout << mpi_rank << " " << graph->locator_to_label(vertex) << " [d] " << vertex_token_source_set[vertex].size() << std::endl; // Test
+        //std::cout << mpi_rank << " " << graph->locator_to_label(vertex) << " [d] " << token_source_edge_data_vertices vertex_token_source_set[vertex].size() << std::endl; // Test
         continue;
       } else {
         vertex_token_source_set[vertex].clear();
+        token_source_edge_data_vertices[vertex].clear();
       } 
     }   
            
@@ -1063,10 +1070,10 @@ int main(int argc, char** argv) {
     prunejuice::token_passing_pattern_matching<graph_type, VertexMetadata, decltype(pattern_tp), decltype(pattern_indices_tp), decltype(pattern_edge_data_tp), uint8_t, PatternGraph,
         PatternTemporalConstraint,
     VertexStateMap, VertexUint8Map, edge_data_t, EdgeData,
-    VertexSetCollection, VertexActive, TemplateVertex, VertexMinMax, VertexUint8EdgeDataMapCollection, BitSet>(graph, vertex_metadata, pattern_tp,
-    pattern_indices_tp, pattern_edge_data_tp, vertex_rank, pattern_graph, ptrn_temp_const, vertex_state_map,
+    VertexEdgeDataVectorSetCollection, VertexActive, TemplateVertex, VertexMinMax, VertexUint8EdgeDataMapCollection, BitSet>(graph, vertex_metadata, pattern_tp,
+    pattern_indices_tp, pattern_edge_data_tp, vertex_rank, pattern_graph, ptrn_temp_const, pl, vertex_state_map,
     token_source_map, pattern_cycle_length_tp, pattern_valid_cycle_tp,
-    pattern_found[pl], *edge_data_ptr, enable_edge_matching, enable_edge_temporal_matching, vertex_token_source_set, vertex_active, 
+    pattern_found[pl], *edge_data_ptr, enable_edge_matching, enable_edge_temporal_matching, token_source_edge_data_vertices, vertex_active, 
     template_vertices, vertexminmax_vertices, vertex_active_edges_map, pattern_selected_vertices_tp, //);
     pattern_selected_edges_tp, pattern_mark_join_vertex_tp,
     pattern_ignore_join_vertex_tp, pattern_join_vertex_tp, message_count);
