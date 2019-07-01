@@ -1021,6 +1021,57 @@ void verify_and_update_vertex_state(TGraph* g, AlgData& alg_data,
 
   for (auto& v : vertex_state_map) {
     auto v_locator = g->label_to_locator(v.first);
+
+    if (enable_edge_temporal_matching) {
+#ifdef DEBUG_TEMPORAL_LOCAL
+        std::cout << "before update: " << v.first << std::endl;
+        for (auto item : v.second.last_itr_min_max) {
+            std::cout << "vertex" << v.first << "state" << item.first \
+                << "min: " << std::get<0>(item.second) << " "
+                << "max: " << std::get<1>(item.second) << " " << std::endl;
+        }
+        for (auto item : vertexminmax_vertices[v_locator]) {
+            std::cout << "cur vertex" << v.first << "state" << item.first \
+                << "min: " << std::get<0>(item.second) << " "
+                << "max: " << std::get<1>(item.second) << " " << std::endl;
+        }
+#endif
+        //update min_max
+        if ((superstep == 0) && global_init_step) {
+            //copy min max from cur_min_max to vertex state
+            //This can be optimized later
+            v.second.last_itr_min_max = vertexminmax_vertices[v_locator];
+        } else {
+            //If min max changed, then not finished
+            if (temporal_constraints.shrink_min_max_range(
+                        v.second.last_itr_min_max,
+                        vertexminmax_vertices[v_locator])) {
+                if (!global_not_finished) {
+                    global_not_finished = true;
+                }
+
+                if (!not_finished) {
+                    not_finished = true;
+                }
+            }
+        }
+        temporal_constraints.reset_min_max(vertexminmax_vertices[v_locator]);
+#ifdef DEBUG_TEMPORAL_LOCAL
+        std::cout << "after update: " << v.first << std::endl;
+        for (auto item : v.second.last_itr_min_max) {
+            std::cout << "vertex" << v.first << "state" << item.first \
+                << "min: " << std::get<0>(item.second) << " "
+                << "max: " << std::get<1>(item.second) << " " << std::endl;
+        }
+        for (auto item : vertexminmax_vertices[v_locator]) {
+            std::cout << "cur vertex" << v.first << "state" << item.first \
+                << "min: " << std::get<0>(item.second) << " "
+                << "max: " << std::get<1>(item.second) << " " << std::endl;
+        }
+#endif
+ 
+    }
+   
     // v.second.template_vertices // bitset 
     // v.second.template_neighbors // bitset
     
