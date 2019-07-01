@@ -10,7 +10,7 @@ namespace havoqgt { namespace test {
 const std::string graph_unique_instance_name = "graph_obj";
 const std::string edge_data_unique_instance_name = "graph_edge_data_obj";
 const std::string input_graph_file_name = "/dev/shm/test_havoqgt_graph_6";
-std::string pattern_input_filename = "../../../examples/prunejuice/rmat_log2_tree_pattern/8";
+std::string pattern_input_filename = "../../../examples/prunejuice/rmat_log2_tree_pattern/12";
 
 std::vector<std::tuple<uint64_t, uint64_t, EdgeData>> input_graph;
 std::vector<std::tuple<uint64_t, uint64_t, EdgeData>> vec_global_edges; 
@@ -78,7 +78,7 @@ bool test_pattern_matching() {
   }
 
   size_t count_pj = pattern_matching_prunejuice(graph, vertex_metadata, edge_data_ptr,
-          pattern_input_filename, output_filename, true);
+          pattern_input_filename, output_filename, false, true);
   size_t count_seq = pattern_matching_seq(graph, vertex_metadata, edge_data_ptr,
           pattern_input_filename);
 
