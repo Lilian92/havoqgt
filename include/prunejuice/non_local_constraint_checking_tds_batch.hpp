@@ -68,6 +68,7 @@ public:
 
   tppm_visitor_tds() : 
     itr_count(0), 
+    stored_edge_data(),
     do_pass_token(false),
     is_init_step(true),
     ack_success(false),
@@ -80,6 +81,7 @@ public:
   tppm_visitor_tds(vertex_locator _vertex) :  
     vertex(_vertex), 
     itr_count(0),
+    stored_edge_data(),
     do_pass_token(false), 
     is_init_step(true),
     ack_success(false),
@@ -116,6 +118,7 @@ public:
     target_vertex_label(_target_vertex_label),
     sequence_number(_sequence_number),   
     itr_count(_itr_count), 
+    stored_edge_data(),
     max_itr_count(_max_itr_count), 
     expect_target_vertex(_expect_target_vertex), 
     do_pass_token(_do_pass_token), 
@@ -164,6 +167,7 @@ public:
     target_vertex_label(_target_vertex_label),
     sequence_number(_sequence_number),   
     itr_count(_itr_count), 
+    stored_edge_data(),
     max_itr_count(_max_itr_count), 
     expect_target_vertex(_expect_target_vertex), 
     do_pass_token(_do_pass_token), 
@@ -181,6 +185,63 @@ public:
           std::end(_visited_vertices), // TODO: std::begin(_visited_vertices) + itr_count ? 
           std::begin(visited_vertices));  
         visited_vertices[itr_count + 1] = vertex; // Important : itr_count for the next hop   
+      }
+  }  
+
+  template <typename VertexLocatorArrayStatic, typename EdgeDataArray, typename TemporalNonLocalOPT> 
+  tppm_visitor_tds(vertex_locator _vertex,
+    vertex_locator _parent,  
+    EdgeData _edge_data,
+    vertex_locator _target_vertex,
+    Vertex _vertex_label,
+    Vertex _target_vertex_label,   
+    uint64_t _sequence_number,  
+    VertexLocatorArrayStatic& _visited_vertices, 
+    bool _enable_temporal_edge_checking,
+    EdgeDataArray & _stored_edge_data,
+    TemporalNonLocalOPT & _temp_non_local_checking,
+    size_t _itr_count, 
+    size_t _max_itr_count, 
+    size_t _source_index_pattern_indices, 
+    size_t _parent_pattern_index, 
+    bool _expect_target_vertex = true, 
+    bool _do_pass_token = true, 
+    bool _is_init_step = false, 
+    bool _ack_success = false//,
+    //uint8_t _msg_type = 1
+    ) :
+ 
+    vertex(_vertex),
+    parent(_parent),
+    edge_data(_edge_data),
+    target_vertex(_target_vertex),
+    vertex_label(_vertex_label),
+    target_vertex_label(_target_vertex_label),
+    sequence_number(_sequence_number),   
+    stored_edge_data(_stored_edge_data),
+    itr_count(_itr_count), 
+    max_itr_count(_max_itr_count), 
+    expect_target_vertex(_expect_target_vertex), 
+    do_pass_token(_do_pass_token), 
+    is_init_step(_is_init_step),
+    ack_success(_ack_success),
+    // msg_type(_msg_type), 
+    source_index_pattern_indices(_source_index_pattern_indices), 
+    parent_pattern_index(_parent_pattern_index) {
+      //if (itr_count == 0 && !_ack_success) { // probably never gets here
+      //  visited_vertices[itr_count] = vertex;  
+      //} else if (itr_count > 0 && itr_count <= max_itr_count && !_ack_success) {
+      if (!_ack_success) {
+        // copy to visited_vertices from the one received from the parent
+        std::copy(std::begin(_visited_vertices), 
+          std::end(_visited_vertices), // TODO: std::begin(_visited_vertices) + itr_count ? 
+          std::begin(visited_vertices));  
+        visited_vertices[itr_count + 1] = vertex; // Important : itr_count for the next hop   
+        if (_enable_temporal_edge_checking)
+            _temp_non_local_checking.update_stored_edge_data(stored_edge_data, edge_data);
+        else {
+            std::cerr << "Error: wrong constructor is called for tppm_visitor" << std::endl;
+        }
       }
   }  
 
@@ -202,6 +263,8 @@ public:
     auto g = std::get<11>(alg_data); // graph
     auto enable_edge_matching = std::get<23>(alg_data);
     auto pattern_edge_data = std::get<24>(alg_data);
+    auto enable_edge_temporal_matching = std::get<25>(alg_data);
+    auto temporal_non_local_constraints = std::get<26>(alg_data);
     // std::get<12>(alg_data); // vertex_token_source_set   
     // std::get<13>(alg_data); // vertex_active
     // std::get<14>(alg_data); // template_vertices
@@ -327,6 +390,10 @@ public:
            // if (do_pass_token && ( (max_itr_count > itr_count) || (max_itr_count == itr_count) ) ) { // TODO: ?   
            if (do_pass_token && (max_itr_count > itr_count)) {
    
+               //TODO: Jing improve work aggregation s.t. we only forward
+               //ones with looser temporal constraints and update
+               //This function can be writen in NonLocalOPT class, and
+               //created in pattern analysis
              if (enable_token_aggregation) {
                //auto find_token = std::get<19>(alg_data)->find(*this);
                //if (find_token == std::get<19>(alg_data)->end()) {
@@ -506,6 +573,8 @@ public:
     auto pattern_valid_cycle = std::get<8>(alg_data);
     auto enable_edge_matching = std::get<23>(alg_data);
     auto pattern_edge_data = std::get<24>(alg_data);
+    auto enable_edge_temporal_matching = std::get<25>(alg_data);
+    auto temporal_non_local_constraints = std::get<26>(alg_data);
     //auto& pattern_found = std::get<9>(alg_data);
     //auto& edge_metadata = std::get<10>(alg_data); 
     // std::get<11>(alg_data) // graph
@@ -603,7 +672,19 @@ public:
             vis_queue->queue_visitor(new_visitor);
           }        
         } else { 
-            if (enable_edge_matching) {
+            if (enable_edge_temporal_matching) {
+                tppm_visitor_tds new_visitor(neighbour, vertex, (item.second).second, vertex, 
+                        //g.locator_to_label(neighbour), // vertex_label
+                        g.locator_to_label(vertex), // vertex_label
+                        g.locator_to_label(vertex), // token_label
+                        std::get<21>(alg_data)[vertex], //0, // sequence_number
+                        visited_vertices,
+                        enable_edge_temporal_matching,
+                        stored_edge_data, //edge stored since now
+                        temporal_non_local_constraints[1], //temporal_non_local_constraints operator
+                        0, pattern_cycle_length, 0, pattern_indices[0], pattern_valid_cycle, true, false);
+                vis_queue->queue_visitor(new_visitor);
+            } else if (enable_edge_matching) {
                 tppm_visitor_tds new_visitor(neighbour, vertex, (item.second).second, vertex, 
                         //g.locator_to_label(neighbour), // vertex_label
                         g.locator_to_label(vertex), // vertex_label
@@ -1000,8 +1081,24 @@ public:
           new_token_label = g.locator_to_label(vertex),
           new_sequence_number = std::get<21>(alg_data)[vertex]++;
         }        
- 
-        if (enable_edge_matching) {
+
+        //TODO: Jing: check edge data before forwarding tokens to reduce
+        //tokens generated (same with unique constraints checking)
+        if (enable_edge_temporal_matching) {
+            tppm_visitor_tds new_visitor(neighbour, vertex, (item.second).second, target_vertex, 
+                    //g.locator_to_label(neighbour), // vertex_label
+                    g.locator_to_label(target_vertex), // vertex_label
+                    new_token_label, // token_label
+                    new_sequence_number, //sequence_number 
+                    visited_vertices,
+                    enable_edge_temporal_matching,
+                    stored_edge_data, //edge stored since now
+                    temporal_non_local_constraints[new_itr_count + 1],
+                    new_itr_count, max_itr_count, source_index_pattern_indices, vertex_pattern_index, 
+                    expect_target_vertex); 
+            // vertex_pattern_index = parent_pattern_index for the neighbours 
+            vis_queue->queue_visitor(new_visitor);
+        } else if (enable_edge_matching) {
             tppm_visitor_tds new_visitor(neighbour, vertex, (item.second).second, target_vertex, 
                     //g.locator_to_label(neighbour), // vertex_label
                     g.locator_to_label(target_vertex), // vertex_label
@@ -1083,6 +1180,7 @@ public:
   size_t parent_pattern_index; // TODO: change to the same type as in the pattern_graph
   EdgeData edge_data;
   std::array<vertex_locator,16> visited_vertices; // I think we will have to replace vertex_locator with Vertex
+  std::vector<EdgeData>         stored_edge_data;
 
   Vertex vertex_label;
   Vertex target_vertex_label; // TODO: this label will be updated at the points where no caching happens // token_label?
@@ -1600,7 +1698,7 @@ void token_passing_pattern_matching(TGraph* g, VertexMetadata& vertex_metadata,
     // 23 enable_edge_matching
     // 24 pattern_edge_data
     // 25 enable_edge_temporal_matching
-    // 28 ptrn_temp_const
+    // 26 temporal_non_local_constraints
     // 27 vertexminmax_vertices
     //typedef tppm_visitor_tds<TGraph, Vertex, BitSet> visitor_type;
     //TODO Jing: understand what vertex_sequence_number
@@ -1614,7 +1712,7 @@ void token_passing_pattern_matching(TGraph* g, VertexMetadata& vertex_metadata,
       enable_edge_matching,
       pattern_edge_data,
       enable_edge_temporal_matching,
-      ptrn_temp_const,
+      ptrn_temp_const.non_local_constraints[pl],
       vertexminmax_vertices);
 
     auto vq = havoqgt::create_visitor_queue<visitor_type, 
