@@ -1,5 +1,5 @@
-program="../src"
-sbatch="./"
+program="./src"
+sbatch="./scripts/"
 graph="/p/lustre1/an4/graph"
 
 if [ "$#" -ne 0 ]; then
@@ -29,7 +29,7 @@ fi
 
 scales=(18 20 22 24)
 nodes=(2 2 2 2)
-labels=(1)
+labels=(1 2 3 6 20 100)
 
 for i in 0 1 2 3; do
     for label in ${labels[*]}; do

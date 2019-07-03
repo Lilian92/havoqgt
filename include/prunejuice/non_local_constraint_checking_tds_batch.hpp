@@ -345,7 +345,6 @@ public:
                return false;
        }
        if (enable_edge_temporal_matching) {
-           std::cout << "enable edge temporal matching" << std::endl;
            if (!temporal_non_local_constraints[next_pattern_index].checking(stored_edge_data, edge_data))
                return false;
        }

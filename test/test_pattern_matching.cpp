@@ -2,7 +2,7 @@
 #include <include/create_delegate_graph.hpp>
 #include <include/havoqgt_setup.hpp>
 #include <include/pattern_matching.hpp>
-#include <include/input_graph_1.hpp>
+#include <include/input_graph_2.hpp>
 #include <include/util.hpp>
 
 namespace havoqgt { namespace test {
@@ -10,7 +10,7 @@ namespace havoqgt { namespace test {
 const std::string graph_unique_instance_name = "graph_obj";
 const std::string edge_data_unique_instance_name = "graph_edge_data_obj";
 const std::string input_graph_file_name = "/dev/shm/test_havoqgt_graph_6";
-std::string pattern_input_filename = "../../../examples/prunejuice/rmat_log2_tree_pattern/12";
+std::string pattern_input_filename = "../../../examples/prunejuice/rmat_log2_tree_pattern/13";
 
 std::vector<std::tuple<uint64_t, uint64_t, EdgeData>> input_graph;
 std::vector<std::tuple<uint64_t, uint64_t, EdgeData>> vec_global_edges; 
