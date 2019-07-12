@@ -58,6 +58,7 @@
 //#define OUTPUT_RESULT
 //#define ENABLE_BLOCK
 
+#define OUTPUT_ACTIVE_COUNTS
 #define TP_ASYNC
 //#define TP_BATCH
 
@@ -1450,6 +1451,38 @@ int main(int argc, char** argv) {
   paths_result_file.close();
 
   MPI_Barrier(MPI_COMM_WORLD); // TODO: do we need this here? // New 
+
+#ifdef OUTPUT_ACTIVE_COUNTS
+  active_vertices_count = 0;
+  active_edges_count = 0;
+  for (auto& v : vertex_state_map) {
+    auto v_locator = graph->label_to_locator(v.first);
+    if (v_locator.is_delegate() && (graph->master(v_locator) == mpi_rank)) {
+      active_vertices_count++;
+
+      // edges
+      active_edges_count+=vertex_active_edges_map[v_locator].size();   
+    } else if (!v_locator.is_delegate()) {
+      active_vertices_count++;
+
+      // edges
+      active_edges_count+=vertex_active_edges_map[v_locator].size();   
+    }
+  }
+  havoqgt::mpi_all_reduce_inplace(active_vertices_count, std::plus<uint8_t>(), MPI_COMM_WORLD);
+  havoqgt::mpi_all_reduce_inplace(active_edges_count, std::plus<uint8_t>(), MPI_COMM_WORLD);
+  if (mpi_rank == 0) {
+      // vertices
+      std::cout << "pattern " << global_itr_count << ", TP, "
+          << pl << ", "  
+          << active_vertices_count << "\n";  
+
+      // edges
+      std::cout << "pattern " << global_itr_count << ", TP, "
+          << pl << ", "
+          << active_edges_count << "\n";
+  }
+#endif
 
   //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 
