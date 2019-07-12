@@ -51,6 +51,33 @@ class pattern_temporal_constraint {
         output_temporal_constraints();
     }
 
+    pattern_temporal_constraint(PatternGraph& pattern_graph,
+            std::string pattern_temporal_constraint_filename, bool enable_edge_temporal_matching = true, bool _directed=false) :
+        edge_count(0),
+        vertex_count(0),
+        all_constraints(),
+        local_vertices(0),
+        local_neighbors(),
+        local_constraints(),
+        non_local_constraints(),
+        directed(_directed) {
+        if (!enable_edge_temporal_matching) {
+            for (size_t i; i<pattern_non_local_constraint.input_patterns.size(); i++)
+                non_local_constraints.push_back(std::vector<NonLocalOPT>());
+            return ;
+        }
+
+        if (directed) {
+            //TODO
+            std::cerr << "directed not supported yet" << std::endl;
+            return ;
+        }
+        init(pattern_graph);
+        //output_pattern_graph_info();
+        read_all_constraints(pattern_graph, pattern_temporal_constraint_filename);
+    }
+
+
     ~pattern_temporal_constraint() {
         //TODO: clear memory
     }
@@ -288,14 +315,14 @@ class pattern_temporal_constraint {
     };
 
     std::vector<std::vector<NonLocalOPT>> non_local_constraints;
+    //all constraints
+    std::vector<std::vector<Edge>> all_constraints;
 
   private:
 
     bool directed;
     Edge edge_count;
     Vertex vertex_count;
-    //all constraints
-    std::vector<std::vector<Edge>> all_constraints;
     // For storing local temporal checking
     BitSet local_vertices;
     std::vector<BitSet> local_neighbors;
