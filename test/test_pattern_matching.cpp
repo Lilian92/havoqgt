@@ -16,25 +16,12 @@ std::vector<std::tuple<uint64_t, uint64_t, EdgeData>> input_graph;
 std::vector<std::tuple<uint64_t, uint64_t, EdgeData>> vec_global_edges; 
 std::set<uint64_t> delegate_vertices;
 
-void create_local_edge_list(graph_type& g, edge_data_t& edge_data_ptr, 
-                            vloc_type vertex,  
-                            std::vector<uint64_t>& edge_source, 
-                            std::vector<uint64_t>& edge_target, 
-                            std::vector<EdgeData>& edge_data) {
-  for(eitr_type eitr = g.edges_begin(vertex); eitr != g.edges_end(vertex); 
-      ++eitr) {
-    edge_source.push_back(g.locator_to_label(vertex));
-    edge_target.push_back(g.locator_to_label(eitr.target()));
-    //edge_data.push_back((uint64_t)eitr.edge_data());   
-    edge_data.push_back((uint64_t)edge_data_ptr[eitr]); 
-  }
-}
-
 bool test_pattern_matching() {
   int mpi_rank(0);
   CHK_MPI(MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank));
   const std::string output_filename = "./results/";
-  const std::string vertex_metadata_filename = "/p/lustre1/an4/metadata/head";
+  const std::string vertex_metadata_filenames_head = "/p/lustre1/an4/metadata/head";
+  const std::string vertex_metadata_filename = "/p/lustre1/an4/metadata/vertex_matedata_1";
 
   input_graph = grid_graph_sym_weighted_edges();
 
@@ -64,7 +51,7 @@ bool test_pattern_matching() {
   }
 
   VertexMetadata vertex_metadata(*graph);
-  generate_vertex_metadata(graph, vertex_metadata, vertex_metadata_filename);
+  generate_vertex_metadata(graph, vertex_metadata, vertex_metadata_filenames_head);
 
   MPI_Barrier(MPI_COMM_WORLD);
 
@@ -79,75 +66,9 @@ bool test_pattern_matching() {
 
   size_t count_pj = pattern_matching_prunejuice(graph, vertex_metadata, edge_data_ptr,
           pattern_input_filename, output_filename, false, true);
-  size_t count_seq = pattern_matching_seq(graph, vertex_metadata, edge_data_ptr,
-          pattern_input_filename);
+  size_t count_seq = pattern_matching_seq(input_graph, vertex_metadata_filename, pattern_input_filename);
 
   return (count_pj == count_seq);
-//  // build a local copy of the entire graph on each rank 
-//  
-//  std::vector<uint64_t> vec_local_edge_source;
-//  std::vector<uint64_t> vec_global_edge_source;
-//  std::vector<uint64_t> vec_local_edge_target;
-//  std::vector<uint64_t> vec_global_edge_target;
-//  std::vector<uint64_t> vec_local_edge_data;
-//  std::vector<uint64_t> vec_global_edge_data;  
-//
-//  for (vitr_type vitr = g->vertices_begin(); vitr != g->vertices_end(); 
-//       ++vitr) {
-//    vloc_type vertex = *vitr;
-//    if (vertex.is_delegate()) {
-//      delegate_vertices.insert(g->locator_to_label(vertex));
-//    }
-//    create_local_edge_list(*g, *edge_data_ptr, vertex, vec_local_edge_source, 
-//                           vec_local_edge_target, vec_local_edge_data); 
-//  }
-//
-//  for (vitr_type vitr = g->delegate_vertices_begin(); 
-//       vitr != g->delegate_vertices_end(); ++vitr) { 
-//    vloc_type vertex = *vitr;
-//    if (vertex.is_delegate()) {
-//      delegate_vertices.insert(g->locator_to_label(vertex));
-//    } 
-//    create_local_edge_list(*g, *edge_data_ptr, vertex, vec_local_edge_source,
-//                           vec_local_edge_target, vec_local_edge_data);
-//  }
-// 
-//  MPI_Barrier(MPI_COMM_WORLD);
-//
-//
-//  // gather global edges
-//  mpi_all_gather(vec_local_edge_source, vec_global_edge_source, MPI_COMM_WORLD); 
-//  mpi_all_gather(vec_local_edge_target, vec_global_edge_target, MPI_COMM_WORLD);
-//  mpi_all_gather(vec_local_edge_data, vec_global_edge_data, MPI_COMM_WORLD);
-//
-//  MPI_Barrier(MPI_COMM_WORLD);
-//
-//  for (size_t i; i < vec_global_edge_source.size(); ++i) {
-//    vec_global_edges.push_back(std::make_tuple(vec_global_edge_source[i], 
-//                                               vec_global_edge_target[i], 
-//                                               vec_global_edge_data[i]));
-//  }
-//
-//  // sort edges
-//  std::stable_sort(vec_global_edges.begin(),vec_global_edges.end(),
-//    [](const std::tuple<uint64_t, uint64_t, uint64_t>& a,
-//       const std::tuple<uint64_t, uint64_t, uint64_t>& b) -> bool {
-//         return std::get<0>(a) < std::get<0>(b);
-//       });
-//  
-//  for (size_t i = 0; i < grid_graph_weighted_edges_offset.size() - 1; ++i) {
-//     size_t start = grid_graph_weighted_edges_offset[i];
-//     size_t end = grid_graph_weighted_edges_offset[i+1];
-//      
-//     std::stable_sort(vec_global_edges.begin() + start, 
-//                      vec_global_edges.begin() + end,
-//       [](const std::tuple<uint64_t, uint64_t, uint64_t>& a,
-//          const std::tuple<uint64_t, uint64_t, uint64_t>& b) -> bool {
-//            return std::get<1>(a) < std::get<1>(b);
-//          });    
-//  } // sort edges  
-//
-//  MPI_Barrier(MPI_COMM_WORLD);
 }
 
 TEST(my_test, test_pattern_matching) {
