@@ -64,10 +64,14 @@ bool test_pattern_matching() {
     std::cout << "Pattern Matching Prunejuice ... " << std::endl;
   }
 
+  OUTPUT_SUIT res_pj;
   size_t count_pj = pattern_matching_prunejuice(graph, vertex_metadata, edge_data_ptr,
-          pattern_input_filename, output_filename, false, true);
-  size_t count_seq = pattern_matching_seq(input_graph, vertex_metadata_filename, pattern_input_filename);
+          pattern_input_filename, output_filename, res_pj, false, false);
+  OUTPUT_SUIT res_seq;
+  size_t count_seq = pattern_matching_seq(input_graph, vertex_metadata_filename, pattern_input_filename, res_seq);
 
+  res_pj.output("prunejuice");
+  res_seq.output("seq");
   return (count_pj == count_seq);
 }
 

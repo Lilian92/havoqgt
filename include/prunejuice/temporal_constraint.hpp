@@ -61,12 +61,6 @@ class pattern_temporal_constraint {
         local_constraints(),
         non_local_constraints(),
         directed(_directed) {
-        if (!enable_edge_temporal_matching) {
-            for (size_t i; i<pattern_non_local_constraint.input_patterns.size(); i++)
-                non_local_constraints.push_back(std::vector<NonLocalOPT>());
-            return ;
-        }
-
         if (directed) {
             //TODO
             std::cerr << "directed not supported yet" << std::endl;
