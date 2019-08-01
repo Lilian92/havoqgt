@@ -39,6 +39,18 @@ typedef struct label_summary{
                       unique_edges(),
                       repeated_vertex_label(false),
                       repeated_edge_label(false) {}
+    void output() {
+        std::cout << "Label Summary:" << std::endl;
+        std::cout << "repeated vertex label: " << repeated_vertex_label << std::endl;
+        std::cout << "repeated edge label: " << repeated_edge_label << std::endl;
+        std::cout << "unique vertex data: " << std::endl;
+        for (auto item : unique_vertex_data)
+            std::cout << item  << " " << std::endl;
+        std::cout << "unique edges: " << std::endl;
+        for (auto item : unique_edges) {
+            std::cout << std::get<0>(item) << " " << std::get<1>(item) << ": " << std::get<2>(item) << std::endl;
+        }
+    }
 } LABEL_SUMMARY;
 
 typedef struct csr {
@@ -88,6 +100,31 @@ typedef struct csr_sort_by_vertex_label {
     //begin_pos of each label for each vertex
     std::vector<size_t> begin_pos_for_each_label;
 
+    void output_metadata_info() {
+        std::cout << "graph metadata info : " << std::endl;
+        std::cout << "vertex number : " << vertex_num << std::endl;
+        std::cout << "vertex label type num : " << vertex_label_type_num << std::endl;
+        for (size_t i=0; i<vertex_label_type_num; i++) {
+            std::cout << "the " << i << "th vertex label : " << to_vertex_data[i] << std::endl;
+            std::cout << "vertex label id : from " << each_label_begin_index[i]
+                << " to " << each_label_begin_index[i+1] << std::endl;
+        }
+    }
+
+    void output() {
+        std::cout << "CSR_SORT_BY_VERTEX_LABEL" << std::endl;
+        std::cout << "number of vertices: " << vertex_num << std::endl;
+        std::cout << "number of edges: " << edge_num << std::endl;
+        output_metadata_info();
+        for (size_t i=0; i<vertex_num; i++) {
+            std::cout << "vertex " << i << ": neighbor (edge data)";
+            for (size_t e=vertex_edgelist_begin_index[i];
+                    e<vertex_edgelist_begin_index[i+1]; e++)
+                std::cout << edges[e] << " (" << edge_data[e] << ") ";
+            std::cout << std::endl;
+        }
+    }
+
     csr_sort_by_vertex_label() : vertex_num(0),
             edge_num(0),
             to_vertex_data(),
@@ -112,7 +149,19 @@ typedef struct csr_sort_by_vertex_label {
         size_t end = each_label_begin_index.size() - 1;
         assert(id>=0 && id<each_label_begin_index[end]);
         size_t pos;
-        assert(binary_find(each_label_begin_index, id, begin, end, pos) && "wrong vertex id");
+#ifdef DEBUG_SEQ
+//        std::cout << "search for: " << id << std::endl;
+//        std::cout << "begin: " << begin << " end: " << end << std::endl;
+//        std::cout << "array: ";
+//        for (auto item : each_label_begin_index)
+//            std::cout << item << " ";
+//        std::cout << std::endl;
+#endif
+        bool res = binary_find(each_label_begin_index, id, begin, end, pos);
+        EXPECT_TRUE(res && "wrong vertex id");
+#ifdef DEBUG_SEQ
+//        std::cout << "position found: " << pos << std::endl;
+#endif
         return to_vertex_data[pos];
     }
 
@@ -137,6 +186,18 @@ typedef struct csr_sort_by_vertex_label {
             to_vertex_data.push_back(item);
             to_vertex_data_id.insert(std::make_pair(item, vertex_data_id));
             vertex_data_id++;
+        }
+    }
+
+    void output_vertex_label_org() {
+        std::cout << "Vertex Label Org:" << std::endl;
+        std::cout << "vertex data kinds: " << to_vertex_data.size() << std::endl;
+        std::cout << "vertex data id to vertex data" << std::endl;
+        for (size_t i=0; i<to_vertex_data.size(); i++)
+            std::cout << i << " " << to_vertex_data[i] << std::endl;
+        std::cout << "vertex data to vertex data id: " << std::endl;
+        for (auto item : to_vertex_data_id) {
+            std::cout << std::get<0>(item) << " " << std::get<1>(item) << std::endl;
         }
     }
 
@@ -188,9 +249,21 @@ typedef struct id_map {
     }
 
     bool to_original_id(Vertex new_id, Vertex & original_id) {
-        assert(new_id < to_orignal.size());
+        EXPECT_TRUE(new_id < to_orignal.size());
         original_id = to_orignal[new_id];
         return true;
+    }
+
+    void output() {
+        std::cout << "id map:" << std::endl;
+        std::cout << "old id to new id" << std::endl;
+        for (auto item : to_new) {
+            std::cout << std::get<0>(item) << " to " << std::get<1>(item) << std::endl;
+        }
+        std::cout << "new id to old id" << std::endl;
+        for (size_t i=0; i<to_orignal.size(); i++) {
+            std::cout << i << " to " << to_orignal[i] << std::endl;
+        }
     }
 
 } ID_MAP;
@@ -202,6 +275,19 @@ typedef struct {
 typedef struct seq_temporal_constraints{
     std::vector<std::vector<Edge>> smaller_than_constraints;
     std::vector<std::vector<Edge>> bigger_than_constraints;
+
+    void output_constraints() {
+        for (size_t v=0; v<smaller_than_constraints.size(); v++) {
+            std::cout << "vertex " << v << " smaller than: ";
+            for (auto c : smaller_than_constraints[v])
+                std::cout << c << " ";
+            std::cout << std::endl;
+            std::cout << "vertex " << v << " bigger than: ";
+            for (auto c : bigger_than_constraints[v])
+                std::cout << c << " ";
+            std::cout << std::endl;
+        }
+    }
 
     seq_temporal_constraints (
             PatternTemporalConstraint & temporal_constraints,
@@ -431,11 +517,23 @@ bool read_vertex_metadata(const std::string vertex_metadata_filename,
         vertex_number++;
 
         auto it = graph.to_vertex_data_id.find(data);
-        if (it == graph.to_vertex_data_id.end())
+        if (it == graph.to_vertex_data_id.end()) {
+#ifdef DEBUG_SEQ
+            std::cout << "vertex " << vertex_number - 1 << " has useless vertex label" << std::endl;
+#endif
             continue;
+        }
 
         each_label_vertex[it->second].push_back(vertex);
         num_valid_vertex++;
+    }
+#ifdef DEBUG_SEQ
+    std::cout << "after read metadata to 2D array" << std::endl;
+#endif
+    EXPECT_TRUE(graph.each_label_begin_index.size() == 0);
+    for (size_t i=0; i<ls.unique_vertex_data.size(); i++) {
+        if (each_label_vertex[i].size() == 0)
+            return false;
     }
     //construct id_mapping
     id_mapping.to_new.clear();
@@ -472,10 +570,19 @@ bool valid_edge(Vertex org_src, Vertex org_dst, EdgeData edge_data,
 
     if (!id_mapping.to_new_id(org_dst, new_dst))
         return false;
+#ifdef DEBUG_SEQ
+//    std::cout << "original id: " << org_src << ", " << org_dst << std::endl;
+//    std::cout << "new id: " << new_src << ", " << new_dst << std::endl;
+#endif
 
     EdgeData edata = enable_edge_matching ? edge_data : 0;
-    VertexData src_label = graph.vertex_data(new_src);
-    VertexData dst_label = graph.vertex_data(new_dst);
+    VertexData src_label = graph.get_vertex_data(new_src);
+    VertexData dst_label = graph.get_vertex_data(new_dst);
+
+#ifdef DEBUG_SEQ
+//    std::cout << "src vertex label: " << src_label << std::endl;
+//    std::cout << "dst vertex label: " << dst_label << std::endl;
+#endif
 
     if (ls.unique_edges.find(std::make_tuple(src_label, dst_label, edata)) != ls.unique_edges.end()) {
         auto it = edge_type_found.find(std::make_tuple(src_label, dst_label, edata));
@@ -533,6 +640,16 @@ bool sorted_edge_list_to_csr(const std::vector<std::tuple<uint64_t, uint64_t, Ed
     }
     graph.edge_num = valid_edge_count;
 
+#ifdef DEBUG_SEQ
+//    std::cout << "valid edge count: " << valid_edge_count << std::endl;
+//    for (size_t i=0; i<graph.vertex_num; i++) {
+//        std::cout << "vertex " << i << ": ";
+//        for (auto item : new_edge_list[i])
+//            std::cout << item << " ";
+//        std::cout << std::endl;
+//    }
+#endif
+
     //check if there is a edge type with sign false
     for (auto item : edge_type_found) {
         if (item.second == false)
@@ -566,7 +683,9 @@ bool sorted_edge_list_to_csr(const std::vector<std::tuple<uint64_t, uint64_t, Ed
         }
     }
     graph.vertex_edgelist_begin_index.push_back(begin_index);
-
+#ifdef DEBUG_SEQ
+    graph.output();
+#endif
     return true;
 }
 
@@ -579,12 +698,22 @@ bool generate_csr_sort_by_vertex_label(const std::vector<std::tuple<uint64_t, ui
     //read vertex metadata, only keep lebals involved and reorder vertex
     //based on label
     graph.init_vertex_label_org(ls);
+#ifdef DEBUG_SEQ
+    graph.output_vertex_label_org();
+#endif
     if (!read_vertex_metadata(vertex_metadata_filename, graph, ls, id_mapping))
         //existing a needed vertex data not found in background graph
         return false;
+#ifdef DEBUG_SEQ
+    std::cout << "after read metadata" << std::endl;
+#endif
     if (!sorted_edge_list_to_csr(edge_list, graph, ls, id_mapping, enable_edge_matching))
         //existing a kind of edge not found in background graph
         return false;
+#ifdef DEBUG_SEQ
+    std::cout << "after change edge list to csr and reordering"<< std::endl;
+    graph.output();
+#endif
     return true;
 }
 
@@ -691,6 +820,18 @@ void recurrence_pattern_matching (std::vector<Vertex> mapping,
     }
 
     if (connected_vertices_num <= 1) {
+#ifdef DEBUG_SEQ
+        std::cout << "Within recurrence and connected with one vertex" << std::endl;
+        for (auto item : mapping) {
+            std::cout << item << std::endl;
+        }
+        std::cout << "connected vertices number : " << connected_vertices_num << std::endl;
+        for (size_t i=0; i<connected_vertices_num; i++) {
+            std::cout << connected_vertices[i] << std::endl;
+        }
+        if (mapping.size() >= 2)
+            return ;
+#endif
         //just add that vertex's all neighbors that have the required
         //vertex data
         size_t begin_index, end_index;
@@ -701,6 +842,10 @@ void recurrence_pattern_matching (std::vector<Vertex> mapping,
             graph.begin_end_vertex_id(pattern.vertex_data[cur_vertex],
                     begin_index, end_index);
         }
+#ifdef DEBUG_SEQ
+        std::cout << "begin index : " << begin_index << std::endl;
+        std::cout << "end index : " << end_index << std::endl;
+#endif
         for (size_t i=begin_index; i<end_index; i++) {
             //edge matching
             if (connected_vertices_num == 1 &&
@@ -724,6 +869,9 @@ void recurrence_pattern_matching (std::vector<Vertex> mapping,
             mapped_edge_data.pop_back();
         }
     } else {
+#ifdef DEBUG_SEQ
+        return ;
+#endif
         //reorder so to reduce binary search amount
         std::vector<size_t> to_new_order(connected_vertices_num, 0);
         std::vector<size_t> to_org_order(connected_vertices_num, 0);
@@ -831,7 +979,11 @@ size_t pattern_matching_seq(const std::vector<std::tuple<uint64_t, uint64_t, Edg
     CHK_MPI(MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank));
     if (mpi_rank != 0)
         return 0;
-
+#ifdef DEBUG_SEQ
+    std::cout << "mpi rank : " << mpi_rank << " is active" << std::endl;
+    enable_temporal_edge_matching = true;
+    enable_edge_matching = false;
+#endif
     //construct pattern graph and read temporal constraints
     PatternGraph pattern(
             pattern_input_filename + "_edge",
@@ -840,12 +992,25 @@ size_t pattern_matching_seq(const std::vector<std::tuple<uint64_t, uint64_t, Edg
             pattern_input_filename + "_edge_data",
             pattern_input_filename + "_stat",
             false, false);
+#ifdef DEBUG_SEQ
+    std::cout << "after reading pattern graph" << std::endl;
+#endif
     PatternTemporalConstraint temporal_constraints(pattern,
-                        pattern_input_filename + "/pattern_temporal_constraint", enable_temporal_edge_matching);
+                        pattern_input_filename + "_temporal_constraint", enable_temporal_edge_matching);
     PatternTemporalConstraintSeq temporal_constraints_seq(temporal_constraints, enable_temporal_edge_matching);
+#ifdef DEBUG_SEQ
+    temporal_constraints.output_pattern_graph_info();
+    temporal_constraints.output_all_constraints();
+    temporal_constraints_seq.output_constraints();
+    std::cout << "after reading temporal pattern" << std::endl;
+#endif
 
     LABEL_SUMMARY ls;
     analysis_pattern(pattern, ls, enable_edge_matching);
+#ifdef DEBUG_SEQ
+    ls.output();
+    std::cout << "after pattern analysis" << std::endl;
+#endif
 
     //change edge_list to csr format with weight and metadata
     //while filtering out vertex with label not needed and edges not
@@ -857,6 +1022,7 @@ size_t pattern_matching_seq(const std::vector<std::tuple<uint64_t, uint64_t, Edg
         res.patterns_found = 0;
         return 0;
     }
+    std::cout << "after generate graph" << std::endl;
 
     //create active vertices/edges list
     std::vector<bool> active_vertices(graph.vertex_num, false);

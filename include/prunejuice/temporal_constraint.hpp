@@ -103,6 +103,30 @@ class pattern_temporal_constraint {
         }
     }
 
+    void output_pattern_graph_info() {
+        std::cout << "Pattern graph info:" << std::endl;
+        std::cout << "edge count: " << edge_count << std::endl;
+        std::cout << "vertex count: " << vertex_count << std::endl;
+
+        std::cout << "edge to id map:" << std::endl;
+        for (auto item : edge_to_id_map) {
+            std::cout << std::get<0>(item.first) << ", " << std::get<1>(item.first) << "->" << item.second << std::endl;
+        }
+        std::cout << "id to edge map:" << std::endl;
+        for (auto item : id_to_edge_map) {
+            std::cout << item.first<< "->"  << std::get<0>(item.second) << ", " << std::get<1>(item.second) << std::endl;
+        }
+    }
+
+    void output_all_constraints() {
+        for (Edge i=0; i<edge_count; i++) {
+            std::cout << "edge " << i << " smaller to:";
+                for (auto e : all_constraints[i])
+                    std::cout << e << " ";
+            std::cout << std::endl;
+        }
+    }
+
     //call when cur vertex recevies a message 1
     bool do_local_checking(const BitSet cur) {
         return (cur & local_vertices).any();
@@ -371,15 +395,6 @@ class pattern_temporal_constraint {
         pattern_temporal_constraint_file.close();
     }
 
-    void output_all_constraints() {
-        for (Edge i=0; i<edge_count; i++) {
-            std::cout << "edge " << i << " smaller to:";
-                for (auto e : all_constraints[i])
-                    std::cout << e << " ";
-            std::cout << std::endl;
-        }
-    }
-
     void check_all_constraints(PatternGraph& pattern_graph) {
         //TODO: checking cycle
         //TODO: remove redandent checking: e0 < e1, e1 < e6, e0 < e6, and
@@ -554,21 +569,6 @@ class pattern_temporal_constraint {
                     return ;
                 }
             }
-        }
-    }
-
-    void output_pattern_graph_info() {
-        std::cout << "Pattern graph info:" << std::endl;
-        std::cout << "edge count: " << edge_count << std::endl;
-        std::cout << "vertex count: " << vertex_count << std::endl;
-
-        std::cout << "edge to id map:" << std::endl;
-        for (auto item : edge_to_id_map) {
-            std::cout << std::get<0>(item.first) << ", " << std::get<1>(item.first) << "->" << item.second << std::endl;
-        }
-        std::cout << "id to edge map:" << std::endl;
-        for (auto item : id_to_edge_map) {
-            std::cout << item.first<< "->"  << std::get<0>(item.second) << ", " << std::get<1>(item.second) << std::endl;
         }
     }
 
