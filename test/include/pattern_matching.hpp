@@ -85,10 +85,14 @@ PatternNonlocalConstraint;
 
 typedef pattern_temporal_constraint<Vertex, Edge, VertexData, EdgeData, PatternGraph, PatternNonlocalConstraint, BitSet, VertexMinMaxMap>
 PatternTemporalConstraint;
-typedef struct {
+typedef struct output_suit{
     size_t patterns_found;
     size_t active_vertices_count;
     size_t active_edges_count;
+
+    output_suit() : patterns_found(0),
+    active_vertices_count(0),
+    active_edges_count(0) {}
 
     void output(std::string program_name = std::string("")) {
         if (program_name != "")

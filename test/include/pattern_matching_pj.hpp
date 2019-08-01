@@ -562,7 +562,8 @@ size_t pattern_matching_prunejuice(graph_type * graph,
                                 active_edges_count+=vertex_active_edges_map[v_locator].size();   
                             }
                         }
-
+                        //TODO: Jing, have the tokens count as return value from TDS checking
+                        res.patterns_found = 0;
                         // vertices
                         active_vertices_count_result_file << global_itr_count << ", TP, "
                             << pl << ", "  
