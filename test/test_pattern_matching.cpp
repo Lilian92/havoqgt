@@ -2,7 +2,7 @@
 #include <include/create_delegate_graph.hpp>
 #include <include/havoqgt_setup.hpp>
 #include <include/pattern_matching.hpp>
-#include <include/input_graph_2.hpp>
+#include <include/input_graph_1.hpp>
 #include <include/util.hpp>
 
 namespace havoqgt { namespace test {
@@ -21,7 +21,7 @@ bool test_pattern_matching() {
   CHK_MPI(MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank));
   const std::string output_filename = "./results/";
   const std::string vertex_metadata_filenames_head = "/p/lustre1/an4/metadata/head";
-  const std::string vertex_metadata_filename = "/p/lustre1/an4/metadata/vertex_matedata_1";
+  const std::string vertex_metadata_filename = "/p/lustre1/an4/metadata/vertex_metadata_1";
 
   input_graph = grid_graph_sym_weighted_edges();
 
@@ -66,11 +66,11 @@ bool test_pattern_matching() {
 
   OUTPUT_SUIT res_pj;
   size_t count_pj = pattern_matching_prunejuice(graph, vertex_metadata, edge_data_ptr,
-          pattern_input_filename, output_filename, res_pj, false, false);
+          pattern_input_filename, output_filename, res_pj, false, true);
+  res_pj.output("prunejuice");
+
   OUTPUT_SUIT res_seq;
   size_t count_seq = pattern_matching_seq(input_graph, vertex_metadata_filename, pattern_input_filename, res_seq);
-
-  res_pj.output("prunejuice");
   res_seq.output("seq");
   return (count_pj == count_seq);
 }

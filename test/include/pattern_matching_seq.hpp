@@ -1,14 +1,14 @@
 //find last position that is <= element
+//end position won't be used for compare
+//since assume it's possible that array[end] <= end but array[end-1] > end
+#define DEBUG_SEQ
 template<typename DataType>
 bool binary_find(std::vector<DataType> & array, DataType element, size_t begin, size_t end, size_t & pos) {
-    if (end - begin <= 1)
-        return false;
     if (array[end - 1] <= element) {
-        begin = end - 1;
         pos = end - 1;
         return true;
     }
-
+    end = end - 1;
     while (begin < end) {
         pos = (begin + end) / 2;
         if (array[pos] <= element && array[pos + 1] > element) {
@@ -144,10 +144,10 @@ typedef struct csr_sort_by_vertex_label {
         edge_data.clear();
     }
 
-    VertexData vertex_data(Vertex id) {
+    VertexData get_vertex_data(Vertex id) {
         size_t begin = 0;
         size_t end = each_label_begin_index.size() - 1;
-        assert(id>=0 && id<each_label_begin_index[end]);
+        EXPECT_TRUE(id>=0 && id<each_label_begin_index[end]);
         size_t pos;
 #ifdef DEBUG_SEQ
 //        std::cout << "search for: " << id << std::endl;
@@ -167,7 +167,7 @@ typedef struct csr_sort_by_vertex_label {
 
     size_t vertex_data_to_vertex_data_id(VertexData data) {
         auto it = to_vertex_data_id.find(data);
-        assert (it != to_vertex_data_id.end() && "not valid vertex data input for begin end vertex id checking");
+        EXPECT_TRUE (it != to_vertex_data_id.end() && "not valid vertex data input for begin end vertex id checking");
         return it -> second;
     }
 
@@ -178,8 +178,8 @@ typedef struct csr_sort_by_vertex_label {
     }
 
     void init_vertex_label_org(LABEL_SUMMARY & ls) {
-        assert(to_vertex_data.size() == 0);
-        assert(to_vertex_data_id.size() == 0);
+        EXPECT_TRUE(to_vertex_data.size() == 0);
+        EXPECT_TRUE(to_vertex_data_id.size() == 0);
 
         size_t vertex_data_id = 0;
         for (auto item : ls.unique_vertex_data) {
@@ -224,7 +224,7 @@ typedef struct csr_sort_by_vertex_label {
         } else
             end_index = begin_pos_for_each_label[seq_begin + vertex_data_id];
 
-        assert(begin_index <= end_index);
+        EXPECT_TRUE(begin_index <= end_index);
 
         if (begin_index == end_index)
             return false;
@@ -317,7 +317,7 @@ typedef struct seq_temporal_constraints{
         Edge current_edge_id_in_pattern = mapped_edge_data.size();
         //current edge should smaller than edge_data[item]
         for (auto item : smaller_than_constraints[current_edge_id_in_pattern]) {
-            assert(item != current_edge_id_in_pattern);
+            EXPECT_TRUE(item != current_edge_id_in_pattern);
             if (item > current_edge_id_in_pattern)
                 break;
 
@@ -327,7 +327,7 @@ typedef struct seq_temporal_constraints{
 
         //current edge should bigger than edge_data[item]
         for (auto item : bigger_than_constraints[current_edge_id_in_pattern]) {
-            assert(item != current_edge_id_in_pattern);
+            EXPECT_TRUE(item != current_edge_id_in_pattern);
             if (item > current_edge_id_in_pattern)
                 break;
 
@@ -342,7 +342,7 @@ typedef struct seq_temporal_constraints{
         //current edge should smaller than edge_data[item]
         size_t stored_edge_data_size = mapped_edge_data.size();
         for (auto item : smaller_than_constraints[current_edge_id_in_pattern]) {
-            assert(item != current_edge_id_in_pattern);
+            EXPECT_TRUE(item != current_edge_id_in_pattern);
             if (item > stored_edge_data_size)
                 break;
 
@@ -352,7 +352,7 @@ typedef struct seq_temporal_constraints{
 
         //current edge should bigger than edge_data[item]
         for (auto item : bigger_than_constraints[current_edge_id_in_pattern]) {
-            assert(item != current_edge_id_in_pattern);
+            EXPECT_TRUE(item != current_edge_id_in_pattern);
             if (item > stored_edge_data_size)
                 break;
 
@@ -370,7 +370,7 @@ typedef struct seq_temporal_constraints{
         size_t index = 0;
         for (; index < smaller_than_constraints[current_edge_id_in_pattern].size(); index++) {
             auto item = smaller_than_constraints[current_edge_id_in_pattern][index];
-            assert(item != current_edge_id_in_pattern);
+            EXPECT_TRUE(item != current_edge_id_in_pattern);
             if (item > stored_edge_data_size)
                 break;
 
@@ -379,7 +379,7 @@ typedef struct seq_temporal_constraints{
         }
         for (; index < smaller_than_constraints[current_edge_id_in_pattern].size(); index++) {
             auto item = smaller_than_constraints[current_edge_id_in_pattern][index];
-            assert(item != current_edge_id_in_pattern);
+            EXPECT_TRUE(item != current_edge_id_in_pattern);
             if (item == extra_edge_id) {
                 if (extra_edge_data <= new_edge_data)
                     return false;
@@ -390,7 +390,7 @@ typedef struct seq_temporal_constraints{
         index = 0;
         for (; index < bigger_than_constraints[current_edge_id_in_pattern].size(); index++) {
             auto item = bigger_than_constraints[current_edge_id_in_pattern][index];
-            assert(item != current_edge_id_in_pattern);
+            EXPECT_TRUE(item != current_edge_id_in_pattern);
             if (item > stored_edge_data_size)
                 break;
 
@@ -399,7 +399,7 @@ typedef struct seq_temporal_constraints{
         }
         for (; index < bigger_than_constraints[current_edge_id_in_pattern].size(); index++) {
             auto item = bigger_than_constraints[current_edge_id_in_pattern][index];
-            assert(item != current_edge_id_in_pattern);
+            EXPECT_TRUE(item != current_edge_id_in_pattern);
             if (item == extra_edge_id) {
                 if (extra_edge_data >= new_edge_data)
                     return false;
@@ -415,13 +415,13 @@ typedef struct seq_temporal_constraints{
             std::vector<EdgeData> & extra_edge_data,
             size_t extra_edges_num) {
         //current edge should smaller than edge_data[item]
-        assert(extra_edge_ids.size() >= extra_edges_num);
-        assert(extra_edge_data.size() >= extra_edges_num);
+        EXPECT_TRUE(extra_edge_ids.size() >= extra_edges_num);
+        EXPECT_TRUE(extra_edge_data.size() >= extra_edges_num);
         size_t stored_edge_data_size = mapped_edge_data.size();
         size_t index = 0;
         for (; index < smaller_than_constraints[current_edge_id_in_pattern].size(); index++) {
             auto item = smaller_than_constraints[current_edge_id_in_pattern][index];
-            assert(item != current_edge_id_in_pattern);
+            EXPECT_TRUE(item != current_edge_id_in_pattern);
             if (item > stored_edge_data_size)
                 break;
 
@@ -431,7 +431,7 @@ typedef struct seq_temporal_constraints{
         size_t index_extra_edge_list = 0;
         for (; index < smaller_than_constraints[current_edge_id_in_pattern].size(); index++) {
             auto item = smaller_than_constraints[current_edge_id_in_pattern][index];
-            assert(item != current_edge_id_in_pattern);
+            EXPECT_TRUE(item != current_edge_id_in_pattern);
             while (item > extra_edge_ids[index_extra_edge_list] + extra_edge_id_offset
                     && index_extra_edge_list < extra_edges_num - 1) {
                 index_extra_edge_list++;
@@ -446,7 +446,7 @@ typedef struct seq_temporal_constraints{
         index = 0;
         for (; index < bigger_than_constraints[current_edge_id_in_pattern].size(); index++) {
             auto item = bigger_than_constraints[current_edge_id_in_pattern][index];
-            assert(item != current_edge_id_in_pattern);
+            EXPECT_TRUE(item != current_edge_id_in_pattern);
             if (item > stored_edge_data_size)
                 break;
 
@@ -456,7 +456,7 @@ typedef struct seq_temporal_constraints{
         index_extra_edge_list = 0;
         for (; index < bigger_than_constraints[current_edge_id_in_pattern].size(); index++) {
             auto item = bigger_than_constraints[current_edge_id_in_pattern][index];
-            assert(item != current_edge_id_in_pattern);
+            EXPECT_TRUE(item != current_edge_id_in_pattern);
             while (item > extra_edge_ids[index_extra_edge_list] + extra_edge_id_offset && index_extra_edge_list < extra_edges_num - 1) {
                 index_extra_edge_list++;
             }
@@ -471,13 +471,11 @@ typedef struct seq_temporal_constraints{
 } PatternTemporalConstraintSeq;
 
 void analysis_pattern(PatternGraph & pattern, LABEL_SUMMARY & ls, bool enable_edge_matching = false) {
-    size_t count = 0;
     ls.unique_vertex_data.clear();
     for (size_t v=0; v<pattern.vertex_count; v++) {
         VertexData cur = pattern.vertex_data[v];
         if (ls.unique_vertex_data.find(cur) == ls.unique_vertex_data.end()) {
             ls.unique_vertex_data.insert(cur);
-            count++;
         } else {
             ls.repeated_vertex_label = true;
         }
@@ -500,9 +498,9 @@ void analysis_pattern(PatternGraph & pattern, LABEL_SUMMARY & ls, bool enable_ed
 bool read_vertex_metadata(const std::string vertex_metadata_filename,
         CSR_SORT_BY_VERTEX_LABEL & graph,
         LABEL_SUMMARY & ls, ID_MAP & id_mapping) {
-    assert(graph.vertex_data.size() == 0 && "vertex data is not cleared");
     std::ifstream vertex_metadata_stream(vertex_metadata_filename, std::ifstream::in);
     if (is_file_empty(vertex_metadata_stream)) {
+        std::cerr << "empty vertex metadata file" << std::endl;
         return false;
     }
     //construct new ids and map
@@ -510,10 +508,9 @@ bool read_vertex_metadata(const std::string vertex_metadata_filename,
     size_t vertex_number = 0;
     size_t num_valid_vertex = 0;
     size_t vertex;
-    while (!vertex_metadata_stream.eof()) {
-        VertexData data;
-        vertex_metadata_stream >> vertex >> data;
-        assert(vertex == vertex_number && "metadata file format error");
+    VertexData data;
+    while (vertex_metadata_stream >> vertex >> data) {
+        EXPECT_TRUE(vertex == vertex_number && "metadata file format error");
         vertex_number++;
 
         auto it = graph.to_vertex_data_id.find(data);
@@ -539,10 +536,7 @@ bool read_vertex_metadata(const std::string vertex_metadata_filename,
     id_mapping.to_new.clear();
     id_mapping.to_orignal.resize(num_valid_vertex, vertex);
     size_t new_id_count = 0;
-    assert(graph.each_label_begin_index.size() == 0);
     for (size_t i=0; i<ls.unique_vertex_data.size(); i++) {
-        if (each_label_vertex[i].size() == 0)
-            return false;
         graph.each_label_begin_index.push_back(new_id_count);
         for (auto item : each_label_vertex[i]) {
             id_mapping.to_new.insert(std::make_pair(item, new_id_count));
@@ -551,11 +545,14 @@ bool read_vertex_metadata(const std::string vertex_metadata_filename,
         }
     }
     graph.each_label_begin_index.push_back(new_id_count);
-
     vertex_metadata_stream.close();
     graph.vertex_num = num_valid_vertex;
     graph.vertex_label_type_num = ls.unique_vertex_data.size();
 
+#ifdef DEBUG_SEQ
+    id_mapping.output();
+    graph.output_metadata_info();
+#endif
     return true;
 }
 
@@ -586,7 +583,7 @@ bool valid_edge(Vertex org_src, Vertex org_dst, EdgeData edge_data,
 
     if (ls.unique_edges.find(std::make_tuple(src_label, dst_label, edata)) != ls.unique_edges.end()) {
         auto it = edge_type_found.find(std::make_tuple(src_label, dst_label, edata));
-        assert(it != edge_type_found.end());
+        EXPECT_TRUE(it != edge_type_found.end());
         it -> second = true;
         return true;
     } else {
@@ -599,9 +596,9 @@ bool sorted_edge_list_to_csr(const std::vector<std::tuple<uint64_t, uint64_t, Ed
         LABEL_SUMMARY & ls,
         ID_MAP & id_mapping,
         bool enable_edge_matching = false) {
-    assert(graph.vertex_edgelist_begin_index.size() == 0 && "vertex_edgelist_begin_index are not cleared");
-    assert(graph.edges.size() == 0 && "edges are not cleared");
-    assert(graph.edge_data.size() == 0 && "edge data are not cleared");
+    EXPECT_TRUE(graph.vertex_edgelist_begin_index.size() == 0 && "vertex_edgelist_begin_index are not cleared");
+    EXPECT_TRUE(graph.edges.size() == 0 && "edges are not cleared");
+    EXPECT_TRUE(graph.edge_data.size() == 0 && "edge data are not cleared");
 
     //assume edge list is sorted and vertex num is given in graph
     size_t count = 0;
@@ -623,8 +620,8 @@ bool sorted_edge_list_to_csr(const std::vector<std::tuple<uint64_t, uint64_t, Ed
         Vertex cur_dest = std::get<1>(edge_list[count]);
         EdgeData cur_edge_data = std::get<2>(edge_list[count]);
         //check it's sorted
-        assert(cur_source >= pre_source && "edge_list is not sorted");
-        assert(((cur_source != pre_source) || cur_dest > pre_dest) && "edge_list is not sorted");
+        EXPECT_TRUE(cur_source >= pre_source && "edge_list is not sorted");
+        EXPECT_TRUE(((cur_source != pre_source) || cur_dest > pre_dest) && "edge_list is not sorted");
         count ++;
         pre_source = cur_source;
         pre_dest = cur_dest;
@@ -657,9 +654,15 @@ bool sorted_edge_list_to_csr(const std::vector<std::tuple<uint64_t, uint64_t, Ed
     }
 
     //constrcut graph
-    assert(graph.vertex_edgelist_begin_index.size() == 0);
-    assert(graph.edges.size() == 0);
-    assert(graph.edge_data.size() == 0);
+    //TODO: I think it's a bad idea to store
+    //the start or end index.
+    //Since if we store them, there is always memory access on big graphs.
+    //Otherwise, we only do binary search on really short array.
+    //The tradeoff seems to be not worth it.
+    //Now, I will just keep as it is for now, test and remove it later.
+    EXPECT_TRUE(graph.vertex_edgelist_begin_index.size() == 0);
+    EXPECT_TRUE(graph.edges.size() == 0);
+    EXPECT_TRUE(graph.edge_data.size() == 0);
     size_t begin_index = 0;
     for (size_t i = 0; i<graph.vertex_num; i++) {
         graph.vertex_edgelist_begin_index.push_back(begin_index);
@@ -674,7 +677,7 @@ bool sorted_edge_list_to_csr(const std::vector<std::tuple<uint64_t, uint64_t, Ed
             while (dst >= graph.each_label_begin_index[vertex_data_id+1]) {
                 graph.begin_pos_for_each_label.push_back(begin_index);
                 vertex_data_id++;
-                assert(vertex_data_id < graph.each_label_begin_index.size() - 1);
+                EXPECT_TRUE(vertex_data_id < graph.each_label_begin_index.size() - 1);
             }
         }
         while (vertex_data_id < graph.vertex_label_type_num - 1) {
@@ -731,8 +734,8 @@ void binary_search_set_intersection_with_constraints(
         PatternTemporalConstraintSeq & temporal_constraints_seq,
         bool enable_edge_matching = false,
         bool enable_temporal_edge_matching = false) {
-    assert(possible_next_vertices.size() == 0);
-    assert(possible_next_vertices_edgedata.size() == 0);
+    EXPECT_TRUE(possible_next_vertices.size() == 0);
+    EXPECT_TRUE(possible_next_vertices_edgedata.size() == 0);
 
     size_t first_begin = std::get<0>(begin_end_index[first]);
     size_t first_end = std::get<1>(begin_end_index[first]);
@@ -766,6 +769,26 @@ void binary_search_set_intersection_with_constraints(
     }
 }
 
+bool set_edges_active(std::vector<bool> & active_edges,
+        CSR_SORT_BY_VERTEX_LABEL & graph,
+        Vertex src, std::vector<Vertex> & active_neighbors) {
+    sort(active_neighbors.begin(), active_neighbors.end());
+    size_t begin = graph.vertex_edgelist_begin_index[src];
+    size_t end = graph.vertex_edgelist_begin_index[src+1];
+    size_t cur = (begin + end) / 2;
+    size_t count = 0;
+    while (count < active_neighbors.size()) {
+        size_t pos;
+        binary_find(graph.edges, active_neighbors[count], begin, end, pos);
+        EXPECT_TRUE (pos >= begin && pos<end && "position found is not valid");
+        EXPECT_TRUE (graph.edges[pos] == active_neighbors[count] && "can't find the given neighbor");
+        active_neighbors[pos] = true;
+        begin = pos + 1;
+        count++;
+    }
+    return true;
+}
+
 void recurrence_pattern_matching (std::vector<Vertex> mapping,
         std::vector<EdgeData> mapped_edge_data, size_t & number_of_patterns_found,
         CSR_SORT_BY_VERTEX_LABEL & graph, PatternGraph & pattern,
@@ -783,15 +806,16 @@ void recurrence_pattern_matching (std::vector<Vertex> mapping,
                 Vertex dst = pattern.edges[j];
                 active_neighbors.push_back(mapping[dst]);
             }
-            assert(set_edges_active(active_edges, graph,
-                        src_background_graph, active_neighbors));
+            bool res = set_edges_active(active_edges, graph,
+                        src_background_graph, active_neighbors);
+            EXPECT_TRUE(res);
         }
         number_of_patterns_found++;
         return ;
     }
 
     size_t cur_vertex = mapping.size();
-    assert(cur_vertex < pattern.vertex_count);
+    EXPECT_TRUE(cur_vertex < pattern.vertex_count);
     //TODO: making sure of this in pattern analysis; for each vertex,
     //except the first vertex, it always connects to at least one vertex that has
     //id smaller that it.
@@ -862,11 +886,18 @@ void recurrence_pattern_matching (std::vector<Vertex> mapping,
                 }
             }
             //temporal edge
-            mapping.push_back(graph.edges[i]);
-            recurrence_pattern_matching(mapping, mapped_edge_data, number_of_patterns_found,
-                    graph, pattern, temporal_constraints_seq, active_vertices, active_edges);
+            if (connected_vertices_num == 1)
+                mapping.push_back(graph.edges[i]);
+            else
+                mapping.push_back(i);
+            recurrence_pattern_matching(mapping,
+                    mapped_edge_data, number_of_patterns_found,
+                    graph, pattern, temporal_constraints_seq,
+                    active_vertices, active_edges);
             mapping.pop_back();
-            mapped_edge_data.pop_back();
+            if (connected_vertices_num == 1 &&
+                    enable_temporal_edge_matching)
+                mapped_edge_data.pop_back();
         }
     } else {
 #ifdef DEBUG_SEQ
@@ -971,12 +1002,11 @@ void recurrence_pattern_matching (std::vector<Vertex> mapping,
 
 size_t pattern_matching_seq(const std::vector<std::tuple<uint64_t, uint64_t, EdgeData>> edge_list,
         const std::string vertex_metadata_filename,
-        const std::string pattern_input_filename,
+        const std::string pattern_dir,
         OUTPUT_SUIT & res,
         bool enable_edge_matching = false,
         bool enable_temporal_edge_matching = false) {
     int mpi_rank(0);
-    CHK_MPI(MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank));
     if (mpi_rank != 0)
         return 0;
 #ifdef DEBUG_SEQ
@@ -985,6 +1015,7 @@ size_t pattern_matching_seq(const std::vector<std::tuple<uint64_t, uint64_t, Edg
     enable_edge_matching = false;
 #endif
     //construct pattern graph and read temporal constraints
+    std::string pattern_input_filename = pattern_dir + "/pattern";
     PatternGraph pattern(
             pattern_input_filename + "_edge",
             pattern_input_filename + "_vertex",
@@ -1031,6 +1062,7 @@ size_t pattern_matching_seq(const std::vector<std::tuple<uint64_t, uint64_t, Edg
     size_t number_of_patterns_found = 0;
     std::vector<Vertex> mapping;
     std::vector<EdgeData> mapped_edge_data;
+
     recurrence_pattern_matching(mapping, mapped_edge_data, number_of_patterns_found,
             graph, pattern, temporal_constraints_seq,
             active_vertices, active_edges,
@@ -1047,24 +1079,4 @@ size_t pattern_matching_seq(const std::vector<std::tuple<uint64_t, uint64_t, Edg
     //search matched pattern in a recurrence way and active vertices and
     //edges involved matches
     return 0;
-}
-
-bool set_edges_active(std::vector<bool> & active_edges,
-        CSR_SORT_BY_VERTEX_LABEL & graph,
-        Vertex src, std::vector<Vertex> & active_neighbors) {
-    sort(active_neighbors.begin(), active_neighbors.end());
-    size_t begin = graph.vertex_edgelist_begin_index[src];
-    size_t end = graph.vertex_edgelist_begin_index[src+1];
-    size_t cur = (begin + end) / 2;
-    size_t count = 0;
-    while (count < active_neighbors.size()) {
-        size_t pos;
-        binary_find(graph.edges, active_neighbors[count], begin, end, pos);
-        assert (pos >= begin && pos<end && "position found is not valid");
-        assert (graph.edges[pos] == active_neighbors[count] && "can't find the given neighbor");
-        active_neighbors[pos] = true;
-        begin = pos + 1;
-        count++;
-    }
-    return true;
 }
