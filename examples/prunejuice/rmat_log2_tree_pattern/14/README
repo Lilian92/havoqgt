@@ -1,0 +1,13 @@
+This is used to test_pattern_matching.cpp in test
+And used to test for edge temporal matching in input_graph_1
+
+In this pattern, it's a tree structure, and the same as the one in SC18 prunejuice paper.
+The difference:
+adding temporal edge constraints:
+edge 0 < edge 1
+edge 0 < edge 3
+edge 0 < edge 4
+edge 0 < edge 5
+edge 1 < edge 4
+edge 1 < edge 2
+edge 5 < edge 4
